@@ -7,7 +7,12 @@
 #ifndef GUI_H
 #define	GUI_H
 
+#include "../global_config.h"
+
+#ifdef GUI_ON
+
 #include <gtk/gtk.h>
+
 typedef struct gui
 {
   GtkWidget *window;
@@ -20,6 +25,7 @@ typedef struct gui
 gui_t *get_gui();
  
 void init_gui(int argc, char **argv);
+#endif
 
 #endif	/* GUI_H */
 

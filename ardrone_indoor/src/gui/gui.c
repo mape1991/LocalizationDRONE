@@ -1,5 +1,8 @@
-#include <stdlib.h>
 #include "gui.h"
+
+#ifdef GUI_ON
+
+#include <stdlib.h>
  
 gui_t *gui = NULL;
  
@@ -35,7 +38,8 @@ void init_gui(int argc, char **argv)
 {
   gui = vp_os_malloc(sizeof (gui_t));
  
-  g_thread_init(NULL);
+  // what is this function ? Undefined reference if uncommented
+  //g_thread_init(NULL);
   gdk_threads_init();
   gtk_init(&argc, &argv);
  
@@ -64,3 +68,5 @@ void init_gui(int argc, char **argv)
  
   gtk_widget_show_all(gui->window);
 }
+
+#endif // ifdef GUI_ON

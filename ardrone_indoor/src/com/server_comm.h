@@ -8,10 +8,16 @@
 #ifndef SERVER_THREAD_H
 #define	SERVER_THREAD_H
 
-#include <stdio.h>
-#include <VP_Os/vp_os_types.h>
+#include "../global_config.h"
+#include "commons_comm.h"
 #include <config.h>
 
+
+#ifdef SERVER_COMM_ON
+
+int listen_drone(); /* listen to drone, return a type of errors */
+
+#endif
 
 #endif	/* SERVER_THREAD_H */
 
