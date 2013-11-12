@@ -10,4 +10,18 @@
 # Compiled Static libraries
 *.lai
 *.la
-*.a
+# *.a (need library for stm32 server project)
+
+# generated STM32 output files
+ServerBeacons_stm32/project/listings/*
+ServerBeacons_stm32/project/output/*
+ServerBeacons_stm32/project/*.d
+ServerBeacons_stm32/project/*.o
+ServerBeacons_stm32/project/*.elf
+ServerBeacons_stm32/project/*.build_log
+ServerBeacons_stm32/project/*.uvopt
+ServerBeacons_stm32/project/*.dep
+ServerBeacons_stm32/project/*.uvgui.*
+ServerBeacons_stm32/project/*.lnp
+ServerBeacons_stm32/project/*.map
+ServerBeacons_stm32/project/*.htm
