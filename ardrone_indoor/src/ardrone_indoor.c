@@ -23,8 +23,16 @@
 
 //Local project
 #include "video/video_stage.h"
+#include "gui.h"
 
 static int32_t exit_ihm_program = 1;
+
+DEFINE_THREAD_ROUTINE(gui, data) /* gui is the routine's name */
+{
+  gdk_threads_enter();
+  gtk_main();
+  gdk_threads_leave();
+}
 
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
@@ -41,6 +49,10 @@ C_RESULT ardrone_tool_init_custom(void)
   /* Start all threads of your application */
   START_THREAD( video_stage, NULL );
   
+  // init with arguments
+  init_gui(0, 0); /* Creating the GUI */
+  START_THREAD(gui, NULL); /* Starting the GUI thread */
+  
   return C_OK;
 }
 
@@ -52,6 +64,12 @@ C_RESULT ardrone_tool_shutdown_custom(void)
 
   /* Unregistering for the current device */
   // ardrone_tool_input_remove( &gamepad );
+  
+  /* user interface thread */
+  JOIN_THREAD(gui);
+  
+  /* server communication */
+  JOIN_THREAD(server_comm);
 
   return C_OK;
 }
@@ -71,8 +89,10 @@ C_RESULT signal_exit()
 
 /* Implementing thread table in which you add routines of your application and those provided by the SDK */
 BEGIN_THREAD_TABLE
-  THREAD_TABLE_ENTRY( ardrone_control, 20 )
-  THREAD_TABLE_ENTRY( navdata_update, 20 )
-  THREAD_TABLE_ENTRY( video_stage, 20 )
+  THREAD_TABLE_ENTRY(ardrone_control, 20)
+  THREAD_TABLE_ENTRY(navdata_update, 20)
+  THREAD_TABLE_ENTRY(video_stage, 20)
+  THREAD_TABLE_ENTRY(gui, 20)
+  //THREAD_TABLE_ENTRY(server_comm, 20)
 END_THREAD_TABLE
 
