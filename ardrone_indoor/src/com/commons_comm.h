@@ -8,7 +8,8 @@
 #ifndef COMMONS_COMM_H
 #define	COMMONS_COMM_H
 
-#define PORT_DRONE 7000
+#define PORT_READ_DRONE 7000
+#define PORT_WRITE_DRONE 7001
 #define NUM_BEACONS 4
 
 #define ERROR_TYPE_NONE 0

@@ -14,11 +14,15 @@
 #include <unistd.h>
 #include <sys/time.h>
 
+On_received_callback server_listen_drone_callback = NULL;
+int is_server_listening = SERVER_LISTEN_OFF;
+int is_server_sending   = SERVER_SEND_OFF;
+
 // Julien:
 // the thread structure is taken from the video_stage thread example
 // the udp connection code is included with new error signals to handle the diff cases..
 
-int listen_drone()
+int server_listen_drone()
 {
    struct sockaddr_in adr_local; // local socket addr
    struct sockaddr_in adr_distant; // remote socket addr
@@ -34,50 +38,99 @@ int listen_drone()
    message=malloc(lg_mesg_emis*sizeof(char));
 
    int error_type = ERROR_TYPE_NONE;
-   
-   printf("\n   Server communication thread : initialisation\n\n");
+   #ifdef DEBUG_ON
+      printf("\n   Server communication thread : receiving : initialization\n\n");
+   #endif
    // socket creation	
    if ((sock = socket(AF_INET, SOCK_DGRAM, 0))==-1)
    {
-        printf("\n   Server communication thread : Error during the socket creation\n");
-        error_type = ERROR_TYPE_SOCKET_CREATION;
+      #ifdef DEBUG_ON 
+         printf("\n   Server communication thread : receiving : error during the socket creation\n");
+      #endif
+      error_type = ERROR_TYPE_SOCKET_CREATION;
    }
 
    // socket addr creation with the IP of the machine executing the program
    memset((char*) &adr_local,0,sizeof(adr_local)); // reset
    adr_local.sin_family = AF_INET;
-   adr_local.sin_port = PORT_DRONE;
+   adr_local.sin_port = PORT_READ_DRONE;
    adr_local.sin_addr.s_addr = INADDR_ANY;
 
    // association @socket with the internal addr
    if(bind(sock, (struct sockaddr*) &adr_local, lg_adr_local)==-1)
    {
-           printf("\n    Server communication thread : failed binding to internal socket\n\n");
-           error_type = ERROR_TYPE_SOCKET_BINDING;
+      #ifdef DEBUG_ON
+           printf("\n    Server communication thread : receiving : failed binding to internal socket\n\n");
+      #endif
+      error_type = ERROR_TYPE_SOCKET_BINDING;
    }
    /* Processing of the connection */
    if(error_type == ERROR_TYPE_NONE && !ardrone_tool_exit() )
    {
-         // TODO input signal from GUI for exiting the transmission 
-      while(!ardrone_tool_exit())
+      // exit the listening if the button_listen on the ui is pressed or we exit the application
+      while(!ardrone_tool_exit() && is_server_listening)
       {
          // message reception
          recvfrom(sock, message, lg_mesg_emis, 0, (struct sockaddr*) &adr_distant, &lg_adr_distant);
-         // message display
-         printf("\n     Server communication thread : Received %d bytes\n\n", lg_mesg_emis);
-         tbalise = (struct timeval *) message;
-         for (i = 0; i < NUM_BEACONS; i++)
-                 printf("\n     Server communication thread : Beacon %d : %d,%d s\n", i, (int)tbalise[i].tv_sec, (int)tbalise[i].tv_usec);
+         // if no on message received callback function
+         if (server_listen_drone_callback == NULL){
+            // simple message display
+            #ifdef DEBUG_ON
+               printf("\n     Server communication thread : receiving : %d bytes\n\n", lg_mesg_emis);
+            #endif
+            tbalise = (struct timeval *) message;
+            for (i = 0; i < NUM_BEACONS; i++)
+                    printf("\n     Server communication thread : receiving : Beacon %d : %d,%d s\n", i, (int)tbalise[i].tv_sec, (int)tbalise[i].tv_usec);
+         // otherwise we send the message to the callback function
+         }else{
+            server_listen_drone_callback(message);
+         }
       }
 
       close(sock);
-      printf("\n     Server communication thread : end of communication\n\n");
-  }
+      #ifdef DEBUG_ON
+         printf("\n     Server communication thread : receiving : end of communication\n\n");
+      #endif
+   }
+   #ifdef DEBUG_ON
+      printf("\n   Server communication thread : receiving : ended\n\n");
+   #endif
+   // by default : 0 (taken from the video_stage example)
+   return error_type;
+}
 
-  printf("\n   Server communication thread ended\n\n");
+int server_send_drone(char * dest, char *signal)
+{
+   int sock;
+   //struct hostent *hp;
+   struct sockaddr_in adr_distant;
+   int lg_adr_distant = sizeof(adr_distant);
+   //struct in_addr adresse;
+   int error_type = ERROR_TYPE_NONE;
 
-  // by default : 0 (taken from the video_stage example)
-  return error_type;
+   printf("\n   Server communication thread : sending : initialization\n\n");
+   // socket creation		
+   if ((sock = socket(AF_INET, SOCK_DGRAM, 0))==-1)
+   {
+           printf("\n   Drone communication thread : sending : error during the socket creation\n");
+           error_type = ERROR_TYPE_SOCKET_CREATION;
+   }
+
+   //affectation domaine et n° de port
+   memset((char*) &adr_distant, 0, sizeof(adr_distant));
+   adr_distant.sin_family = AF_INET;
+   adr_distant.sin_port = PORT_WRITE_DRONE;
+
+   //affectation @IP
+   inet_aton(dest, &adr_distant.sin_addr);
+
+   // construct msg then send
+   printf("\n     Drone communication thread : sending : %d bytes\n\n", sizeof(char));
+   sendto(sock, (void *) signal, sizeof(char), 0, (struct sockaddr*) &adr_distant, lg_adr_distant);
+
+   // close the socket
+   close(sock);
+   printf("\n     Server communication thread : sending : end of communication\n\n");
 }
 
 #endif // ifdef SERVER_COMM_ON

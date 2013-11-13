@@ -30,7 +30,34 @@
 #ifdef VIDEO_ON
    #include "video/video_stage.h"
 #endif
+   
+#ifdef SERVER_COMM_ON
+   #include "com/server_comm.h"
 
+   DEFINE_THREAD_ROUTINE(server_comm, data)
+   {
+      // the server can listen (port 7000)
+      if (is_server_listening)
+      {
+         server_listen_drone();
+      }
+      // and the server can send at the meantime (port 7001)
+      if (is_server_sending)
+      {
+         server_send_drone();
+      }
+   }
+#endif
+   
+#ifdef DRONE_COMM_ON
+   #include "com/drone_comm.h"
+
+   DEFINE_THREAD_ROUTINE(drone_comm, data)
+   {
+      send_to_server(0, 0);
+   }
+#endif
+   
 #ifdef GUI_ON
    #include "gui/gui.h"
 
@@ -42,31 +69,19 @@
    }
 #endif
    
-#ifdef SERVER_COMM_ON
-   #include "com/server_comm.h"
-
-   DEFINE_THREAD_ROUTINE(server_comm, data)
-   {
-      listen_drone();
-   }
-#endif
-
-#ifdef DRONE_COMM_ON
-   #include "com/drone_comm.h"
-
-   DEFINE_THREAD_ROUTINE(drone_comm, data)
-   {
-      send_to_server(0, 0);
-   }
-#endif
-   
 // global variable linking the entry point to the user
 static int32_t exit_ihm_program = 1;
 
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
-     return ardrone_tool_main(argc, argv);
+   #ifdef TEST_GUI_STANDALONE
+      init_gui(&argc, &argv);
+      gtk_main ();
+      return(0);
+   #else
+      return ardrone_tool_main(argc, argv);
+   #endif
 }
 
 /* The delegate object calls this method during initialization of an ARDrone application */
@@ -82,10 +97,16 @@ C_RESULT ardrone_tool_init_custom(void)
    // init with arguments
    #ifdef GUI_ON
       init_gui(0, 0); /* Creating the GUI */
+      // if enabled server communication, initializes the callback func ptr
+      #ifdef SERVER_COMM_ON
+         server_listen_drone_callback = &on_drone_message_received;
+      #endif
       START_THREAD(gui, NULL); /* Starting the GUI thread */
    #endif 
-  
-  return C_OK;
+   #ifdef SERVER_COMM_ON
+      START_THREAD(server_comm, NULL);
+   #endif
+   return C_OK;
 }
 
 /* The delegate object calls this method when the event loop exit */
@@ -137,6 +158,6 @@ BEGIN_THREAD_TABLE
    #ifdef GUI_ON
       THREAD_TABLE_ENTRY(gui, 20)
    #endif
-  //THREAD_TABLE_ENTRY(server_comm, 20)
+   //THREAD_TABLE_ENTRY(server_comm, 20)
 END_THREAD_TABLE
 
