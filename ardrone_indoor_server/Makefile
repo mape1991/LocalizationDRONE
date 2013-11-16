@@ -25,8 +25,8 @@ GENERIC_BINARIES_SOURCE_DIR:=$(SRC_DIR)
 
 GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    nav/navdata.c    \
+   com/udp_comm.c \
    gui/gui.c \
-   com/server_comm.c \
    video/video_stage.c
 
 GENERIC_INCLUDES+=					\
