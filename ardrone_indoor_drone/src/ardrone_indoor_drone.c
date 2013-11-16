@@ -9,25 +9,36 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "com/udp.h"
-#include "../../ardrone_indoor_server/src/com/commons_comm.h"
+#include "com/udp_comm.h"
+#include "com/commons_comm.h"
 
 int main(int argc, char ** argv){
-		
-	struct sockaddr_in serveur;
-	char * message = NULL;
-	char buf [100];
-
 	
-	while (1) {
-		receptionudp(PORT_WRITE_DRONE, 1, message, &serveur);
-		if (message[0] == 'I')
-			envoiudp(PORT_READ_DRONE, serveur, "init");
-		else if (message[0] == 'S')
-			envoiudp(PORT_READ_DRONE, serveur, "sync");
-		else if (message[0] == 'X'){
-			envoiudp(PORT_READ_DRONE, serveur, "stop");
-			exit(-1);
-		}
-	}
+   #ifdef TEST_DEMO_COMM_LOCAL
+      char message[1];
+
+      printf("demo program launched\n\n");
+
+      while (1) {
+
+         udp_listen_once(message, 1);
+
+         if (message[0] == 'I'){
+            printf("message init received\n");
+            udp_send(DEST_IP, "init", 5);
+         }
+         udp_listen_once(message, 1);
+         if (message[0] == 'S'){
+            printf("message sync received\n");
+            udp_send(DEST_IP, "sync", 5);
+         }
+         udp_listen_once(message, 1);
+         if (message[0] == 'X'){
+            printf("message exit received\n");
+            udp_send(DEST_IP, "exit", 5);
+            exit(-1);
+         }
+      }
+   #endif
+   return 0;
 }
