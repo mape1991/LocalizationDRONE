@@ -31,22 +31,20 @@
    #include "video/video_stage.h"
 #endif
    
-#ifdef SERVER_COMM_ON
-   #include "com/server_comm.h"
-
-int count = 0;
+#ifdef UDP_COMM_ON
+   #include "com/udp_comm.h"
 
    DEFINE_THREAD_ROUTINE(server_comm, data)
    {
       // the server can listen (port 7000)
-      if (is_server_listening)
+      if (is_udp_listening)
       {
-         server_listen_drone(5);
+         udp_listen(5);
       }
       // and the server can send at the meantime (port 7001)
-      if (is_server_sending)
+      if (is_udp_sending)
       {
-         //server_send_drone(DEST_IP, "x");
+         //udp_send(DEST_IP, "x");
       }
    }
 #endif
@@ -77,7 +75,35 @@ static int32_t exit_ihm_program = 1;
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
-   #ifdef TEST_GUI_STANDALONE
+   #ifdef TEST_DEMO_COMM_LOCAL
+      printf("demo program launched\n\n");
+	
+      char message[5];
+      while (1) {
+         button_init_callback();
+         udp_listen_once(message, 5);
+         if (message == "init"){
+            printf("message init received\n");
+            button_sync_callback();
+            udp_listen_once(message, 5);
+         }
+         if (message == "sync"){
+            printf("message sync 1 received\n");
+            button_sync_callback();
+            udp_listen_once(message, 5);
+         }
+         if (message == "sync"){
+            printf("message sync 2 received\n");
+            button_exit_callback();
+            udp_listen_once(message, 5);
+         }
+         if (message == "exit"){
+            printf("message exit received\n");
+            return 0;
+         }
+      }
+      return 0;
+   #elif defined(TEST_GUI_STANDALONE)
       init_gui(&argc, &argv);
       gtk_main ();
       return(0);
@@ -100,12 +126,12 @@ C_RESULT ardrone_tool_init_custom(void)
    #ifdef GUI_ON
       init_gui(0, 0); /* Creating the GUI */
       // if enabled server communication, initializes the callback func ptr
-      #ifdef SERVER_COMM_ON
-         server_listen_drone_callback = &on_drone_message_received;
+      #ifdef UDP_COMM_ON
+         udp_listen_callback = &on_drone_message_received;
       #endif
       START_THREAD(gui, NULL); /* Starting the GUI thread */
    #endif 
-   #ifdef SERVER_COMM_ON
+   #ifdef UDP_COMM_ON
       START_THREAD(server_comm, NULL);
    #endif
    return C_OK;
@@ -128,7 +154,7 @@ C_RESULT ardrone_tool_shutdown_custom(void)
    #endif
   
    /* server communication */
-   #ifdef SERVER_COMM_ON
+   #ifdef UDP_COMM_ON
       JOIN_THREAD(server_comm);
    #endif 
       

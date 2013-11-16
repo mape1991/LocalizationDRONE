@@ -12,7 +12,7 @@
 #ifdef GUI_ON
 
 #include "../com/commons_comm.h"
-#include "../com/server_comm.h"
+#include "../com/udp_comm.h"
 
 #include <gtk/gtk.h>
 
@@ -59,6 +59,11 @@ gui_t *get_gui();
  
 void on_drone_message_received(char *message);
 void init_gui(int argc, char **argv);
+
+void button_init_callback();
+void button_sync_callback();
+void button_exit_callback();
+
 #endif
 
 #endif	/* GUI_H */

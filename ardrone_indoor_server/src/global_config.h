@@ -26,13 +26,14 @@
 // navigation data
 //#define NAV_ON
 // server communication
-#define SERVER_COMM_ON
+#define UDP_COMM_ON
 // drone communication
 //#define DRONE_COMM_ON
 
 
 // Tests
 #define TEST_GUI_STANDALONE
+#define TEST_DEMO_COMM_LOCAL
 
 #endif	/* GLOBAL_CONFIG_H */
 

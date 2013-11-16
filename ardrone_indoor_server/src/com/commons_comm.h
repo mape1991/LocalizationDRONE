@@ -8,6 +8,8 @@
 #ifndef COMMONS_COMM_H
 #define	COMMONS_COMM_H
 
+#include "../global_config.h"
+
 #define PORT_WRITE_DRONE 7000
 #define PORT_READ_DRONE 7001
 #define NUM_BEACONS 4
@@ -16,7 +18,11 @@
 #define ERROR_TYPE_SOCKET_CREATION 1
 #define ERROR_TYPE_SOCKET_BINDING 2
 
-#define DEST_IP "192.168.1.1"
+#ifdef TEST_GUI_STANDALONE
+        #define DEST_IP "192.168.87.130"
+#else
+        #define DEST_IP "192.168.1.1"
+#endif
 
 #endif	/* ERROR_TYPES_COMM_H */
 

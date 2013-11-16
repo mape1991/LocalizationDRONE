@@ -28,37 +28,47 @@ static void buttons_callback( GtkWidget *widget, gpointer   data )
     // FIXME: make the drone start
 }
 
-static void button_init_callback() 
+void button_init_callback() 
 {
    char msg[1];
    sprintf(msg, "%c", 'I');
-   server_send_drone(DEST_IP, msg);
+   #ifdef DEBUG_ON
+      printf("    Button init pressed : send init signal : %s\n", msg);
+   #endif
+   udp_send(DEST_IP, msg, 1);
 }
 
-static void button_sync_callback() 
+void button_sync_callback() 
 {
    char msg[1];
    sprintf(msg, "%c", 'S');
-   server_send_drone(DEST_IP, msg);
+   #ifdef DEBUG_ON
+      printf("    Button sync pressed : send sync signal : %s\n", msg);
+   #endif
+   udp_send(DEST_IP, msg, 1);
 }
 
-static void button_exit_callback() 
+void button_exit_callback() 
 {
    char msg[1];
    sprintf(msg, "%c", 'X');
-   server_send_drone(DEST_IP, msg);
+   #ifdef DEBUG_ON
+      printf("    Button exit pressed : send exit signal : %s\n", msg);
+   #endif
+   udp_send(DEST_IP, msg, 1);
 }
 
 void on_drone_message_received(char *message) 
 {
-   struct timeval *tbalise = (struct timeval *) message;
-   int i;
-   for (i = 0; i < NUM_BEACONS; i++)
-   {
-      char time_value[16];
-      sprintf(time_value, "%d %d", (int)tbalise[i].tv_sec, (int)tbalise[i].tv_usec);
-      gtk_label_set_text(gui->label_beacon_timevals[i], time_value);
-   }
+   /*
+      struct timeval *tbalise = (struct timeval *) message;
+      int i;
+      for (i = 0; i < NUM_BEACONS; i++)
+      {
+         char time_value[16];
+         sprintf(time_value, "%d %d", (int)tbalise[i].tv_sec, (int)tbalise[i].tv_usec);
+         gtk_label_set_text(gui->label_beacon_timevals[i], time_value);
+      }*/
 }
 
 static void button_listen_callback( GtkWidget *widget, gpointer   data )
