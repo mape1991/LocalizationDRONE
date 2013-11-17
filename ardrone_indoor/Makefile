@@ -24,8 +24,11 @@ SRC_DIR:=$(shell pwd)/src
 GENERIC_BINARIES_SOURCE_DIR:=$(SRC_DIR)
 
 GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
-   nav/navdata.c    \
-   video/video_stage.c
+   nav/navdata.c       \
+   video/video_stage.c \
+   gui/gui.c           \
+   com/drone_comm.c    \
+   com/server_comm.c
 
 GENERIC_INCLUDES+=					\
 	$(SRC_DIR) \

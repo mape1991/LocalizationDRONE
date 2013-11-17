@@ -6,6 +6,10 @@
  * ihm vision thread implementation
  *
  */
+#include "video_stage.h"
+
+#ifdef VIDEO_ON
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <ctype.h>
@@ -43,8 +47,6 @@
 #endif
 
 #include <ardrone_tool/Video/video_com_stage.h>
-
-#include "video/video_stage.h"
 
 #define NB_STAGES 10
 
@@ -201,3 +203,4 @@ DEFINE_THREAD_ROUTINE(video_stage, data)
   return (THREAD_RET)0;
 }
 
+#endif // ifdef VIDEO_ON

@@ -1,6 +1,6 @@
+#include "navdata.h"
+#ifdef NAV_ON
 #include <ardrone_tool/Navdata/ardrone_navdata_client.h>
-
-#include "nav/navdata.h"
 #include <stdio.h>
 
 /* Initialization local variables before event loop  */
@@ -37,4 +37,6 @@ inline C_RESULT demo_navdata_client_release( void )
 BEGIN_NAVDATA_HANDLER_TABLE
   NAVDATA_HANDLER_TABLE_ENTRY(demo_navdata_client_init, demo_navdata_client_process, demo_navdata_client_release, NULL)
 END_NAVDATA_HANDLER_TABLE
+        
+#endif // ifdef NAV_ON
 
