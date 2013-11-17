@@ -11,35 +11,42 @@
  */
 
 
+#ifndef S_BEACONSIGNAL_H
+#define S_BEACONSIGNAL_H
+
+
 /******************************************************************************
 * 
 *   INCLUDED FILES
 *
 ******************************************************************************/
 
-#include "stm32f10x.h"
 #include "stdint.h"
-#include "Clock.h"
-#include "Timer_Systick.h"
-#include "Timer_1234.h"
-#include "GPIO.h"
 
 
 /******************************************************************************
 *
-*   CONSTANTS
+*   CONSTANTS AND ENUM TYPES
 *
 ******************************************************************************/
 
 /** Signal frequency PWM [KHz] */
-#define s_beaconSignal_Fpwm1 39.5       				 
-#define s_beaconSignal_Fpwm2 40.5    
-
-/** Signal period PWM	[us] */
-#define s_beaconSignal_Tpwm 1000/Fpwm
+#define FPWM1 39.5  
+#define FPWM2 40.0       				 
+#define FPWM3 40.5
+#define FPWM4 41.0
 
 /** Duty Cycle for PWM signal */
-#define s_beaconSignal_DutyCycle 0.5
+#define DUTYCYCLE_50 0.5
+#define DUTYCYCLE_0 0.0
+
+/** Type def for PWM State */
+typedef enum
+{
+	PWM_PULSE,
+	PWM_ZERO
+	
+} State_PWM;
 
 
 /******************************************************************************
@@ -48,6 +55,10 @@
 *
 ******************************************************************************/
 
-void s_beaconSignal_Initialization(void);
-void s_beaconSignal_Emission_PWM(int);	
+void s_beaconSignal_initialization(void);
+void s_beaconSignal_emission_PWM(void);	
+void s_beaconSignal_reset(void);
+void s_beaconSignal_zero(void);
 
+
+#endif					/* S_BEACONSIGNAL_H */

@@ -1,0 +1,62 @@
+/**
+ * @file s_serialComm.h
+ * @brief Serial Communication Protocol header file
+ *
+ *      This file contains the SERVICE serial communication RS232 (UART).
+ *			Initialization, configuration and send/receive mode. 
+ *
+ * @author Martin
+ * @version 0.0.1
+ * @date 08 Nov 2013
+ */
+
+
+#ifndef S_SERIALCOMM_H
+#define S_SERIALCOMM_H
+
+
+/******************************************************************************
+* 
+*   INCLUDED FILES
+*
+******************************************************************************/
+
+#include "stdint.h"
+
+
+/******************************************************************************
+*
+*   CONSTANTS
+*
+******************************************************************************/ 
+
+/** Baudrate for UART communication */
+#define BAUD_RATE 9600
+
+/** Communication UART Interruption Priority */
+#define UART_HANDLER_PRIORITY 0
+
+
+/******************************************************************************
+*
+*   POINTER FUNCTIONS
+*
+******************************************************************************/
+
+/** Function pointer to call function from the application */
+void (* s_serialComm_pFct) (unsigned int);
+
+
+/******************************************************************************
+*
+*   PRIVATE FUNCTIONS
+*
+******************************************************************************/
+
+void s_serialComm_it_function(void);
+char s_serialComm_initialization(void (*ptrFunction) (unsigned int));
+char s_serialComm_sendChar(char c);
+char s_serialComm_sendString(char string[]);
+
+
+#endif					/* S_SERIALCOMM_H */

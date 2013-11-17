@@ -341,6 +341,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\drivers\clock.c</FilePath>
             </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\drivers\usart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -351,6 +356,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\services\s_beaconSignal.c</FilePath>
             </File>
+            <File>
+              <FileName>s_serialComm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\services\s_serialComm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -360,6 +370,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\applications\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>global.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\include\applications\global.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -700,6 +715,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\drivers\clock.c</FilePath>
             </File>
+            <File>
+              <FileName>usart.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\drivers\usart.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -710,6 +730,11 @@
               <FileType>1</FileType>
               <FilePath>..\src\services\s_beaconSignal.c</FilePath>
             </File>
+            <File>
+              <FileName>s_serialComm.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\src\services\s_serialComm.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -719,6 +744,11 @@
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\src\applications\main.c</FilePath>
+            </File>
+            <File>
+              <FileName>global.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\include\applications\global.h</FilePath>
             </File>
           </Files>
         </Group>

@@ -17,28 +17,24 @@
 *
 ******************************************************************************/
 
-#include "s_beaconSignal.h"
 #include "stm32f10x.h"
 #include "Clock.h"
 #include "Timer_Systick.h"
-#include "stdint.h"
 #include "stdio.h"
+#include "s_beaconSignal.h"
+#include "s_serialComm.h"
+#include "global.h"
 
 
 /******************************************************************************
 *
-*   LOCAL VARIABLES AND CONSTANTS
+*   GLOBAL VARIABLES
 *
 ******************************************************************************/
 
-/** Systick period in [us]*/
-#define SYSTICK_PERIOD 250000.0
-
-/** priority for beacons task */
-#define PRIORITY_BEACONS 2
-
-/** Length of beacons signal in [ms] */
-#define SIGNAL_LENGTH_BEACONS 10
+/** application state */
+State_APP state = APP_OFF;
+State_APP prev_state = APP_OFF;
 
 
 /******************************************************************************
@@ -49,34 +45,119 @@
 
 /**
  *******************************************************************************
- * commBeacons
+ * app_updateGUI
  *
- *      Called when timeout to systick timer
- *			Emission PWM to every Beacon for a pre-defined period of time
+ *      Update GUI with special character
+ *			Called in the main function
+ *			Send special character that depends from the app state
  * 			
- *
  * @sa main()
  ******************************************************************************/
  
-void signalBeacons(void)		
+void app_updateGUI()		
 {
-	// PWM emission for pre-defined time interval [ms] 
-	s_beaconSignal_Emission_PWM(SIGNAL_LENGTH_BEACONS);
+	switch (state)
+	{
+		case APP_ON:
+			s_serialComm_sendChar(MSG_ON);
+			break;
+		case APP_START:
+			s_serialComm_sendChar(MSG_START);	
+			break;
+		case APP_STOP:
+			s_serialComm_sendChar(MSG_STOP);
+			break;
+		case APP_OFF:
+		default:	
+			break;
+	}
 }
 
 
 /**
  *******************************************************************************
- * Initialization
+ * app_serialCommHandler
  *
- *      Configure all clocks and registers.
- *			Initialize all Services
+ *      Called when serial comm interruption takes place
+ *			Analyze received character and update app state
+ * 			If character is not valid (protocol not respected)
+ *			then the application state rest the same as before
+ *
+ * @sa main()
+ ******************************************************************************/
+ 
+void app_serialCommHandler(unsigned int c)		
+{
+	if (c == MSG_ON)
+	{
+		if (state == APP_OFF)
+		{
+			prev_state = state;
+			state = APP_ON;
+		}
+	}
+	else if (c == MSG_START)
+	{
+		if (state != APP_OFF)
+		{
+			prev_state = state;
+			state = APP_START;
+			s_beaconSignal_reset();
+			SysTick_On;
+			SysTick_Enable_IT;
+		}
+	}
+	else if (c == MSG_STOP)
+	{
+		if (state == APP_START)
+		{
+			prev_state = state;
+			state = APP_STOP;
+			s_beaconSignal_zero();
+			SysTick_Disable_IT;
+			SysTick_Off;
+		}
+	}
+	else
+	{
+		prev_state = state;
+		state = APP_OFF;
+		s_beaconSignal_zero();
+		SysTick_Disable_IT;
+		SysTick_Off;
+	}
+}
+
+
+/**
+ *******************************************************************************
+ * app_commBeacons
+ *
+ *      Called when timeout to systick timer
+ *			Emission PWM to every Beacon for a pre-defined period of time
  * 			
+ * @sa main()
+ ******************************************************************************/
+ 
+void app_commBeacons(void)		
+{
+	// PWM emission for pre-defined time interval [ms] 
+	s_beaconSignal_emission_PWM();
+}
+
+
+/**
+ *******************************************************************************
+ * app_initialization
+ *
+ *      Configures all clocks and registers.
+ *			Initializes all Services
+ * 			Configures Systick Timer
  *
  * @sa main()
  ******************************************************************************/
 
-void Initialization(void)
+void app_initialization(void)
 {	
 	vu16 duree;
 	
@@ -85,13 +166,13 @@ void Initialization(void)
 												// If STM32F107 defined as target, CPU clock = 50MHz
 												// Défaut (STM32F103), CPU clock = 40MHz
 	
-	// beacon Signal service initialization
-	s_beaconSignal_Initialization();
+	// service initialization
+	s_beaconSignal_initialization();
+	s_serialComm_initialization(app_serialCommHandler);
 	
 	// Systick clock configuration
 	duree = Systick_Period(SYSTICK_PERIOD); //[us]
-	Systick_Prio_IT(PRIORITY_BEACONS, signalBeacons); // Priority 2 for Emission_PWM
-	SysTick_On;									// mode ON
+	Systick_Prio_IT(PRIORITY_BEACONS, app_commBeacons); // Priority 2 for Emission_PWM
 }
 
 
@@ -104,18 +185,33 @@ void Initialization(void)
 int main (void)
 {	
 	// Initialization
-	Initialization();
+	app_initialization();
+	/*
+	a = 0;
+	ss = 0;
+	*/
 	
-	// Enable Systick timer
-	SysTick_Enable_IT;					
-		
 	// Infinity loop 
 	while(1)
 	{
-		// TODO 
-		// execution of something for the rest of the time (~250 ms)
+		// updateGUI
+		app_updateGUI();
+		/*
+		app_serialCommHandler(MSG_ON);
+		if (a % 250 == 0)
+		{
+			if (ss == 0)
+			{
+				app_serialCommHandler(MSG_START);
+				ss = 1;
+			}
+			else
+			{
+				app_serialCommHandler(MSG_STOP);
+				ss = 0;
+			}
+		}*/
 	}
-	
 		
 	return 0;
 }
