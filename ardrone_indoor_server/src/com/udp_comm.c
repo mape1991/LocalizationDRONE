@@ -30,11 +30,8 @@ int udp_listen(int lg_mesg_emis)
    int lg_adr_distant = sizeof(adr_distant);
    int sock; // internal addr
 
-   struct timeval * tbalise;
-   int i;
-
    char *message=malloc(lg_mesg_emis*sizeof(char));
-
+   
    int error_type = ERROR_TYPE_NONE;
    #ifdef DEBUG_ON
       printf("Communication thread : receiving : initialization\n\n");
@@ -192,6 +189,13 @@ int udp_send(char * dest, char *message, int size)
    // close the socket
    close(sock);
    printf("Communication thread : sending : end of communication\n\n");
+}
+
+int udp_send_char(char * dest, char message)
+{
+   char message_arr[1];
+   sprintf(message_arr, "%c", message);
+   return udp_send(dest, message_arr, 1);
 }
 
 #endif // ifdef SERVER_COMM_ON

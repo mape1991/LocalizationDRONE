@@ -30,21 +30,66 @@
 #ifdef VIDEO_ON
    #include "video/video_stage.h"
 #endif
-   
+ 
 #ifdef UDP_COMM_ON
    #include "com/udp_comm.h"
 
-   DEFINE_THREAD_ROUTINE(server_comm, data)
+   #ifdef TEST_DEMO_COMM_LOCAL
+      char message[UDP_MESSAGE_DRONE_SIZE];
+      char message_send_enable = 0;
+      char message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+      char message_sync_count = 0;
+   #endif
+
+   DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
       // the server can listen (port 7000)
       if (is_udp_listening)
       {
-         udp_listen(5);
+         #ifdef TEST_DEMO_COMM_LOCAL
+            udp_listen_once(message, UDP_MESSAGE_DRONE_SIZE);
+            if (message == UDP_MESSAGE_DRONE_INIT_ID)
+            {
+               printf("message init received\n");
+               message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+               message_send_enable = UDP_SEND_ON;
+            }
+            else if (message == UDP_MESSAGE_DRONE_SYNC_ID)
+            {
+               message_sync_count++;
+               printf("message sync %d received\n", message_sync_count);
+               if (message_sync_count < UDP_MESSAGE_SYNC_COUNT){
+                  message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+                  // we exit the demo by an exit message after a certain number of sync messages
+               }else{
+                  message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
+               }
+               message_send_enable = UDP_SEND_ON;
+            }
+         #else
+            // TODO
+         #endif
       }
+   }
+   
+   DEFINE_THREAD_ROUTINE(udp_send_comm, data)
+   {   
       // and the server can send at the meantime (port 7001)
       if (is_udp_sending)
       {
-         //udp_send(DEST_IP, "x");
+         #ifdef TEST_DEMO_COMM_LOCAL
+            if (message_send_enable)
+            {
+               udp_send_char(DEST_IP, message_sent_id);
+               message_send_enable = UDP_SEND_OFF; // send once
+               
+               // end the demo after the exit message sent
+               if (message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID){
+                  JOIN_THREAD(udp_listen_comm);
+                  JOIN_THREAD(udp_send_comm);
+               }
+            }
+         #endif
       }
    }
 #endif
@@ -77,30 +122,19 @@ int main(int argc, char** argv)
 {
    #ifdef TEST_DEMO_COMM_LOCAL
       printf("demo program launched\n\n");
-	
-      char message[5];
+      
+      START_THREAD(udp_listen_comm, NULL);
+      START_THREAD(udp_send_comm, NULL);
+      
+      is_udp_listening = UDP_LISTEN_ON;
+      is_udp_sending = UDP_SEND_ON;
+      
+      // send an init message first
+      // the drone will receive it and reply (and so on for the next steps)
+      message_send_enable = UDP_SEND_ON;
+      
+      
       while (1) {
-         button_init_callback();
-         udp_listen_once(message, 5);
-         if (message == "init"){
-            printf("message init received\n");
-            button_sync_callback();
-            udp_listen_once(message, 5);
-         }
-         if (message == "sync"){
-            printf("message sync 1 received\n");
-            button_sync_callback();
-            udp_listen_once(message, 5);
-         }
-         if (message == "sync"){
-            printf("message sync 2 received\n");
-            button_exit_callback();
-            udp_listen_once(message, 5);
-         }
-         if (message == "exit"){
-            printf("message exit received\n");
-            return 0;
-         }
       }
       return 0;
    #elif defined(TEST_GUI_STANDALONE)
@@ -132,7 +166,7 @@ C_RESULT ardrone_tool_init_custom(void)
       START_THREAD(gui, NULL); /* Starting the GUI thread */
    #endif 
    #ifdef UDP_COMM_ON
-      START_THREAD(server_comm, NULL);
+      //START_THREAD(udp_send_comm, NULL);
    #endif
    return C_OK;
 }
@@ -155,7 +189,7 @@ C_RESULT ardrone_tool_shutdown_custom(void)
   
    /* server communication */
    #ifdef UDP_COMM_ON
-      JOIN_THREAD(server_comm);
+      //JOIN_THREAD(udp_send_comm);
    #endif 
       
    return C_OK;
@@ -186,6 +220,6 @@ BEGIN_THREAD_TABLE
    #ifdef GUI_ON
       THREAD_TABLE_ENTRY(gui, 20)
    #endif
-   //THREAD_TABLE_ENTRY(server_comm, 20)
+   //THREAD_TABLE_ENTRY(udp_send_comm, 20)
 END_THREAD_TABLE
 

@@ -29,10 +29,9 @@ int udp_listen(int lg_mesg_emis)
    int lg_adr_local = sizeof(adr_local);
    int lg_adr_distant = sizeof(adr_distant);
    int sock; // internal addr
-   int i;
 
    char *message=malloc(lg_mesg_emis*sizeof(char));
-
+   
    int error_type = ERROR_TYPE_NONE;
    #ifdef DEBUG_ON
       printf("Communication thread : receiving : initialization\n\n");
@@ -49,7 +48,7 @@ int udp_listen(int lg_mesg_emis)
    // socket addr creation with the IP of the machine executing the program
    memset((char*) &adr_local,0,sizeof(adr_local)); // reset
    adr_local.sin_family = AF_INET;
-   adr_local.sin_port = PORT_WRITE_DRONE;
+   adr_local.sin_port = PORT_READ_DRONE;
    adr_local.sin_addr.s_addr = INADDR_ANY;
 
    // association @socket with the internal addr
@@ -64,7 +63,7 @@ int udp_listen(int lg_mesg_emis)
    if(error_type == ERROR_TYPE_NONE)
    {
       // exit the listening if the button_listen on the ui is pressed or we exit the application
-      while(is_udp_listening)
+      while(!ardrone_tool_exit() && is_udp_listening)
       {
          // message reception
          recvfrom(sock, message, lg_mesg_emis, 0, (struct sockaddr*) &adr_distant, &lg_adr_distant);   
@@ -118,7 +117,7 @@ int udp_listen_once(char *message, int lg_mesg_emis)
    // socket addr creation with the IP of the machine executing the program
    memset((char*) &adr_local,0,sizeof(adr_local)); // reset
    adr_local.sin_family = AF_INET;
-   adr_local.sin_port = PORT_WRITE_DRONE;
+   adr_local.sin_port = PORT_READ_DRONE;
    adr_local.sin_addr.s_addr = INADDR_ANY;
 
    // association @socket with the internal addr
@@ -178,7 +177,7 @@ int udp_send(char * dest, char *message, int size)
    //affectation domaine et n° de port
    memset((char*) &adr_distant, 0, sizeof(adr_distant));
    adr_distant.sin_family = AF_INET;
-   adr_distant.sin_port = PORT_READ_DRONE;
+   adr_distant.sin_port = PORT_WRITE_DRONE;
 
    //affectation @IP
    inet_aton(dest, &adr_distant.sin_addr);
@@ -190,6 +189,13 @@ int udp_send(char * dest, char *message, int size)
    // close the socket
    close(sock);
    printf("Communication thread : sending : end of communication\n\n");
+}
+
+int udp_send_char(char * dest, char message)
+{
+   char message_arr[1];
+   sprintf(message_arr, "%c", message);
+   return udp_send(dest, message_arr, 1);
 }
 
 #endif // ifdef SERVER_COMM_ON
