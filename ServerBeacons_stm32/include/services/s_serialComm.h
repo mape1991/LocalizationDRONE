@@ -5,8 +5,10 @@
  *      This file contains the SERVICE serial communication RS232 (UART).
  *			Initialization, configuration and send/receive mode. 
  *
+ *	Last modification : 18 Nov 2013 
+ *
  * @author Martin
- * @version 0.0.1
+ * @version 0.0.2
  * @date 08 Nov 2013
  */
 
@@ -44,7 +46,7 @@
 ******************************************************************************/
 
 /** Function pointer to call function from the application */
-void (* s_serialComm_pFct) (unsigned int);
+void (* s_serialComm_pFct) (char);
 
 
 /******************************************************************************
@@ -54,7 +56,7 @@ void (* s_serialComm_pFct) (unsigned int);
 ******************************************************************************/
 
 void s_serialComm_it_function(void);
-char s_serialComm_initialization(void (*ptrFunction) (unsigned int));
+char s_serialComm_initialization(void (*ptrFunction) (char));
 char s_serialComm_sendChar(char c);
 char s_serialComm_sendString(char string[]);
 

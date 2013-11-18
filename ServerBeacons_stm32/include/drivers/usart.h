@@ -115,6 +115,18 @@ char Send_Data_USART(USART_TypeDef *USART, unsigned int data);
 
 unsigned int Receive_Data_USART(USART_TypeDef *USART);
 
+/**
+ * \fn Data_USART(USART_TypeDef *USART) 
+ * \brief Fonction qui permet d'envoyer le charactere recu
+ *
+ * Lecture d'une donnee sur la liaison USART
+ * 
+ * \param USART pointeur de type USART, ne peut être NULL.
+ * \param string Chaine de caractère à afficher.
+ * \return char charactere recu.
+ */
+ 
+char Data_USART(USART_TypeDef *USART); 
 
 /**
  * \fn Send_String_USART (USART_TypeDef* USART, char string[])

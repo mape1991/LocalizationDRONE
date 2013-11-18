@@ -5,8 +5,10 @@
  *      This file contains the main function that initializes, configurates
  * 			and start all applications with their services. 
  *
+ *	Last modification : 18 Nov 2013 
+ *
  * @author Martin
- * @version 0.0.1
+ * @version 0.0.3
  * @date 08 Nov 2013
  */
 
@@ -86,7 +88,7 @@ void app_updateGUI()
  * @sa main()
  ******************************************************************************/
  
-void app_serialCommHandler(unsigned int c)		
+void app_serialCommHandler(char c)		
 {
 	if (c == MSG_ON)
 	{
@@ -160,6 +162,7 @@ void app_commBeacons(void)
 void app_initialization(void)
 {	
 	vu16 duree;
+	char code_Erreur = 0;
 	
 	// Clock's configuration
 	CLOCK_Configure();		// System clock initialization
@@ -168,7 +171,9 @@ void app_initialization(void)
 	
 	// service initialization
 	s_beaconSignal_initialization();
-	s_serialComm_initialization(app_serialCommHandler);
+	code_Erreur = s_serialComm_initialization(app_serialCommHandler);
+	
+	// TODO : error process (next version)
 	
 	// Systick clock configuration
 	duree = Systick_Period(SYSTICK_PERIOD); //[us]
@@ -186,31 +191,12 @@ int main (void)
 {	
 	// Initialization
 	app_initialization();
-	/*
-	a = 0;
-	ss = 0;
-	*/
 	
 	// Infinity loop 
 	while(1)
 	{
 		// updateGUI
 		app_updateGUI();
-		/*
-		app_serialCommHandler(MSG_ON);
-		if (a % 250 == 0)
-		{
-			if (ss == 0)
-			{
-				app_serialCommHandler(MSG_START);
-				ss = 1;
-			}
-			else
-			{
-				app_serialCommHandler(MSG_STOP);
-				ss = 0;
-			}
-		}*/
 	}
 		
 	return 0;

@@ -188,6 +188,7 @@ char Send_String_USART (USART_TypeDef* USART, char string[]) {
  * RECEIVE_DATA_USART
  *-----------------------------------------------------------------------------------------
  * Lecture d'une donnee sur la liaison USART
+ * Il faut pas l'utiliser apres une interruption USART
  * Paramètres: - USART, pointeur de Type USART_TypeDef
  * Retour: Renvoie de la donnee lue 
  *-----------------------------------------------------------------------------------------*/
@@ -199,10 +200,24 @@ unsigned int Receive_Data_USART(USART_TypeDef *USART) {
 
 		// On attend si le registre DR est pret pour la reception
     // bit (5) RXNE du registre USART->SR
-     do {
+    do {
 				// Attente ... 
-     } while ((USART->SR & (1<<5)) == 0) ;
+    } while ((USART->SR & (1<<5)) == 0) ;
 		 
+  return USART->DR;
+}
+
+
+/*-----------------------------------------------------------------------------------------
+ * DATA_USART
+ *-----------------------------------------------------------------------------------------
+ * Lecture d'une donnee sur la liaison USART
+ * Paramètres: - USART, pointeur de Type USART_TypeDef
+ * Retour: Renvoie de la donnee lue 
+ *-----------------------------------------------------------------------------------------*/
+
+char Data_USART(USART_TypeDef *USART) 
+{ 		 
   return USART->DR;
 }
 
