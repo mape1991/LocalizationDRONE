@@ -30,7 +30,7 @@ static void buttons_callback( GtkWidget *widget, gpointer   data )
 
 void button_init_callback() 
 {
-   #ifdef UDP_COMM_ON
+   #ifdef UDP_ON
       message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
       udp_send_char(DEST_IP, message_sent_id);
    #endif
@@ -38,7 +38,7 @@ void button_init_callback()
 
 void button_sync_callback() 
 {
-   #ifdef UDP_COMM_ON
+   #ifdef UDP_ON
    message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
    udp_send_char(DEST_IP, message_sent_id);
    #endif
@@ -46,7 +46,7 @@ void button_sync_callback()
 
 void button_exit_callback() 
 {
-   #ifdef UDP_COMM_ON
+   #ifdef UDP_ON
    message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
    udp_send_char(DEST_IP, message_sent_id);
    #endif
@@ -64,7 +64,7 @@ void on_message_sent(char *message)
 
 static void button_listen_callback( GtkWidget *widget, gpointer   data )
 {
-   #ifdef UDP_COMM_ON
+   #ifdef UDP_ON
       if (is_udp_listening == UDP_LISTEN_OFF){
          // unlock the server communication thread processing
          is_udp_listening = UDP_LISTEN_ON;
@@ -81,7 +81,7 @@ static void button_listen_callback( GtkWidget *widget, gpointer   data )
 
 static void button_send_callback( GtkWidget *widget, gpointer   data )
 {
-   #ifdef UDP_COMM_ON
+   #ifdef UDP_ON
       if (is_udp_sending == UDP_SEND_OFF){
          // unlock the server communication thread processing
          is_udp_sending = UDP_SEND_ON;
@@ -131,7 +131,7 @@ void createMainBox()
    g_signal_connect (gui->button_listen, "clicked", G_CALLBACK (button_listen_callback), NULL);
 
    // disable the listening if server communication disabled
-   #ifndef UDP_COMM_ON
+   #ifndef UDP_ON
       gtk_widget_set_sensitive(gui->button_listen, FALSE);
    #endif
    gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_listen, TRUE, TRUE, 0);
@@ -141,7 +141,7 @@ void createMainBox()
    g_signal_connect (gui->button_send, "clicked", G_CALLBACK (button_send_callback), NULL);
 
    // disable the listening if server communication disabled
-   #ifndef UDP_COMM_ON
+   #ifndef UDP_ON
       gtk_widget_set_sensitive(gui->button_send, FALSE);
    #endif
    gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_send, TRUE, TRUE, 0);

@@ -26,10 +26,13 @@
 // navigation data
 //#define NAV_ON
 // server communication
-#define UDP_COMM_ON
+#define UDP_ON
+#define USB_ON
 
 // Tests
 #define TEST_COMM             // test comm on
+
+
 
 #endif	/* GLOBAL_CONFIG_H */
 

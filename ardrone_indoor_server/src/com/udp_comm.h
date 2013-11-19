@@ -10,7 +10,7 @@
 
 #include "../global_config.h"
 
-#ifdef UDP_COMM_ON
+#ifdef UDP_ON
 
 #include "commons_comm.h"
 

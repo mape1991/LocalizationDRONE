@@ -28,8 +28,12 @@
 #ifdef VIDEO_ON
    #include "video/video_stage.h"
 #endif
+
+#ifdef USB_ON
+   #include "usb/usb.h"
+#endif
  
-#ifdef UDP_COMM_ON
+#ifdef UDP_ON
    #include "com/udp_comm.h"
 
    #ifdef TEST_COMM
@@ -104,25 +108,35 @@
             //{
             message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
                udp_send_char(DEST_IP, message_sent_id);
+               
+            #ifdef USB_ON
+               usb_write_char(message_sent_id);
+            #endif
+               
                sleep(1);
                
                message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
             //   message_send_enable = UDP_SEND_OFF; // send once
-               for(message_sync_count = 0; message_sync_count < UDP_MESSAGE_SYNC_COUNT; message_sync_count++){
-                  
-                     
-                     udp_send_char(DEST_IP, message_sent_id);
-                  
+               int i = 0;
+               for(i = 0; i < UDP_MESSAGE_SYNC_COUNT; i++){   
+                  udp_send_char(DEST_IP, message_sent_id);
+                  #ifdef USB_ON
+                     usb_write_char(message_sent_id);
+                  #endif
                   sleep(1);
                }
                
                message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
-                     udp_send_char(DEST_IP, message_sent_id);
+               udp_send_char(DEST_IP, message_sent_id);
+               #ifdef USB_ON
+                  usb_write_char(message_sent_id);
+               #endif
                sleep(1);
                // end the demo after the exit message sent
                
-                  is_udp_sending = UDP_SEND_OFF;
-                  is_udp_listening = UDP_LISTEN_OFF;
+               is_udp_sending = UDP_SEND_OFF;
+               is_udp_listening = UDP_LISTEN_OFF;
+               is_usb_reading = USB_READING_OFF;
                
             //}
          
@@ -131,12 +145,18 @@
    }
 #endif
    
-#ifdef DRONE_COMM_ON
-   #include "com/drone_comm.h"
-
-   DEFINE_THREAD_ROUTINE(drone_comm, data)
+#ifdef USB_ON
+   DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {
-      send_to_server(0, 0);
+      char buffer[USB_BUFFER_MAX_SIZE];
+      while (is_usb_reading) {
+         int n = usb_read(buffer, 1);
+         if (n > 0){
+            printf("stm32 msg %s\n", buffer);
+            strcpy(buffer, "");
+            sleep(1);
+         }
+      }
    }
 #endif
    
@@ -164,7 +184,15 @@ int main(int argc, char** argv)
       // send an init message first
       // the drone will receive it and reply (and so on for the next steps)
       message_send_enable = UDP_SEND_ON;
+      
+      #ifdef USB_ON
+         usb_init(USB_PORT_NAME);
+         
+         is_usb_reading = USB_READING_ON;
+      #endif
+      
       return ardrone_tool_main(argc, argv);
+      
    #elif defined(TEST_GUI_STANDALONE)
       init_gui(&argc, &argv);
       gtk_main ();
@@ -181,9 +209,13 @@ C_RESULT ardrone_tool_init_custom(void)
    // ardrone_tool_input_add( &gamepad );
 
    
-   #ifdef TEST_COMM
+   #ifdef UDP_ON
       START_THREAD(udp_listen_comm, NULL);
       START_THREAD(udp_send_comm, NULL);
+   #endif
+
+   #ifdef USB_ON
+      START_THREAD(usb_listen_comm, NULL);
    #endif
    
    /* Start all threads of your application */
@@ -216,10 +248,14 @@ C_RESULT ardrone_tool_shutdown_custom(void)
    #endif
   
    /* server communication */
-   #ifdef UDP_COMM_ON
+   #ifdef UDP_ON
       JOIN_THREAD(udp_listen_comm);
       JOIN_THREAD(udp_send_comm);
    #endif 
+
+   #ifdef USB_ON
+      JOIN_THREAD(usb_listen_comm);
+   #endif
       
    return C_OK;
 }
@@ -251,9 +287,14 @@ BEGIN_THREAD_TABLE
       THREAD_TABLE_ENTRY(gui, 20)
    #endif
 
-   #ifdef TEST_COMM
+   #ifdef UDP_ON
       THREAD_TABLE_ENTRY(udp_listen_comm, 20)
       THREAD_TABLE_ENTRY(udp_send_comm, 20)
    #endif
+
+   #ifdef USB_ON
+      THREAD_TABLE_ENTRY(usb_listen_comm, 20)
+   #endif
+
 END_THREAD_TABLE
 
