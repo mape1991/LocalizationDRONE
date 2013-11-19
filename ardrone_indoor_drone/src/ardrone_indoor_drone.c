@@ -11,7 +11,7 @@
 
 #include "com/commons_comm.h"
       
-#ifdef UDP_COMM_ON
+#ifdef UDP_ON
    #include "com/udp_comm.h"
 
    #ifdef TEST_DEMO_COMM_LOCAL

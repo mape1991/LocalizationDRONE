@@ -26,7 +26,7 @@
 // navigation data
 //#define NAV_ON
 // server communication
-#define UDP_COMM_ON
+#define UDP_ON
 // drone communication
 //#define DRONE_COMM_ON
 

@@ -1,5 +1,5 @@
 #include "udp_comm.h"
-#ifdef UDP_COMM_ON
+#ifdef UDP_ON
 #include <stdlib.h>
 #include <sys/types.h>
 #include <sys/socket.h>
