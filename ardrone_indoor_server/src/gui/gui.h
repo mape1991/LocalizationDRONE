@@ -14,6 +14,10 @@
 #include "../com/commons_comm.h"
 #include "../com/udp_comm.h"
 
+#ifdef TEST_COMM
+#include "../ardrone_indoor_server.h"
+#endif
+
 #include <gtk/gtk.h>
 
 #define NUM_COORDINATES 3
@@ -47,7 +51,7 @@ typedef struct gui
   GtkWidget *label_drone_pos_values[NUM_COORDINATES];
   
   // test content
-  #ifdef GUI_VERSION_TEST
+  #ifdef TEST_COMM
     GtkWidget *box_test;
     GtkWidget *text_test_listen;
     GtkWidget *text_test_send;
@@ -57,7 +61,9 @@ typedef struct gui
  
 gui_t *get_gui();
  
-void on_drone_message_received(char *message);
+void on_message_received(char *message);
+void on_message_sent(char *message);
+
 void init_gui(int argc, char **argv);
 
 void button_init_callback();

@@ -1,21 +1,67 @@
+## -*- Makefile -*-
+##
+## User: julien
+## Time: Nov 16, 2013 7:54:20 AM
+## Makefile created by Oracle Solaris Studio.
+##
+## This file is generated automatically.
+##
+
+
+#### Compiler and tool definitions shared by all build targets #####
 CC=/opt/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux/bin/arm-none-linux-gnueabi-gcc
-SRC=ardrone_indoor_drone.c com/udp.c
-CFLAGS=-Wall -W -march=armv7-a
-LFLAGS=-lm
-OBJ=(SRC *.c:*.o)
-TARGET=drone
+BASICOPTS = -g
+CFLAGS = $(BASICOPTS) -march=armv7-a
 
-all: $(TARGET)
 
-$(TARGET): $(OBJ)
-	$(CC) $^ $(CFLAGS) -o $@ $(LFLAGS) 
+# Define the target directories.
+TARGETDIR_ardrone_indoor_drone=ARM
 
-%.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@
 
-#$(MAKECMDGOALS): build_libs
-#	/opt/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux/bin/arm-none-linux-gnueabi-gcc -march=armv7-a -C $(SDK_PATH)/VP_SDK/Build $(TMP_SDK_FLAGS) $(SDK_FLAGS) $(MAKECMDGOALS) USE_LINUX=yes
+all: $(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone
 
-#build_libs:
-#	/opt/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux/bin/arm-none-linux-gnueabi-gcc -march=armv7-a -C $(SDK_PATH)/Soft/Build $(TMP_SDK_FLAGS) $(SDK_FLAGS) $(MAKECMDGOALS) USE_LINUX=yes
+## Target: ardrone_indoor_drone
+CPPFLAGS_ardrone_indoor_drone = \
+	-Isrc
+OBJS_ardrone_indoor_drone =  \
+	$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
+	$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o
+SYSLIBS_ardrone_indoor_drone = -lm 
+USERLIBS_ardrone_indoor_drone = $(SYSLIBS_ardrone_indoor_drone) 
+DEPLIBS_ardrone_indoor_drone =  
+LDLIBS_ardrone_indoor_drone = $(USERLIBS_ardrone_indoor_drone)
+
+
+# Link or archive
+$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone: $(TARGETDIR_ardrone_indoor_drone) $(OBJS_ardrone_indoor_drone) $(DEPLIBS_ardrone_indoor_drone)
+	$(LINK.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ $(OBJS_ardrone_indoor_drone) $(LDLIBS_ardrone_indoor_drone)
+
+
+# Compile source files into .o files
+$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o: $(TARGETDIR_ardrone_indoor_drone) src/ardrone_indoor_drone.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/ardrone_indoor_drone.c
+
+$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o: $(TARGETDIR_ardrone_indoor_drone) src/com/udp_comm.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/com/udp_comm.c
+
+
+
+#### Clean target deletes all generated files ####
+clean:
+	rm -f \
+		$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone \
+		$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
+		$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o
+	rm -f -r $(TARGETDIR_ardrone_indoor_drone)
+
+
+# Create the target directory (if needed)
+$(TARGETDIR_ardrone_indoor_drone):
+	mkdir -p $(TARGETDIR_ardrone_indoor_drone)
+
+
+# Enable dependency checking
+.KEEP_STATE:
+.KEEP_STATE_FILE:.make.state.ARM
+
 

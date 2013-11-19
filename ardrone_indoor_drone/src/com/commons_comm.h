@@ -31,7 +31,7 @@
 #endif
 
 #ifdef TEST_GUI_STANDALONE
-        #define DEST_IP "192.168.87.130"
+       #define DEST_IP "192.168.1.3"
 #else
         #define DEST_IP "192.168.1.1"
 #endif

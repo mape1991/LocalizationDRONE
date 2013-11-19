@@ -9,9 +9,6 @@
 #include <termios.h>
 #include <unistd.h>
 
-//for multithreading
-#include <VP_Os/vp_os_thread.h>
-
 #include "com/commons_comm.h"
       
 #ifdef UDP_COMM_ON
@@ -23,7 +20,7 @@
       char message_sent_id[UDP_MESSAGE_DRONE_SIZE];
       char message_sync_count = 0;
    #endif
-
+/*
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
       // the server can listen (port 7000)
@@ -74,7 +71,7 @@
             }
          #endif
       }
-   }
+   }*/
 #endif
 
 int main(int argc, char ** argv){
@@ -82,18 +79,34 @@ int main(int argc, char ** argv){
    #ifdef TEST_DEMO_COMM_LOCAL
       printf("demo program launched\n\n");
       
-      START_THREAD(udp_listen_comm, NULL);
-      START_THREAD(udp_send_comm, NULL);
+      /*START_THREAD(udp_listen_comm, NULL);
+      START_THREAD(udp_send_comm, NULL);*/
       
-      is_udp_listening = UDP_LISTEN_ON;
-      is_udp_sending = UDP_SEND_ON;
       
-      // wait for an init message first
-      message_send_enable = UDP_SEND_OFF;
       
-      while (1) {
+      // wait for listen
+      udp_listen_once(message, UDP_MESSAGE_SERVER_SIZE);
+      while (1){
+         if (message[0] == 'I'){
+            printf("message init received\n");
+            strcpy(message_sent_id, UDP_MESSAGE_DRONE_INIT_ID);
+            udp_send(DEST_IP, message_sent_id, UDP_MESSAGE_DRONE_SIZE);
+            udp_listen_once(message, UDP_MESSAGE_SERVER_SIZE);
+         }
+         else if (message[0] == 'S'){
+            printf("message sync received\n");
+            strcpy(message_sent_id, UDP_MESSAGE_DRONE_SYNC_ID);
+            udp_send(DEST_IP, message_sent_id, UDP_MESSAGE_DRONE_SIZE);
+            udp_listen_once(message, UDP_MESSAGE_SERVER_SIZE);
+            
+         }
+         else if (message[0] == 'X'){
+                  printf("message quit received\n");
+                  break;
+         }
+
       }
-      return 0;
+      
    #endif
    return 0;
 }

@@ -30,58 +30,49 @@ static void buttons_callback( GtkWidget *widget, gpointer   data )
 
 void button_init_callback() 
 {
-   char msg[1];
-   sprintf(msg, "%c", 'I');
-   #ifdef DEBUG_ON
-      printf("    Button init pressed : send init signal : %s\n", msg);
+   #ifdef UDP_COMM_ON
+      message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+      udp_send_char(DEST_IP, message_sent_id);
    #endif
-   udp_send(DEST_IP, msg, 1);
 }
 
 void button_sync_callback() 
 {
-   char msg[1];
-   sprintf(msg, "%c", 'S');
-   #ifdef DEBUG_ON
-      printf("    Button sync pressed : send sync signal : %s\n", msg);
+   #ifdef UDP_COMM_ON
+   message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+   udp_send_char(DEST_IP, message_sent_id);
    #endif
-   udp_send(DEST_IP, msg, 1);
 }
 
 void button_exit_callback() 
 {
-   char msg[1];
-   sprintf(msg, "%c", 'X');
-   #ifdef DEBUG_ON
-      printf("    Button exit pressed : send exit signal : %s\n", msg);
+   #ifdef UDP_COMM_ON
+   message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
+   udp_send_char(DEST_IP, message_sent_id);
    #endif
-   udp_send(DEST_IP, msg, 1);
 }
 
-void on_drone_message_received(char *message) 
+void on_message_received(char *message) 
 {
-   /*
-      struct timeval *tbalise = (struct timeval *) message;
-      int i;
-      for (i = 0; i < NUM_BEACONS; i++)
-      {
-         char time_value[16];
-         sprintf(time_value, "%d %d", (int)tbalise[i].tv_sec, (int)tbalise[i].tv_usec);
-         gtk_label_set_text(gui->label_beacon_timevals[i], time_value);
-      }*/
+   gtk_label_set_text(gui->text_test_listen, message);
+}
+
+void on_message_sent(char *message) 
+{
+   gtk_label_set_text(gui->text_test_send, message);
 }
 
 static void button_listen_callback( GtkWidget *widget, gpointer   data )
 {
-   #ifdef SERVER_COMM_ON
-      if (is_server_listening == SERVER_LISTEN_OFF){
+   #ifdef UDP_COMM_ON
+      if (is_udp_listening == UDP_LISTEN_OFF){
          // unlock the server communication thread processing
-         is_server_listening = SERVER_LISTEN_ON;
+         is_udp_listening = UDP_LISTEN_ON;
          // update the button label
          gtk_button_set_label(widget, "Stop Listening");
       }else{
          // block the server communication thread processing
-         is_server_listening = SERVER_LISTEN_OFF;
+         is_udp_listening = UDP_LISTEN_OFF;
          // update the button label
          gtk_button_set_label(widget, "Start Listening");
       }
@@ -90,15 +81,15 @@ static void button_listen_callback( GtkWidget *widget, gpointer   data )
 
 static void button_send_callback( GtkWidget *widget, gpointer   data )
 {
-   #ifdef SERVER_COMM_ON
-      if (is_server_sending == SERVER_SEND_OFF){
+   #ifdef UDP_COMM_ON
+      if (is_udp_sending == UDP_SEND_OFF){
          // unlock the server communication thread processing
-         is_server_sending = SERVER_SEND_ON;
+         is_udp_sending = UDP_SEND_ON;
          // update the button label
          gtk_button_set_label(widget, "Stop Sending");
       }else{
          // block the server communication thread processing
-         is_server_sending = SERVER_SEND_OFF;
+         is_udp_sending = UDP_SEND_OFF;
          // update the button label
          gtk_button_set_label(widget, "Start Sending");
       } 
@@ -140,7 +131,7 @@ void createMainBox()
    g_signal_connect (gui->button_listen, "clicked", G_CALLBACK (button_listen_callback), NULL);
 
    // disable the listening if server communication disabled
-   #ifndef SERVER_COMM_ON
+   #ifndef UDP_COMM_ON
       gtk_widget_set_sensitive(gui->button_listen, FALSE);
    #endif
    gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_listen, TRUE, TRUE, 0);
@@ -150,7 +141,7 @@ void createMainBox()
    g_signal_connect (gui->button_send, "clicked", G_CALLBACK (button_send_callback), NULL);
 
    // disable the listening if server communication disabled
-   #ifndef SERVER_COMM_ON
+   #ifndef UDP_COMM_ON
       gtk_widget_set_sensitive(gui->button_send, FALSE);
    #endif
    gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_send, TRUE, TRUE, 0);
@@ -158,23 +149,23 @@ void createMainBox()
 
 void createTestBox()
 {
-   #ifdef GUI_VERSION_TEST
-      gui->box_test = gtk_vbox_new(FALSE, 10);
+   #ifdef TEST_COMM
+      /*gui->box_test = gtk_vbox_new(FALSE, 10);
       // send testing
       // create the box containing the textbox and the scrollbar
       //GtkWidget *text_test_send_hbox = gtk_hbox_new(FALSE, 10);
       //GtkAdjustment *vadj = gtk_adjustment_new(0, 0, )
-      gui->text_test_send = gtk_text_view_new();
+      gui->text_test_send = gtk_text_view_new("No send");
 
       //GtkWidget *vscrollbar = gtk_vscrollbar_new((GtkText*)(gui->text_test_send)->vadj); //GTK_TEXT 
       //gtk_box_pack_start(GTK_BOX(text_test_send_hbox), gui->text_test_send, FALSE, FALSE, 0);
       //gtk_box_pack_end(GTK_BOX(text_test_send_hbox), vscrollbar, FALSE, FALSE, 0);
       // populate the box including the box with the textbox and the scrollbar
-      gtk_box_pack_start(GTK_BOX(gui->box_test), gui->text_test_send, FALSE, FALSE, 0);
+      gtk_box_pack_start(GTK_BOX(gui->box_test), gui->text_test_send, TRUE, TRUE, 0);
       // listen testing
       // create the box containing the textbox and the scrollbar
       //GtkWidget *text_test_listen_hbox = gtk_hbox_new(FALSE, 10);
-      gui->text_test_listen = gtk_text_view_new();
+      gui->text_test_listen = gtk_text_view_new("No receive");
       
       //gtk_text_view_
 
@@ -182,7 +173,7 @@ void createTestBox()
       //gtk_box_pack_start(GTK_BOX(text_test_listen_hbox), gui->text_test_listen, FALSE, FALSE, 0);
       //gtk_box_pack_end(GTK_BOX(text_test_listen_hbox), vscrollbar, FALSE, FALSE, 0);
       // populate the box including the box with the textbox and the scrollbar
-      gtk_box_pack_start(GTK_BOX(gui->box_test), gui->text_test_listen, FALSE, FALSE, 0);  
+      gtk_box_pack_end(GTK_BOX(gui->box_test), gui->text_test_listen, TRUE, TRUE, 0);  */
    #endif
 }
 
@@ -247,14 +238,14 @@ void init_gui(int argc, char **argv)
    gui->box_window = gtk_hbox_new(FALSE, 15);
    
    createMainBox();
-   #ifdef GUI_VERSION_TEST
+   #ifdef TEST_COMM
       createTestBox();
    #endif 
    createBeaconsBox();
    createDroneBox();
  
    gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_main, TRUE, TRUE, 0);
-   #ifdef GUI_VERSION_TEST
+   #ifdef TEST_GUI_STANDALONE
       gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_test, TRUE, TRUE, 0);
    #endif
    gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_beacons, TRUE, TRUE, 0);

@@ -18,7 +18,7 @@
 #define ERROR_TYPE_SOCKET_CREATION 1
 #define ERROR_TYPE_SOCKET_BINDING 2
 
-#ifdef TEST_DEMO_COMM_LOCAL
+#ifdef TEST_COMM
     #define UDP_MESSAGE_SERVER_SIZE 1
     #define UDP_MESSAGE_DRONE_SIZE 5
     #define UDP_MESSAGE_SERVER_INIT_ID 'I'
@@ -31,7 +31,7 @@
 #endif
 
 #ifdef TEST_GUI_STANDALONE
-        #define DEST_IP "192.168.87.130"
+        #define DEST_IP "192.168.1.1" //#define DEST_IP "192.168.87.130"
 #else
         #define DEST_IP "192.168.1.1"
 #endif

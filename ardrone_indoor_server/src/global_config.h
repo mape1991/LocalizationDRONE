@@ -15,10 +15,10 @@
  * i.e. if GUI_ON is commented, nothing related to user interface will be activated 
  */
 // user interface
-#define GUI_ON
+//#define GUI_ON
    // user interface version
    //#define GUI_VERSION_USER
-   #define GUI_VERSION_TEST
+   //#define GUI_VERSION_TEST
 // debug tracking
 #define DEBUG_ON
 // video
@@ -27,13 +27,9 @@
 //#define NAV_ON
 // server communication
 #define UDP_COMM_ON
-// drone communication
-//#define DRONE_COMM_ON
-
 
 // Tests
-#define TEST_GUI_STANDALONE
-#define TEST_DEMO_COMM_LOCAL
+#define TEST_COMM             // test comm on
 
 #endif	/* GLOBAL_CONFIG_H */
 
