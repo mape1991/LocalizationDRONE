@@ -49,47 +49,7 @@
       if (is_udp_listening)
       {
          #ifdef TEST_COMM
-         while(is_udp_listening){
-               udp_listen_once(message, UDP_MESSAGE_DRONE_SIZE);
-               if (strcmp(message, UDP_MESSAGE_DRONE_INIT_ID) == 0)
-               {
-                  #ifdef GUI_ON
-                     On_received_callback(message);
-                  #endif
-
-                  printf("init received\n");
-                  strcpy(message, "");
-                  // initial demo
-                  #if defined(TEST_COMM) && !defined(GUI_ON)
-                     message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
-                     message_send_enable = UDP_SEND_ON;
-                  #endif
-               }
-               else if (strcmp(message, UDP_MESSAGE_DRONE_SYNC_ID) == 0)
-               {
-                  #ifdef GUI_ON
-                     On_received_callback(message);
-                  #endif
-
-                  strcpy(message, "");
-                  // initial demo
-                  #if defined(TEST_COMM) && !defined(GUI_ON)
-                     message_sync_count++;
-                     printf("sync %d received\n", message_sync_count);
-                     if (message_sync_count <= UDP_MESSAGE_SYNC_COUNT){
-                        message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
-                        // we exit the demo by an exit message after a certain number of sync messages
-                     }else{
-                        message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
-                     }
-                     message_send_enable = UDP_SEND_ON;
-                  // demo with gui
-                  #else
-                     printf("sync received\n");
-                     strcpy(message, "");
-                  #endif
-               }
-         }
+         
  
          #else
             // TODO
@@ -102,57 +62,8 @@
       // and the server can send at the meantime (port 7001)
       if (is_udp_sending)
       {
-         #if defined(TEST_COMM) && !defined(GUI_ON)
-         //while(is_udp_sending){
-            //if (message_send_enable)
-            //{
-         sleep(1);
-            message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
-               udp_send_char(DEST_IP, message_sent_id);
-               
-            #ifdef USB_ON
-               printf("stm32 write msg %c\n", message_sent_id);
-               usb_write_char(message_sent_id);
-            #endif
-               
-               sleep(1);
-               
-               message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
-            //   message_send_enable = UDP_SEND_OFF; // send once
-               int i = 0;
-               for(i = 0; i < UDP_MESSAGE_SYNC_COUNT; i++){   
-                  udp_send_char(DEST_IP, message_sent_id);
-                  #ifdef USB_ON
-                     printf("stm32 write msg %c\n", message_sent_id);
-                     usb_write_char(message_sent_id);
-                  #endif
-                  sleep(1);
-               }
-               
-               message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
-               udp_send_char(DEST_IP, message_sent_id);
-               #ifdef USB_ON
-                  printf("stm32 write msg %c\n", message_sent_id);
-                  usb_write_char(message_sent_id);
-               #endif
-               sleep(1);
-               // end the demo after the exit message sent
-               
-               is_udp_sending = UDP_SEND_OFF;
-               is_udp_listening = UDP_LISTEN_OFF;
-               is_usb_reading = USB_READING_OFF;
-               
-               #ifdef USB_ON
-                  message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
-                     printf("stm32 write msg %c\n", message_sent_id);
-                     usb_write_char(message_sent_id);
-                     sleep(1);
-                     message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
-                     printf("stm32 write msg %c\n", message_sent_id);
-                     usb_write_char(message_sent_id);
-                  #endif
-            //}
-         
+         #ifdef TEST_COMM
+            test_comm_thread_comm_write();
          #endif
       }
    }
@@ -161,15 +72,9 @@
 #ifdef USB_ON
    DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {
-      char buffer[USB_BUFFER_MAX_SIZE];
-      while (is_usb_reading) {
-         int n = usb_read(buffer, 1);
-         if (n > 0){
-            printf("stm32 read msg %s\n", buffer);
-            strcpy(buffer, "");
-            sleep(1);
-         }
-      }
+      #ifdef TEST_COMM
+         test_comm_thread_usb_read();
+      #endif
    }
 #endif
    
@@ -190,6 +95,7 @@ static int32_t exit_ihm_program = 1;
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
+   // execute the main of the selected test
    #ifdef TEST_COMM
       return test_comm_main(argc, argv);
    #elif defined(GUI_VERSION_TEST)
@@ -207,16 +113,6 @@ C_RESULT ardrone_tool_init_custom(void)
    /* Registering for a new device of game controller */
    // ardrone_tool_input_add( &gamepad );
 
-   
-   #ifdef UDP_ON
-      START_THREAD(udp_listen_comm, NULL);
-      START_THREAD(udp_send_comm, NULL);
-   #endif
-
-   #ifdef USB_ON
-      START_THREAD(usb_listen_comm, NULL);
-   #endif
-   
    /* Start all threads of your application */
    #ifdef VIDEO_ON
       START_THREAD( video_stage, NULL );
@@ -226,6 +122,15 @@ C_RESULT ardrone_tool_init_custom(void)
       init_gui(0, 0); /* Creating the GUI */
       START_THREAD(gui, NULL); /* Starting the GUI thread */
    #endif 
+
+   #ifdef UDP_ON
+      START_THREAD(udp_listen_comm, NULL);
+      START_THREAD(udp_send_comm, NULL);
+   #endif
+
+   #ifdef USB_ON
+      START_THREAD(usb_listen_comm, NULL);
+   #endif
 
    return C_OK;
 }
