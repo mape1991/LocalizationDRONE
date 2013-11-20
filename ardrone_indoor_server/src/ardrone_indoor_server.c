@@ -106,10 +106,12 @@
          //while(is_udp_sending){
             //if (message_send_enable)
             //{
+         sleep(1);
             message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
                udp_send_char(DEST_IP, message_sent_id);
                
             #ifdef USB_ON
+               printf("stm32 write msg %c\n", message_sent_id);
                usb_write_char(message_sent_id);
             #endif
                
@@ -121,6 +123,7 @@
                for(i = 0; i < UDP_MESSAGE_SYNC_COUNT; i++){   
                   udp_send_char(DEST_IP, message_sent_id);
                   #ifdef USB_ON
+                     printf("stm32 write msg %c\n", message_sent_id);
                      usb_write_char(message_sent_id);
                   #endif
                   sleep(1);
@@ -129,6 +132,7 @@
                message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
                udp_send_char(DEST_IP, message_sent_id);
                #ifdef USB_ON
+                  printf("stm32 write msg %c\n", message_sent_id);
                   usb_write_char(message_sent_id);
                #endif
                sleep(1);
@@ -138,6 +142,15 @@
                is_udp_listening = UDP_LISTEN_OFF;
                is_usb_reading = USB_READING_OFF;
                
+               #ifdef USB_ON
+                  message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+                     printf("stm32 write msg %c\n", message_sent_id);
+                     usb_write_char(message_sent_id);
+                     sleep(1);
+                     message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+                     printf("stm32 write msg %c\n", message_sent_id);
+                     usb_write_char(message_sent_id);
+                  #endif
             //}
          
          #endif
@@ -152,7 +165,7 @@
       while (is_usb_reading) {
          int n = usb_read(buffer, 1);
          if (n > 0){
-            printf("stm32 msg %s\n", buffer);
+            printf("stm32 read msg %s\n", buffer);
             strcpy(buffer, "");
             sleep(1);
          }
@@ -177,23 +190,9 @@ static int32_t exit_ihm_program = 1;
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
-   #if (defined(TEST_COMM) && !defined(GUI_ON))
-      printf("demo program launched\n\n");
-      is_udp_listening = UDP_LISTEN_ON;
-      is_udp_sending = UDP_SEND_ON;
-      // send an init message first
-      // the drone will receive it and reply (and so on for the next steps)
-      message_send_enable = UDP_SEND_ON;
-      
-      #ifdef USB_ON
-         usb_init(USB_PORT_NAME);
-         
-         is_usb_reading = USB_READING_ON;
-      #endif
-      
-      return ardrone_tool_main(argc, argv);
-      
-   #elif defined(TEST_GUI_STANDALONE)
+   #ifdef TEST_COMM
+      return test_comm_main(argc, argv);
+   #elif defined(GUI_VERSION_TEST)
       init_gui(&argc, &argv);
       gtk_main ();
       return(0);

@@ -52,6 +52,7 @@ void button_exit_callback()
    #endif
 }
 
+#ifdef TEST_COMM
 void on_message_received(char *message) 
 {
    gtk_label_set_text(gui->text_test_listen, message);
@@ -61,6 +62,7 @@ void on_message_sent(char *message)
 {
    gtk_label_set_text(gui->text_test_send, message);
 }
+#endif
 
 static void button_listen_callback( GtkWidget *widget, gpointer   data )
 {
@@ -245,7 +247,7 @@ void init_gui(int argc, char **argv)
    createDroneBox();
  
    gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_main, TRUE, TRUE, 0);
-   #ifdef TEST_GUI_STANDALONE
+   #ifdef TEST_COMM
       gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_test, TRUE, TRUE, 0);
    #endif
    gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_beacons, TRUE, TRUE, 0);

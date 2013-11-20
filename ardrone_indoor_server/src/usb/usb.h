@@ -13,7 +13,6 @@
 #ifdef USB_ON
 
 #define USB_PORT_NAME "/dev/ttyUSB0"
-//#define USB_PORT_NAME "/dev/bus/usb/001"
 #define USB_BUFFER_MAX_SIZE 100
 
 int usb_init(char *portname);

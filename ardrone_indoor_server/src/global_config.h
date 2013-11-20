@@ -15,10 +15,10 @@
  * i.e. if GUI_ON is commented, nothing related to user interface will be activated 
  */
 // user interface
-//#define GUI_ON
+#define GUI_ON
    // user interface version
    //#define GUI_VERSION_USER
-   //#define GUI_VERSION_TEST
+   #define GUI_VERSION_TEST
 // debug tracking
 #define DEBUG_ON
 // video
@@ -26,12 +26,18 @@
 // navigation data
 //#define NAV_ON
 // server communication
-#define UDP_ON
-#define USB_ON
+//#define UDP_ON
+// usb communication
+//#define USB_ON
 
 // Tests
-#define TEST_COMM             // test comm on
+//#define TEST_COMM             // test comm on
 
+#ifdef TEST_COMM
+        #define UDP_ON
+        #define USB_ON
+#elif X
+#endif
 
 
 #endif	/* GLOBAL_CONFIG_H */
