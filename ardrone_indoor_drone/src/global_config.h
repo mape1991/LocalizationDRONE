@@ -14,26 +14,18 @@
  * this will disable the attached functionality
  * i.e. if GUI_ON is commented, nothing related to user interface will be activated 
  */
-// user interface
-#define GUI_ON
-   // user interface version
-   //#define GUI_VERSION_USER
-   #define GUI_VERSION_TEST
 // debug tracking
 #define DEBUG_ON
-// video
-//#define VIDEO_ON
-// navigation data
-//#define NAV_ON
-// server communication
+// udp communication
 #define UDP_ON
-// drone communication
-//#define DRONE_COMM_ON
-
 
 // Tests
-#define TEST_GUI_STANDALONE
-#define TEST_DEMO_COMM_LOCAL
+#define TEST_COMM             // test comm on
+
+#ifdef TEST_COMM
+    #define UDP_ON
+#endif
+
 
 #endif	/* GLOBAL_CONFIG_H */
 

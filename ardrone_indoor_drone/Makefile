@@ -17,7 +17,6 @@ CFLAGS = $(BASICOPTS) -march=armv7-a
 # Define the target directories.
 TARGETDIR_ardrone_indoor_drone=ARM
 
-
 all: $(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone
 
 ## Target: ardrone_indoor_drone
@@ -25,7 +24,8 @@ CPPFLAGS_ardrone_indoor_drone = \
 	-Isrc
 OBJS_ardrone_indoor_drone =  \
 	$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
-	$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o
+	$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o \
+	$(TARGETDIR_ardrone_indoor_drone)/test_comm.o
 SYSLIBS_ardrone_indoor_drone = -lm 
 USERLIBS_ardrone_indoor_drone = $(SYSLIBS_ardrone_indoor_drone) 
 DEPLIBS_ardrone_indoor_drone =  
@@ -44,6 +44,8 @@ $(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o: $(TARGETDIR_ardrone_in
 $(TARGETDIR_ardrone_indoor_drone)/udp_comm.o: $(TARGETDIR_ardrone_indoor_drone) src/com/udp_comm.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/com/udp_comm.c
 
+$(TARGETDIR_ardrone_indoor_drone)/test_comm.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_comm.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_comm.c
 
 
 #### Clean target deletes all generated files ####
@@ -51,7 +53,8 @@ clean:
 	rm -f \
 		$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone \
 		$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
-		$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o
+		$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o \
+		$(TARGETDIR_ardrone_indoor_drone)/test_comm.o
 	rm -f -r $(TARGETDIR_ardrone_indoor_drone)
 
 
