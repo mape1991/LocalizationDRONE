@@ -1,5 +1,16 @@
 #include "test_comm.h"
 
+
+#ifdef TEST_COMM
+
+char message[UDP_MESSAGE_DRONE_SIZE];
+char message_send_enable = 0;
+char message_sent_id = COMM_MESSAGE_INIT_ID;
+char message_sync_count = 0;
+
+//TODO : define the correct destination IP
+#define DEST_IP "192.168.1.1"
+
 void test_comm_thread_udp_read()
 {
    while(is_udp_listening){
@@ -8,7 +19,7 @@ void test_comm_thread_udp_read()
       {
          printf("init received\n");
          strcpy(message, "");
-         message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+         message_sent_id = COMM_MESSAGE_SYNC_ID;
          message_send_enable = UDP_SEND_ON;
       }
       else if (strcmp(message, UDP_MESSAGE_DRONE_SYNC_ID) == 0)
@@ -18,10 +29,10 @@ void test_comm_thread_udp_read()
          message_sync_count++;
          printf("sync %d received\n", message_sync_count);
          if (message_sync_count <= UDP_MESSAGE_SYNC_COUNT){
-            message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+            message_sent_id = COMM_MESSAGE_SYNC_ID;
             // we exit the demo by an exit message after a certain number of sync messages
          }else{
-            message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
+            message_sent_id = COMM_MESSAGE_EXIT_ID;
          }
          message_send_enable = UDP_SEND_ON;
       }
@@ -33,7 +44,7 @@ void test_comm_thread_write()
 {
    sleep(1);
    
-   message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+   message_sent_id = COMM_MESSAGE_INIT_ID;
    udp_send_char(DEST_IP, message_sent_id);
 
    printf("stm32 write msg %c\n", message_sent_id);
@@ -41,7 +52,7 @@ void test_comm_thread_write()
 
    sleep(1);
 
-   message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+   message_sent_id = COMM_MESSAGE_SYNC_ID;
    int i = 0;
    for(i = 0; i < UDP_MESSAGE_SYNC_COUNT; i++){   
       udp_send_char(DEST_IP, message_sent_id);
@@ -52,7 +63,7 @@ void test_comm_thread_write()
       sleep(1);
    }
 
-   message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
+   message_sent_id = COMM_MESSAGE_EXIT_ID;
    udp_send_char(DEST_IP, message_sent_id);
    #ifdef USB_ON
       printf("stm32 write msg %c\n", message_sent_id);
@@ -62,11 +73,11 @@ void test_comm_thread_write()
    
    // put the stm32 back in start mode
    #ifdef USB_ON   
-      message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+      message_sent_id = COMM_MESSAGE_INIT_ID;
       printf("stm32 write msg %c\n", message_sent_id);
       usb_write_char(message_sent_id);
       sleep(1);
-      message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+      message_sent_id = COMM_MESSAGE_SYNC_ID;
       printf("stm32 write msg %c\n", message_sent_id);
       usb_write_char(message_sent_id);
       
@@ -102,3 +113,5 @@ void test_comm_main()
    usb_init(USB_PORT_NAME);
    is_usb_reading = USB_READING_ON;
 }
+
+#endif

@@ -10,8 +10,6 @@
 
 #include "../global_config.h"
 
-#ifdef USB_ON
-
 #define USB_PORT_NAME "/dev/ttyUSB0"
 #define USB_BUFFER_MAX_SIZE 100
 
@@ -25,7 +23,6 @@ void usb_close();
 #define USB_READING_ON 1
 
 extern int is_usb_reading;
-#endif
 
 #endif	/* USB_H */
 

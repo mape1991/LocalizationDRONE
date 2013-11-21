@@ -1,8 +1,6 @@
-#include <stdlib.h>
-#include <sys/time.h>
-
-
 #include "test_wifi_delay.h"
+
+#ifdef TEST_WIFI_DELAY
 
 #define DEST_IP "192.168.1.1"
 
@@ -87,3 +85,4 @@ void test_wifi_delay_main()
    message_send_enable = UDP_SEND_ON;
 }
 
+#endif

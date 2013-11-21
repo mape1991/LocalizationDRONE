@@ -31,7 +31,7 @@ static void buttons_callback( GtkWidget *widget, gpointer   data )
 void button_init_callback() 
 {
    #ifdef UDP_ON
-      message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+      message_sent_id = COMM_MESSAGE_INIT_ID;
       udp_send_char(DEST_IP, message_sent_id);
    #endif
 }
@@ -39,7 +39,7 @@ void button_init_callback()
 void button_sync_callback() 
 {
    #ifdef UDP_ON
-   message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
+   message_sent_id = COMM_MESSAGE_SYNC_ID;
    udp_send_char(DEST_IP, message_sent_id);
    #endif
 }
@@ -47,7 +47,7 @@ void button_sync_callback()
 void button_exit_callback() 
 {
    #ifdef UDP_ON
-   message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
+   message_sent_id = COMM_MESSAGE_EXIT_ID;
    udp_send_char(DEST_IP, message_sent_id);
    #endif
 }

@@ -30,9 +30,11 @@ ServerBeacons_stm32/project/*.htm
 **/user.properties
 =======
 
-.gitignore~
-README.md~
 ardrone_indoor_drone/ARM/
 ardrone_indoor_drone/GNU-i386-Linux/
 ardrone_indoor_drone/user.properties
->>>>>>> upstream/master
+**/nbproject
+#ignore the temp headers/sources
+*.orig
+*.*~
+*.*~

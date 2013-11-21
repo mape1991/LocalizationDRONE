@@ -1,7 +1,5 @@
 #include "usb.h"
 
-#ifdef USB_ON
-
 #include <errno.h>
 #include <termios.h>
 #include <unistd.h>
@@ -121,5 +119,3 @@ void usb_close()
 {
    close(fd);
 }
-
-#endif

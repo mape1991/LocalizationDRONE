@@ -34,7 +34,7 @@
 #endif
  
 #ifdef UDP_ON
-   #include "com/udp_comm.h"
+   #include "../../ardrone_indoor_commons/com/udp_comm.h"
 
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
@@ -74,7 +74,6 @@
    
 #ifdef GUI_ON
    #include "gui/gui.h"
-#include "tests/test_comm.h"
 
    DEFINE_THREAD_ROUTINE(gui, data) /* gui is the routine's name */
    {

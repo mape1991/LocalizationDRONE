@@ -11,8 +11,8 @@
 
 #ifdef GUI_ON
 
-#include "../com/commons_comm.h"
-#include "../com/udp_comm.h"
+#include "../../../ardrone_indoor_commons/global_com.h"
+#include "../../../ardrone_indoor_commons/com/udp_comm.h"
 
 #ifdef TEST_COMM
 #include "../ardrone_indoor_server.h"
