@@ -12,7 +12,6 @@ double time2 = 0;
 
 void test_wifi_delay_udp_read()
 {
-   while(is_udp_listening){
       struct timeval tim;
       gettimeofday(&tim,NULL);
       double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
@@ -21,10 +20,11 @@ void test_wifi_delay_udp_read()
       {
          printf("init received\n");
          strcpy(message, "");
-         message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
-         message_send_enable = UDP_SEND_ON;
+         time1 = t1;
+         printf("attentionnnnnnnnnnnnn  %.6lf seconds elapsed\n", time1-time2);
+         return;
       }
-      else if (strcmp(message, UDP_MESSAGE_DRONE_SYNC_ID) == 0)
+      /*else if (strcmp(message, UDP_MESSAGE_DRONE_SYNC_ID) == 0)
       {
          strcpy(message, "");
          // initial demo
@@ -37,11 +37,10 @@ void test_wifi_delay_udp_read()
             message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
          }
          message_send_enable = UDP_SEND_ON;
-      }
-      time1 = t1;
-      printf("attentionnnnnnnnnnnnn  %.6lf seconds elapsed\n", time1-time2);
-      return;
-   }
+      }*/
+      
+      
+   
 }
 
 
@@ -55,7 +54,7 @@ void test_wifi_delay_udp_send()
    udp_send_char(DEST_IP, message_sent_id);
 
    sleep(1);
-
+/*
    message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
    int i = 0;
    for(i = 0; i < UDP_MESSAGE_SYNC_COUNT; i++){
@@ -66,7 +65,7 @@ void test_wifi_delay_udp_send()
    message_sent_id = UDP_MESSAGE_SERVER_EXIT_ID;
    udp_send_char(DEST_IP, message_sent_id);
 
-   sleep(1);
+   sleep(1);*/
 
    is_udp_sending = UDP_SEND_OFF;
    is_udp_listening = UDP_LISTEN_OFF;
