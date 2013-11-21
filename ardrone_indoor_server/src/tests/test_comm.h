@@ -9,7 +9,7 @@
 #define	TEST_COMM_H
 
 #include "../global_config.h"
-#include "../com/udp_comm.h"
+#include "../../ardrone_indoor_commons/com/udp_comm.h"
 #include "../usb/usb.h"
 
 #endif	/* TEST_COMM_H */

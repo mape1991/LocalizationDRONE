@@ -34,12 +34,12 @@
 #endif
  
 #ifdef UDP_ON
-   #include "com/udp_comm.h"
+   #include "../../ardrone_indoor_commons/com/udp_comm.h"
 
    #ifdef TEST_COMM
       char message[UDP_MESSAGE_DRONE_SIZE];
       char message_send_enable = 0;
-      char message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+      char message_sent_id = COMM_MESSAGE_INIT_ID;
       char message_sync_count = 0;
    #endif
 
