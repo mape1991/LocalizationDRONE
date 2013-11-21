@@ -8,8 +8,9 @@
 ##
 
 
-#### Compiler and tool definitions shared by all build targets #####
-CC=/opt/CodeSourcery/Sourcery_CodeBench_Lite_for_ARM_GNU_Linux/bin/arm-none-linux-gnueabi-gcc
+#### Compiler and tool definitions shared by all build targets 
+
+include user.properties
 BASICOPTS = -g
 CFLAGS = $(BASICOPTS) -march=armv7-a
 
@@ -41,8 +42,8 @@ $(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone: $(TARGETDIR_ardrone_indo
 $(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o: $(TARGETDIR_ardrone_indoor_drone) src/ardrone_indoor_drone.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/ardrone_indoor_drone.c
 
-$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o: $(TARGETDIR_ardrone_indoor_drone) src/com/udp_comm.c
-	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/com/udp_comm.c
+$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o: $(TARGETDIR_ardrone_indoor_drone) ../ardrone_indoor_commons/com/udp_comm.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ ../ardrone_indoor_commons/com/udp_comm.c
 
 $(TARGETDIR_ardrone_indoor_drone)/test_comm.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_comm.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_comm.c

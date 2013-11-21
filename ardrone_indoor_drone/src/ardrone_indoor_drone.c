@@ -9,11 +9,7 @@
 #include <termios.h>
 #include <unistd.h>
 
-#include "com/commons_comm.h"
-      
-#ifdef UDP_ON
-   #include "com/udp_comm.h"
-#endif
+#include"global_config.h"
 
 #ifdef TEST_COMM
     #include "tests/test_comm.h"

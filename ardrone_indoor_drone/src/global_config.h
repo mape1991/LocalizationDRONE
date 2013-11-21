@@ -15,9 +15,9 @@
  * i.e. if GUI_ON is commented, nothing related to user interface will be activated 
  */
 // debug tracking
-#define DEBUG_ON
+//#define DEBUG_ON
 // udp communication
-#define UDP_ON
+//#define UDP_ON
 
 // Tests
 #define TEST_COMM             // test comm on
