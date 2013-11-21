@@ -73,7 +73,7 @@ void test_comm_thread_write()
       is_usb_reading = USB_READING_OFF;
    #endif
 
-   is_udp_sending = UDP_SEND_OFF;
+   is_udp_sending = UDP_SEND_OFF; //Pour koi remettre à OFF ces 2 variables?
    is_udp_listening = UDP_LISTEN_OFF;
 }
 
@@ -90,7 +90,7 @@ void test_comm_thread_usb_read()
    }
 }
 
-int test_comm_main(int argc, char** argv)
+void test_comm_main()
 {
    printf("demo program launched\n\n");
    is_udp_listening = UDP_LISTEN_ON;
@@ -101,6 +101,4 @@ int test_comm_main(int argc, char** argv)
 
    usb_init(USB_PORT_NAME);
    is_usb_reading = USB_READING_ON;
-
-   return ardrone_tool_main(argc, argv);
 }

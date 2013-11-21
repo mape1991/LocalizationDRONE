@@ -14,8 +14,11 @@
  * this will disable the attached functionality
  * i.e. if GUI_ON is commented, nothing related to user interface will be activated 
  */
+
+// DEFINE these FEATURES IN YOUR test define if you use them
+
 // user interface
-#define GUI_ON
+//#define GUI_ON
    // user interface version
    //#define GUI_VERSION_USER
    #define GUI_VERSION_TEST
@@ -30,13 +33,20 @@
 // usb communication
 //#define USB_ON
 
-// Tests
-//#define TEST_COMM             // test comm on
 
+
+// Tests
+
+// declare global test definition
+//#define TEST_COMM             // test comm on
+#define TEST_WIFI_DELAY
+
+// define which features to use in this test
 #ifdef TEST_COMM
-        #define UDP_ON
-        #define USB_ON
-#elif X
+    #define UDP_ON
+    #define USB_ON
+#elif defined TEST_WIFI_DELAY
+    #define UDP_ON
 #endif
 
 

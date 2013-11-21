@@ -36,23 +36,15 @@
 #ifdef UDP_ON
    #include "../../ardrone_indoor_commons/com/udp_comm.h"
 
-   #ifdef TEST_COMM
-      char message[UDP_MESSAGE_DRONE_SIZE];
-      char message_send_enable = 0;
-      char message_sent_id = COMM_MESSAGE_INIT_ID;
-      char message_sync_count = 0;
-   #endif
-
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
       // the server can listen (port 7000)
       if (is_udp_listening)
       {
          #ifdef TEST_COMM
-         
- 
-         #else
-            // TODO
+            test_comm_thread_udp_read();
+         #elif defined TEST_WIFI_DELAY
+            test_wifi_delay_udp_read();
          #endif
       }
    }
@@ -63,7 +55,9 @@
       if (is_udp_sending)
       {
          #ifdef TEST_COMM
-            test_comm_thread_comm_write();
+            test_comm_thread_write();
+         #elif defined TEST_WIFI_DELAY
+            test_wifi_delay_udp_send();
          #endif
       }
    }
@@ -97,7 +91,11 @@ int main(int argc, char** argv)
 {
    // execute the main of the selected test
    #ifdef TEST_COMM
-      return test_comm_main(argc, argv);
+      test_comm_main();
+      return ardrone_tool_main(argc, argv);
+   #elif defined(TEST_WIFI_DELAY)
+      test_wifi_delay_main();
+      return ardrone_tool_main(argc, argv);
    #elif defined(GUI_VERSION_TEST)
       init_gui(&argc, &argv);
       gtk_main ();
