@@ -20,11 +20,15 @@
 //#define UDP_ON
 
 // Tests
-#define TEST_COMM             // test comm on
+//#define TEST_COMM             // test comm on
+#define TEST_WIFI_DELAY
 
 #ifdef TEST_COMM
     #define UDP_ON
+#elif defined TEST_WIFI_DELAY
+    #define UDP ON
 #endif
+
 
 
 #endif	/* GLOBAL_CONFIG_H */
