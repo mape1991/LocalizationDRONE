@@ -25,10 +25,9 @@ ServerBeacons_stm32/project/*.uvgui.*
 ServerBeacons_stm32/project/*.lnp
 ServerBeacons_stm32/project/*.map
 ServerBeacons_stm32/project/*.htm
+ServerBeacons_stm32/project/*.bak
 
-<<<<<<< HEAD
 **/user.properties
-=======
 
 ardrone_indoor_drone/ARM/
 ardrone_indoor_drone/GNU-i386-Linux/
