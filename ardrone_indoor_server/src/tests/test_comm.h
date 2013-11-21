@@ -12,5 +12,10 @@
 #include "../com/udp_comm.h"
 #include "../usb/usb.h"
 
+void test_comm_thread_udp_read();
+void test_comm_thread_write();
+void test_comm_thread_usb_read();
+void test_comm_main();
+
 #endif	/* TEST_COMM_H */
 

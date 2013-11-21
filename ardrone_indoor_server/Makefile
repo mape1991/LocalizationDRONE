@@ -1,4 +1,4 @@
-SDK_PATH:=/home/julien/Desktop/ARDrone_SDK_2_0_1/ARDroneLib/ARDrone_SDK_2_0_1/ARDroneLib
+include $(shell pwd)/user.properties
 PC_TARGET=yes
 USE_LINUX=yes
 
@@ -26,6 +26,7 @@ GENERIC_BINARIES_SOURCE_DIR:=$(SRC_DIR)
 GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    nav/navdata.c    \
    com/udp_comm.c \
+   tests/test_wifi_delay.c \
    gui/gui.c \
    video/video_stage.c \
    usb/usb.c
