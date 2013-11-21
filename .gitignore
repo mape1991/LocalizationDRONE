@@ -25,3 +25,5 @@ ServerBeacons_stm32/project/*.uvgui.*
 ServerBeacons_stm32/project/*.lnp
 ServerBeacons_stm32/project/*.map
 ServerBeacons_stm32/project/*.htm
+
+**/user.properties
