@@ -35,5 +35,6 @@ ardrone_indoor_drone/GNU-i386-Linux/
 ardrone_indoor_drone/user.properties
 **/nbproject
 #ignore the temp headers/sources
+*.orig
 *.*~
 *.*~

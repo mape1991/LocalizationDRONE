@@ -1,11 +1,12 @@
-#include <stdlib.h>
-#include <sys/time.h>
-
-
 #include "test_wifi_delay.h"
+
+#ifdef TEST_WIFI_DELAY
+
+#define DEST_IP "192.168.1.1"
+
 char message[UDP_MESSAGE_DRONE_SIZE];
 char message_send_enable = 0;
-char message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+char message_sent_id = COMM_MESSAGE_INIT_ID;
 char message_sync_count = 0;
 double time1 = 0;
 double time2 = 0;
@@ -47,7 +48,7 @@ void test_wifi_delay_udp_read()
 void test_wifi_delay_udp_send()
 {
    sleep(1);
-   message_sent_id = UDP_MESSAGE_SERVER_INIT_ID;
+   message_sent_id = COMM_MESSAGE_INIT_ID;
    struct timeval tim;
    gettimeofday(&tim,NULL);
    double t2=tim.tv_sec+(tim.tv_usec/1000000.0);
@@ -83,4 +84,6 @@ void test_wifi_delay_main()
    // the drone will receive it and reply (and so on for the next steps)
    message_send_enable = UDP_SEND_ON;
 }
+
+#endif
 

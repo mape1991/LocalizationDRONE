@@ -8,9 +8,4 @@
 
 C_RESULT signal_exit();
 
-#ifdef TEST_COMM
-extern char message_send_enable;
-extern char message_sent_id;
-#endif
-
 #endif // _MYKONOS_TESTING_TOOL_H_

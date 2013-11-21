@@ -9,8 +9,9 @@
 #define	TEST_WIFI_DELAY_H
 
 #include "../global_config.h"
-#include "../com/udp_comm.h"
-#include "../usb/usb.h"
+#include "../../ardrone_indoor_commons/com/udp_comm.h"
+#include <stdlib.h>
+#include <sys/time.h>
 
 void test_wifi_delay_udp_read();
 void test_wifi_delay_udp_send();

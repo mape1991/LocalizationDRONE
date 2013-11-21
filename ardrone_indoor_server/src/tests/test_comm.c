@@ -1,5 +1,16 @@
 #include "test_comm.h"
 
+
+#ifdef TEST_COMM
+
+char message[UDP_MESSAGE_DRONE_SIZE];
+char message_send_enable = 0;
+char message_sent_id = COMM_MESSAGE_INIT_ID;
+char message_sync_count = 0;
+
+//TODO : define the correct destination IP
+#define DEST_IP "192.168.1.1"
+
 void test_comm_thread_udp_read()
 {
    while(is_udp_listening){
@@ -102,3 +113,5 @@ void test_comm_main()
    usb_init(USB_PORT_NAME);
    is_usb_reading = USB_READING_ON;
 }
+
+#endif

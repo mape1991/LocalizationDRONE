@@ -43,9 +43,11 @@
 
 // define which features to use in this test
 #ifdef TEST_COMM
+    #include "tests/test_comm.h"
     #define UDP_ON
     #define USB_ON
 #elif defined TEST_WIFI_DELAY
+    #include "tests/test_wifi_delay.h"
     #define UDP_ON
 #endif
 
