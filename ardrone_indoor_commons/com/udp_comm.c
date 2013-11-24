@@ -20,7 +20,7 @@ int is_udp_sending   = UDP_SEND_OFF;
 // the thread structure is taken from the video_stage thread example
 // the udp connection code is included with new error signals to handle the diff cases..
 
-int udp_listen(int lg_mesg_emis)
+int udp_listen(int lg_mesg_emis, int port)
 {
    struct sockaddr_in adr_local; // local socket addr
    struct sockaddr_in adr_distant; // remote socket addr
@@ -46,7 +46,7 @@ int udp_listen(int lg_mesg_emis)
    // socket addr creation with the IP of the machine executing the program
    memset((char*) &adr_local,0,sizeof(adr_local)); // reset
    adr_local.sin_family = AF_INET;
-   adr_local.sin_port = PORT_SERVER_TO_DRONE;
+   adr_local.sin_port = port;
    adr_local.sin_addr.s_addr = INADDR_ANY;
 
    // association @socket with the internal addr
@@ -90,7 +90,7 @@ int udp_listen(int lg_mesg_emis)
    return error_type;
 }
 
-int udp_listen_once(char *message, int lg_mesg_emis)
+int udp_listen_once(char *message, int lg_mesg_emis, int port)
 {
    struct sockaddr_in adr_local; // local socket addr
    struct sockaddr_in adr_distant; // remote socket addr
@@ -115,7 +115,7 @@ int udp_listen_once(char *message, int lg_mesg_emis)
    // socket addr creation with the IP of the machine executing the program
    memset((char*) &adr_local,0,sizeof(adr_local)); // reset
    adr_local.sin_family = AF_INET;
-   adr_local.sin_port = PORT_SERVER_TO_DRONE;
+   adr_local.sin_port = port;
    adr_local.sin_addr.s_addr = INADDR_ANY;
 
    // association @socket with the internal addr
@@ -148,7 +148,7 @@ int udp_listen_once(char *message, int lg_mesg_emis)
    return error_type;
 }
 
-int udp_send(char * dest, char *message, int size)
+int udp_send(char * dest, char *message, int size, int port)
 {
    int sock;
    //struct hostent *hp;
@@ -168,7 +168,7 @@ int udp_send(char * dest, char *message, int size)
    //affectation domaine et n° de port
    memset((char*) &adr_distant, 0, sizeof(adr_distant));
    adr_distant.sin_family = AF_INET;
-   adr_distant.sin_port = PORT_DRONE_TO_SERVER;
+   adr_distant.sin_port = port;
 
    //affectation @IP
    inet_aton(dest, &adr_distant.sin_addr);
@@ -182,9 +182,9 @@ int udp_send(char * dest, char *message, int size)
    printf("sending : end of communication\n");
 }
 
-int udp_send_char(char * dest, char message)
+int udp_send_char(char * dest, char message,int port)
 {
    char message_arr[1];
    message_arr[0] = message;
-   return udp_send(dest, message_arr, 1);
+   return udp_send(dest, message_arr, 1, port);
 }

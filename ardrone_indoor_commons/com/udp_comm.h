@@ -21,10 +21,10 @@
 
 typedef void (*On_received_callback)(char *);  
 
-int udp_listen(int lg_mesg_emis); /* listen to drone, return a type of errors */
-int udp_listen_once(char *message, int lg_mesg_emis);
-int udp_send(char * dest, char *message, int size); /*  */
-int udp_send_char(char * dest, char message);
+int udp_listen(int lg_mesg_emis,int port); /* listen to drone, return a type of errors */
+int udp_listen_once(char *message, int lg_mesg_emis, int port);
+int udp_send(char * dest, char *message, int size, int port); /*  */
+int udp_send_char(char * dest, char message, int port);
 
 extern On_received_callback udp_listen_callback; // can initialize a function pointer on a callback function, called whenever a message is received
 extern int is_udp_listening;
