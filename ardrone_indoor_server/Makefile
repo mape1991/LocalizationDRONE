@@ -1,4 +1,4 @@
-SDK_PATH:=/home/julien/Desktop/ARDrone_SDK_2_0_1/ARDroneLib/ARDrone_SDK_2_0_1/ARDroneLib
+include $(shell pwd)/user.properties
 PC_TARGET=yes
 USE_LINUX=yes
 
@@ -16,7 +16,7 @@ else
    ARDRONE_TARGET_DIR=$(shell pwd)/Build/Debug
 endif
 
-TARGET=ardrone_indoor
+TARGET=ardrone_indoor_server
 
 SRC_DIR:=$(shell pwd)/src
 
@@ -24,11 +24,13 @@ SRC_DIR:=$(shell pwd)/src
 GENERIC_BINARIES_SOURCE_DIR:=$(SRC_DIR)
 
 GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
-   nav/navdata.c       \
+   nav/navdata.c    \
+   ../../ardrone_indoor_commons/com/udp_comm.c \
+   tests/test_comm.c \
+   tests/test_wifi_delay.c \
+   gui/gui.c \
    video/video_stage.c \
-   gui/gui.c           \
-   com/drone_comm.c    \
-   com/server_comm.c
+   usb/usb.c
 
 GENERIC_INCLUDES+=					\
 	$(SRC_DIR) \
@@ -41,7 +43,7 @@ GENERIC_TARGET_BINARIES_PREFIX=
 GENERIC_TARGET_BINARIES_DIR=$(ARDRONE_TARGET_DIR)
 
 GENERIC_BINARIES_SOURCE_ENTRYPOINTS+=			\
-   ardrone_indoor.c
+   ardrone_indoor_server.c
 
 GENERIC_INCLUDES:=$(addprefix -I,$(GENERIC_INCLUDES))
 
@@ -49,7 +51,7 @@ GENERIC_LIB_PATHS=-L$(GENERIC_TARGET_BINARIES_DIR)
 GENERIC_LIBS=-lpc_ardrone -lgtk-x11-2.0 -lrt
 
 SDK_FLAGS+="USE_APP=yes"
-SDK_FLAGS+="APP_ID=ardrone_indoor"
+SDK_FLAGS+="APP_ID=ardrone_indoor_server"
 
 export GENERIC_CFLAGS
 export GENERIC_LIBS
@@ -71,7 +73,7 @@ all: build_libs $(TARGET)
 
 $(TARGET):
 	@$(MAKE) -C $(SDK_PATH)/VP_SDK/Build $(TMP_SDK_FLAGS) $(SDK_FLAGS) $(MAKECMDGOALS) USE_LINUX=yes
-	mv $(ARDRONE_TARGET_DIR)/ardrone_indoor $(TARGET)
+	mv $(ARDRONE_TARGET_DIR)/ardrone_indoor_server $(TARGET)
 	mv $(TARGET) $(ARDRONE_TARGET_DIR)/
 
 $(MAKECMDGOALS): build_libs

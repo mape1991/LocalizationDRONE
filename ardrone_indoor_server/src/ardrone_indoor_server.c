@@ -6,7 +6,7 @@
  * Modifications:
  *    - use of a global config with definitions to enable/disable functionalities of the program (gui,...)
  */
-#include "ardrone_indoor.h"
+#include "ardrone_indoor_server.h"
 
 //ARDroneLib
 #include <utils/ardrone_time.h>
@@ -24,13 +24,54 @@
 #include <VP_Api/vp_api_thread_helper.h>
 #include <VP_Os/vp_os_signal.h>
 
-//Local project
-#include "global_config.h"
 
 #ifdef VIDEO_ON
    #include "video/video_stage.h"
 #endif
 
+#ifdef USB_ON
+   #include "usb/usb.h"
+#endif
+ 
+#ifdef UDP_ON
+   #include "../../ardrone_indoor_commons/com/udp_comm.h"
+
+   DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
+   {
+      // the server can listen (port 7000)
+      if (is_udp_listening)
+      {
+         #ifdef TEST_COMM
+            test_comm_thread_udp_read();
+         #elif defined TEST_WIFI_DELAY
+            test_wifi_delay_udp_read();
+         #endif
+      }
+   }
+   
+   DEFINE_THREAD_ROUTINE(udp_send_comm, data)
+   {   
+      // and the server can send at the meantime (port 7001)
+      if (is_udp_sending)
+      {
+         #ifdef TEST_COMM
+            test_comm_thread_write();
+         #elif defined TEST_WIFI_DELAY
+            test_wifi_delay_udp_send();
+         #endif
+      }
+   }
+#endif
+   
+#ifdef USB_ON
+   DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
+   {
+      #ifdef TEST_COMM
+         test_comm_thread_usb_read();
+      #endif
+   }
+#endif
+   
 #ifdef GUI_ON
    #include "gui/gui.h"
 
@@ -42,31 +83,26 @@
    }
 #endif
    
-#ifdef SERVER_COMM_ON
-   #include "com/server_comm.h"
-
-   DEFINE_THREAD_ROUTINE(server_comm, data)
-   {
-      listen_drone();
-   }
-#endif
-
-#ifdef DRONE_COMM_ON
-   #include "com/drone_comm.h"
-
-   DEFINE_THREAD_ROUTINE(drone_comm, data)
-   {
-      send_to_server(0, 0);
-   }
-#endif
-   
 // global variable linking the entry point to the user
 static int32_t exit_ihm_program = 1;
 
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
-     return ardrone_tool_main(argc, argv);
+   // execute the main of the selected test
+   #ifdef TEST_COMM
+      test_comm_main();
+      return ardrone_tool_main(argc, argv);
+   #elif defined(TEST_WIFI_DELAY)
+      test_wifi_delay_main();
+      return ardrone_tool_main(argc, argv);
+   #elif defined(GUI_VERSION_TEST)
+      init_gui(&argc, &argv);
+      gtk_main ();
+      return(0);
+   #else
+      return ardrone_tool_main(argc, argv);
+   #endif
 }
 
 /* The delegate object calls this method during initialization of an ARDrone application */
@@ -84,8 +120,17 @@ C_RESULT ardrone_tool_init_custom(void)
       init_gui(0, 0); /* Creating the GUI */
       START_THREAD(gui, NULL); /* Starting the GUI thread */
    #endif 
-  
-  return C_OK;
+
+   #ifdef UDP_ON
+      START_THREAD(udp_listen_comm, NULL);
+      START_THREAD(udp_send_comm, NULL);
+   #endif
+
+   #ifdef USB_ON
+      START_THREAD(usb_listen_comm, NULL);
+   #endif
+
+   return C_OK;
 }
 
 /* The delegate object calls this method when the event loop exit */
@@ -101,13 +146,18 @@ C_RESULT ardrone_tool_shutdown_custom(void)
   
    /* user interface thread */
    #ifdef GUI_ON
-      JOIN_THREAD(gui);
+     // JOIN_THREAD(gui);
    #endif
   
    /* server communication */
-   #ifdef SERVER_COMM_ON
-      JOIN_THREAD(server_comm);
+   #ifdef UDP_ON
+      JOIN_THREAD(udp_listen_comm);
+      JOIN_THREAD(udp_send_comm);
    #endif 
+
+   #ifdef USB_ON
+      JOIN_THREAD(usb_listen_comm);
+   #endif
       
    return C_OK;
 }
@@ -127,7 +177,8 @@ C_RESULT signal_exit()
 
 /* Implementing thread table in which you add routines of your application and those provided by the SDK */
 BEGIN_THREAD_TABLE
-      THREAD_TABLE_ENTRY(ardrone_control, 20)
+   
+   THREAD_TABLE_ENTRY(ardrone_control, 20)
    #ifdef NAV_ON
       THREAD_TABLE_ENTRY(navdata_update, 20)
    #endif
@@ -137,6 +188,15 @@ BEGIN_THREAD_TABLE
    #ifdef GUI_ON
       THREAD_TABLE_ENTRY(gui, 20)
    #endif
-  //THREAD_TABLE_ENTRY(server_comm, 20)
+
+   #ifdef UDP_ON
+      THREAD_TABLE_ENTRY(udp_listen_comm, 20)
+      THREAD_TABLE_ENTRY(udp_send_comm, 20)
+   #endif
+
+   #ifdef USB_ON
+      THREAD_TABLE_ENTRY(usb_listen_comm, 20)
+   #endif
+
 END_THREAD_TABLE
 
