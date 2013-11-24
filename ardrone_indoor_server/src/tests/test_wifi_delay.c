@@ -1,7 +1,7 @@
 #include "test_wifi_delay.h"
 
 #ifdef TEST_WIFI_DELAY
-
+// WARNING IP for local test#define DEST_IP "192.168.1.3"
 #define DEST_IP "192.168.1.1"
 
 char message[UDP_MESSAGE_DRONE_SIZE];
@@ -13,15 +13,17 @@ double time2 = 0;
 
 void test_wifi_delay_udp_read()
 {
-      struct timeval tim;
-      gettimeofday(&tim,NULL);
-      double t1=tim.tv_sec+(tim.tv_usec/1000000.0);
-      udp_listen_once(message, UDP_MESSAGE_DRONE_SIZE);
+    while(is_udp_listening){
+      udp_listen_once(message, UDP_MESSAGE_DRONE_SIZE,PORT_DRONE_TO_SERVER);
       if (strcmp(message, UDP_MESSAGE_DRONE_INIT_ID) == 0)
       {
+         struct timeval tim;
+         gettimeofday(&tim,NULL);
+         double t1=tim.tv_sec*1000.0+(tim.tv_usec);
+         time1 = t1;
+         printf("time1: %d\n",tim.tv_usec);
          printf("init received\n");
          strcpy(message, "");
-         time1 = t1;
          printf("attentionnnnnnnnnnnnn  %.6lf seconds elapsed\n", time1-time2);
          return;
       }
@@ -41,7 +43,7 @@ void test_wifi_delay_udp_read()
       }*/
       
       
-   
+    }
 }
 
 
@@ -51,10 +53,13 @@ void test_wifi_delay_udp_send()
    message_sent_id = COMM_MESSAGE_INIT_ID;
    struct timeval tim;
    gettimeofday(&tim,NULL);
-   double t2=tim.tv_sec+(tim.tv_usec/1000000.0);
-   udp_send_char(DEST_IP, message_sent_id);
-
- /*  sleep(1);
+   double t2=tim.tv_sec*1000.0+(tim.tv_usec);
+   time2 = t2;
+   printf("time2: %d\n",tim.tv_usec);
+   udp_send_char(DEST_IP, message_sent_id,PORT_SERVER_TO_DRONE);
+  
+  
+   /*sleep(1);
 
    message_sent_id = UDP_MESSAGE_SERVER_SYNC_ID;
    int i = 0;
@@ -70,7 +75,7 @@ void test_wifi_delay_udp_send()
 
    is_udp_sending = UDP_SEND_OFF;
    is_udp_listening = UDP_LISTEN_OFF;
-   time2 = t2; 
+   
 }
 
 

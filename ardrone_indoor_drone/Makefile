@@ -26,7 +26,9 @@ CPPFLAGS_ardrone_indoor_drone = \
 OBJS_ardrone_indoor_drone =  \
 	$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
 	$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o \
-	$(TARGETDIR_ardrone_indoor_drone)/test_comm.o
+	$(TARGETDIR_ardrone_indoor_drone)/test_comm.o \
+	$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o
+	
 SYSLIBS_ardrone_indoor_drone = -lm 
 USERLIBS_ardrone_indoor_drone = $(SYSLIBS_ardrone_indoor_drone) 
 DEPLIBS_ardrone_indoor_drone =  
@@ -48,7 +50,7 @@ $(TARGETDIR_ardrone_indoor_drone)/udp_comm.o: $(TARGETDIR_ardrone_indoor_drone) 
 $(TARGETDIR_ardrone_indoor_drone)/test_comm.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_comm.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_comm.c
 
-$(TARGETDIR_ardrone_indoor_drone)/test_comm.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_wifi_delay.c
+$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_wifi_delay.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_wifi_delay.c
 
 
@@ -58,7 +60,9 @@ clean:
 		$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone \
 		$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
 		$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o \
-		$(TARGETDIR_ardrone_indoor_drone)/test_comm.o
+		$(TARGETDIR_ardrone_indoor_drone)/test_comm.o \
+		$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o
+
 	rm -f -r $(TARGETDIR_ardrone_indoor_drone)
 
 
