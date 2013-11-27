@@ -28,7 +28,7 @@ void test_comm_main()
          printf("message quit received\n");
          break;
       }
-   while (1);
+   } while (1);
    udp_close_socket();
 }
 
