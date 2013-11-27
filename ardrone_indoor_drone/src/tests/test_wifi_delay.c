@@ -1,4 +1,6 @@
 #include "test_wifi_delay.h"
+#include <stdio.h>
+#include <string.h>
 
 #ifdef TEST_WIFI_DELAY
 
@@ -10,6 +12,7 @@ void test_wifi_delay_main()
    char message_sent_id[UDP_MESSAGE_DRONE_SIZE];
    printf("demo program launched\n\n");
    int i =1;
+   udp_open_socket();
    //while(i){
        udp_listen_once(message, COMM_MESSAGE_SIZE,PORT_SERVER_TO_DRONE);
        printf("haha %c\n",message[0]);
@@ -35,6 +38,7 @@ void test_wifi_delay_main()
                break;
       }*/
    //}
+   udp_close_socket();
 }
 
 #endif
