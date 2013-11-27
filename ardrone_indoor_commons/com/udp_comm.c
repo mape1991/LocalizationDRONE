@@ -51,6 +51,7 @@ int udp_open_socket(){
 int udp_listen_once(char *message, int lg_mesg_emis, int port)
 {
 
+   int error_type;
    // socket addr creation with the IP of the machine executing the program
    memset((char*) &adr_local,0,sizeof(adr_local)); // reset
    adr_local.sin_family = AF_INET;
@@ -131,4 +132,5 @@ int udp_close_socket(){
       #ifdef DEBUG_ON
          printf("receiving : end of communication\n");
       #endif
+   return 0;
 }
