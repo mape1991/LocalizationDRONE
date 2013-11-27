@@ -42,20 +42,6 @@ int udp_open_socket(){
       #endif
       error_type = ERROR_TYPE_SOCKET_CREATION;
    }
-
-   // socket addr creation with the IP of the machine executing the program
-   memset((char*) &adr_local,0,sizeof(adr_local)); // reset
-   adr_local.sin_family = AF_INET;
-   adr_local.sin_port = port;
-   adr_local.sin_addr.s_addr = INADDR_ANY;
-
-   
-	////////////////
-
-   //affectation domaine et n° de port
-   memset((char*) &adr_distant, 0, sizeof(adr_distant));
-   adr_distant.sin_family = AF_INET;
-   adr_distant.sin_port = port;
    
    return error_type;
 }
@@ -115,6 +101,8 @@ int udp_send(char * dest, char *message, int size, int port)
    // construct msg then send
    printf("sending : %d bytes : %s\n", size*sizeof(char), message);
    sendto(sock, (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_dest, lg_adr_dest);
+   
+   return 0;
 }
 
 int udp_send_char(char * dest, char message,int port)
@@ -128,6 +116,7 @@ int udp_respond(char* message, int size, int port){
 	// construct msg then send
    printf("sending : %d bytes : %s\n", size*sizeof(char), message);
    sendto(sock, (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_distant, lg_adr_distant);
+   return 0;
 }
 
 int udp_respond_char(char message,int port) {
