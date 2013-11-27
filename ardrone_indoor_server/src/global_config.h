@@ -19,11 +19,8 @@
 
 // user interface
 //#define GUI_ON
-   // user interface version
-   //#define GUI_VERSION_USER
-   #define GUI_VERSION_TEST
 // debug tracking
-#define DEBUG_ON
+//#define DEBUG_ON
 // video
 //#define VIDEO_ON
 // navigation data
@@ -39,7 +36,8 @@
 
 // declare global test definition
 //#define TEST_COMM             // test comm on
-#define TEST_WIFI_DELAY
+//#define TEST_WIFI_DELAY
+#define TEST_GUI
 
 // define which features to use in this test
 #ifdef TEST_COMM
@@ -49,6 +47,18 @@
 #elif defined TEST_WIFI_DELAY
     #include "tests/test_wifi_delay.h"
     #define UDP_ON
+#elif defined TEST_GUI
+	#define GUI_ON
+#endif
+
+#ifdef UDP_ON
+#endif
+
+#ifdef USB_ON
+	#define USB_READING_OFF 0
+	#define USB_READING_ON 1
+
+	extern int is_usb_reading;
 #endif
 
 

@@ -22,6 +22,11 @@
 
 #define NUM_COORDINATES 3
 
+#define STATE_DISCONNECTED 0
+#define STATE_CONNECTED 1
+#define STATE_STARTED 0
+#define STATE_PAUSED 1
+
 typedef struct gui
 {
   GtkWidget *window;
@@ -30,11 +35,16 @@ typedef struct gui
   // main content
   GtkWidget *box_main; // container
   
-  GtkWidget *button_start;
-  GtkWidget *button_sync;
-  GtkWidget *button_exit;
-  GtkWidget *button_listen;
-  GtkWidget *button_send;
+  GtkWidget *button_connect; // the connect is responsible for the states Connect and Disconnect of the system
+  GtkWidget *button_onoff; // the onoff is responsible for the states Start and Stop of the system
+
+  // communication content
+  GtkWidget *label_udp_ip;   // the ip address of the system target (i.e. drone)
+  GtkWidget *text_udp_ip;
+  /*GtkWidget *label_udp_port; // the target port
+  GtkWidget *text_udp_port;
+  GtkWidget *label_usb_port_name; // the target usb port name
+  GtkWidget *text_usb_port_name;*/
 
   GtkWidget *cam; // camera image
   
@@ -49,26 +59,24 @@ typedef struct gui
   
   GtkWidget *label_drone_pos_ids[NUM_COORDINATES];
   GtkWidget *label_drone_pos_values[NUM_COORDINATES];
-  
-  // test content
-  #ifdef TEST_COMM
-    GtkWidget *box_test;
-    GtkWidget *text_test_listen;
-    GtkWidget *text_test_send;
-  #endif
-  
+
+  // message text to inform the user on the system state
+  GtkWidget *text_state;
+
+  char is_connected;
+  char is_started;
+
 } gui_t;
  
 gui_t *get_gui();
- 
-void on_message_received(char *message);
-void on_message_sent(char *message);
 
 void init_gui(int argc, char **argv);
 
-void button_init_callback();
-void button_sync_callback();
-void button_exit_callback();
+void button_connect_callback();
+void button_onoff_callback();
+
+typedef void (*message_handler_ptr)(char *message, int message_size);
+extern message_handler_ptr msg_handler;
 
 #endif
 

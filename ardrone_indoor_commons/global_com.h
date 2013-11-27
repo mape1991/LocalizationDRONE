@@ -8,6 +8,8 @@
 #ifndef GLOBAL_COMM_H
 #define	GLOBAL_COMM_H
 
+#define NUM_BEACONS 4
+
 #define PORT_SERVER_TO_DRONE 7000
 #define PORT_DRONE_TO_SERVER 7001
 

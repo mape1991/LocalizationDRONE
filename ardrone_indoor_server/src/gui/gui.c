@@ -5,50 +5,44 @@
 #include <stdio.h>
 #include <stdlib.h>
  
+
+//FIXME
+#define DEST_IP "192.168.1.1"
+
+char msg_is_connected[] = "The server is connected to the devices";
+char msg_is_disconnected[] = "The server is disconnected from the devices";
+
+
+
 gui_t *gui = NULL;
  
 gui_t *get_gui()
 {
   return gui;
 }
- 
-/* If the drone is landed, only start is clickable,
-   if the drone is in the air, only stop is clickable
-*/
-/*static void toggleButtonsState(void)
+
+void button_connect_callback()
 {
-  gboolean start_state = gtk_widget_get_sensitive(gui->button_start);
- 
-  gtk_widget_set_sensitive(gui->button_start, !start_state);
-  gtk_widget_set_sensitive(gui->button_stop, start_state);
-}*/
- 
-static void buttons_callback( GtkWidget *widget, gpointer   data )
-{
-    // FIXME: make the drone start
+	if (gui->is_connected == STATE_DISCONNECTED){
+	   // server to drone via usb
+	   #ifdef UDP_ON
+		  message_sent_id = COMM_MESSAGE_INIT_ID;
+		 // udp_send_char(DEST_IP, message_sent_id);
+	   #endif
+	   // server to stm32 via usb
+	   #ifdef USB_ON
+	   #endif
+	}else if (gui->is_connected == STATE_CONNECTED){
+		//message_sent_id = COMM_MESSAGE_EXIT_ID;
+		//udp_send_char(DEST_IP, message_sent_id);
+	}
 }
 
-void button_init_callback() 
+void button_onoff_callback()
 {
    #ifdef UDP_ON
-      message_sent_id = COMM_MESSAGE_INIT_ID;
-      udp_send_char(DEST_IP, message_sent_id);
-   #endif
-}
-
-void button_sync_callback() 
-{
-   #ifdef UDP_ON
-   message_sent_id = COMM_MESSAGE_SYNC_ID;
-   udp_send_char(DEST_IP, message_sent_id);
-   #endif
-}
-
-void button_exit_callback() 
-{
-   #ifdef UDP_ON
-   message_sent_id = COMM_MESSAGE_EXIT_ID;
-   udp_send_char(DEST_IP, message_sent_id);
+    //  message_sent_id = COMM_MESSAGE_SYNC_ID;
+    //  udp_send_char(DEST_IP, message_sent_id);
    #endif
 }
 
@@ -115,38 +109,16 @@ void createMainBox()
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->cam, FALSE, TRUE, 0);
    
    // initializes action buttons
-   gui->button_start = gtk_button_new_with_label("Init");
-   g_signal_connect (gui->button_start, "clicked", G_CALLBACK (button_init_callback), NULL);
+   gui->button_connect = gtk_button_new_with_label("Connect");
+   g_signal_connect (gui->button_connect, "clicked", G_CALLBACK (button_connect_callback), NULL);
 
-   gui->button_sync = gtk_button_new_with_label("Sync");
-   g_signal_connect (gui->button_sync, "clicked", G_CALLBACK (button_sync_callback), NULL);
-
-   gui->button_exit = gtk_button_new_with_label("Exit");
-   g_signal_connect (gui->button_exit, "clicked", G_CALLBACK (button_exit_callback), NULL);
+   gui->button_onoff = gtk_button_new_with_label("Start");
+   g_signal_connect (gui->button_onoff, "clicked", G_CALLBACK (button_onoff_callback), NULL);
+   gtk_widget_set_sensitive(gui->button_onoff, FALSE); // only on a connect button click can enable the onoff
 
    // add the action buttons to the box
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_start, TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_sync, TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_exit, TRUE, TRUE, 0);
-   
-   gui->button_listen = gtk_button_new_with_label("Start Listening");
-   g_signal_connect (gui->button_listen, "clicked", G_CALLBACK (button_listen_callback), NULL);
-
-   // disable the listening if server communication disabled
-   #ifndef UDP_ON
-      gtk_widget_set_sensitive(gui->button_listen, FALSE);
-   #endif
-   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_listen, TRUE, TRUE, 0);
-   
-   // button_send
-   gui->button_send = gtk_button_new_with_label("Start Sending");
-   g_signal_connect (gui->button_send, "clicked", G_CALLBACK (button_send_callback), NULL);
-
-   // disable the listening if server communication disabled
-   #ifndef UDP_ON
-      gtk_widget_set_sensitive(gui->button_send, FALSE);
-   #endif
-   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_send, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, TRUE, TRUE, 0);
+   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_onoff, TRUE, TRUE, 0);
 }
 
 void createTestBox()
