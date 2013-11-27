@@ -40,7 +40,7 @@ void test_comm_thread_udp_read()
 }
 
 
-void test_comm_thread_write()
+void test_comm_thread_send()
 {
    sleep(1);
    

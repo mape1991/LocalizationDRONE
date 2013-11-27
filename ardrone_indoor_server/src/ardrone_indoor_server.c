@@ -36,6 +36,8 @@
 #ifdef UDP_ON
    #include "../../ardrone_indoor_commons/com/udp_comm.h"
 
+   int is_usb_reading = USB_READING_OFF;
+
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
       // the server can listen (port 7000)
@@ -45,6 +47,8 @@
             test_comm_thread_udp_read();
          #elif defined TEST_WIFI_DELAY
             test_wifi_delay_udp_read();
+         #elif defined TEST_GUI
+            test_gui_thread_udp_read();
          #endif
       }
    }
@@ -55,9 +59,11 @@
       if (is_udp_sending)
       {
          #ifdef TEST_COMM
-            test_comm_thread_write();
+            test_comm_thread_send();
          #elif defined TEST_WIFI_DELAY
             test_wifi_delay_udp_send();
+		 #elif defined TEST_GUI
+            test_gui_thread_send();
          #endif
       }
    }
@@ -66,9 +72,14 @@
 #ifdef USB_ON
    DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {
-      #ifdef TEST_COMM
-         test_comm_thread_usb_read();
-      #endif
+	   if (is_usb_reading)
+	   {
+      	  #ifdef TEST_COMM
+         	 test_comm_thread_usb_read();
+		  #elif defined TEST_GUI
+             test_gui_thread_usb_read();
+          #endif
+	   }
    }
 #endif
    
@@ -96,9 +107,11 @@ int main(int argc, char** argv)
    #elif defined(TEST_WIFI_DELAY)
       test_wifi_delay_main();
       return ardrone_tool_main(argc, argv);
-   #elif defined(GUI_VERSION_TEST)
+   #elif defined(TEST_GUI)
       init_gui(&argc, &argv);
       gtk_main ();
+      // test_gui_main();
+      // FIXME: test gui only and then with the ardrone for the real communication tests
       return(0);
    #else
       return ardrone_tool_main(argc, argv);
