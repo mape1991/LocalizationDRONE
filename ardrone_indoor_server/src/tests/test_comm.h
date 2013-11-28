@@ -9,11 +9,11 @@
 #define	TEST_COMM_H
 
 #include "../global_config.h"
-#include "../../ardrone_indoor_commons/com/udp_comm.h"
+#include "../../../ardrone_indoor_commons/com/udp_comm.h"
 #include "../usb/usb.h"
 
 void test_comm_thread_udp_read();
-void test_comm_thread_write();
+void test_comm_thread_send();
 void test_comm_thread_usb_read();
 void test_comm_main();
 

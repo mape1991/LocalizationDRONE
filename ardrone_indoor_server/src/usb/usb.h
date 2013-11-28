@@ -19,10 +19,5 @@ void usb_write_char(char message);
 int usb_read(char *message, int message_size);
 void usb_close();
 
-#define USB_READING_OFF 0
-#define USB_READING_ON 1
-
-extern int is_usb_reading;
-
 #endif	/* USB_H */
 
