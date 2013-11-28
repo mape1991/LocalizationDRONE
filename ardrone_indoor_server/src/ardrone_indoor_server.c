@@ -29,57 +29,48 @@
    #include "video/video_stage.h"
 #endif
 
-#ifdef USB_ON
-   #include "usb/usb.h"
-#endif
- 
 #ifdef UDP_ON
    #include "../../ardrone_indoor_commons/com/udp_comm.h"
 
-   int is_usb_reading = USB_READING_OFF;
+   int is_udp_listening = UDP_LISTEN_OFF;
+   int is_udp_sending   = UDP_SEND_OFF;
 
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
-      // the server can listen (port 7000)
-      if (is_udp_listening)
-      {
-         #ifdef TEST_COMM
-            test_comm_thread_udp_read();
-         #elif defined TEST_WIFI_DELAY
-            test_wifi_delay_udp_read();
-         #elif defined TEST_GUI
-            test_gui_thread_udp_read();
-         #endif
-      }
+	  #ifdef TEST_COMM
+		 test_comm_thread_udp_read();
+	  #elif defined TEST_WIFI_DELAY
+		 test_wifi_delay_udp_read();
+	  #elif defined TEST_GUI
+		 test_gui_thread_udp_read();
+	  #endif
    }
    
    DEFINE_THREAD_ROUTINE(udp_send_comm, data)
    {   
-      // and the server can send at the meantime (port 7001)
-      if (is_udp_sending)
-      {
-         #ifdef TEST_COMM
-            test_comm_thread_send();
-         #elif defined TEST_WIFI_DELAY
-            test_wifi_delay_udp_send();
-		 #elif defined TEST_GUI
-            test_gui_thread_send();
-         #endif
-      }
+	  #ifdef TEST_COMM
+		 test_comm_thread_send();
+	  #elif defined TEST_WIFI_DELAY
+	 	 test_wifi_delay_udp_send();
+	  #elif defined TEST_GUI
+	     test_gui_thread_send();
+	  #endif
    }
 #endif
    
 #ifdef USB_ON
+
+   #include "usb/usb.h"
+
+   int is_usb_reading = USB_READING_OFF;
+
    DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {
-	   if (is_usb_reading)
-	   {
-      	  #ifdef TEST_COMM
-         	 test_comm_thread_usb_read();
-		  #elif defined TEST_GUI
-             test_gui_thread_usb_read();
-          #endif
-	   }
+	  #ifdef TEST_COMM
+		 test_comm_thread_usb_read();
+	  #elif defined TEST_GUI
+		 test_gui_thread_usb_read();
+	  #endif
    }
 #endif
    
@@ -100,19 +91,25 @@ static int32_t exit_ihm_program = 1;
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
-   // execute the main of the selected test
+   // test of communication protocols (udp and usb) (equal to the demo of sprint 1)
    #ifdef TEST_COMM
       test_comm_main();
       return ardrone_tool_main(argc, argv);
+   // test of wifi delay (roundtrip tranmission time of one message)
    #elif defined(TEST_WIFI_DELAY)
       test_wifi_delay_main();
       return ardrone_tool_main(argc, argv);
+   // test of the gui including communication protocols
+   // the user can click on buttons and obtain direct message transmissions
    #elif defined(TEST_GUI)
+      test_gui_main(argc, argv);
+      return ardrone_tool_main(argc, argv);
+   // test of the gui only (to check the resulting interface display)
+   #elif defined(TEST_GUI_ONLY)
       init_gui(&argc, &argv);
       gtk_main ();
-      // test_gui_main();
-      // FIXME: test gui only and then with the ardrone for the real communication tests
-      return(0);
+      while(1);
+      return 0;
    #else
       return ardrone_tool_main(argc, argv);
    #endif
