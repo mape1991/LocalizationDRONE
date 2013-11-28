@@ -22,6 +22,7 @@
 #define COMM_MESSAGE_INIT_ID 'I'
 #define COMM_MESSAGE_SYNC_ID 'S'
 #define COMM_MESSAGE_EXIT_ID 'X'
+#define COMM_MESSAGE_NONE    ''
 #define UDP_MESSAGE_DRONE_INIT_ID "init"
 #define UDP_MESSAGE_DRONE_SYNC_ID "sync"
 #define UDP_MESSAGE_DRONE_EXIT_ID "exit"

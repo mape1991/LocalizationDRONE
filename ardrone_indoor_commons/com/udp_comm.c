@@ -12,10 +12,6 @@
 #include <sys/time.h>
 #include <arpa/inet.h>
 
-On_received_callback udp_listen_callback = NULL;
-int is_udp_listening = UDP_LISTEN_OFF;
-int is_udp_sending   = UDP_SEND_OFF;
-
 //variables globales
 struct sockaddr_in adr_local; // local socket addr
 struct sockaddr_in adr_distant; // remote socket addr
@@ -128,7 +124,7 @@ int udp_respond_char(char message,int port) {
 
 int udp_close_socket(){
 	// close the socket
-      close(sock);
+    close(sock);
       #ifdef DEBUG_ON
          printf("receiving : end of communication\n");
       #endif
