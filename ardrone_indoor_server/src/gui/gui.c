@@ -4,15 +4,9 @@
 
 #include <stdio.h>
 #include <stdlib.h>
- 
-
-//FIXME
-#define DEST_IP "192.168.1.1"
 
 char msg_is_connected[] = "The server is connected to the devices";
 char msg_is_disconnected[] = "The server is disconnected from the devices";
-
-
 
 gui_t *gui = NULL;
  
@@ -23,27 +17,30 @@ gui_t *get_gui()
 
 void button_connect_callback()
 {
-	if (gui->is_connected == STATE_DISCONNECTED){
-	   // server to drone via usb
-	   #ifdef UDP_ON
-		  message_sent_id = COMM_MESSAGE_INIT_ID;
-		 // udp_send_char(DEST_IP, message_sent_id);
-	   #endif
-	   // server to stm32 via usb
-	   #ifdef USB_ON
-	   #endif
-	}else if (gui->is_connected == STATE_CONNECTED){
-		//message_sent_id = COMM_MESSAGE_EXIT_ID;
-		//udp_send_char(DEST_IP, message_sent_id);
-	}
+	#ifdef TEST_GUI
+		// disconnected > connected (init)
+		if (gui->is_connected == STATE_DISCONNECTED){
+			// server to stm32/drone via usb/udp
+			message_send_id = COMM_MESSAGE_INIT_ID;
+			message_send_enable = UDP_SEND_ON;
+			gui->is_connected = STATE_CONNECTED;
+		// connected > disconnected (exit)
+		}else if (gui->is_connected == STATE_CONNECTED){
+			message_send_id = COMM_MESSAGE_EXIT_ID;
+			message_send_enable = UDP_SEND_ON;
+			gui->is_connected = STATE_DISCONNECTED;
+		}
+	#endif
 }
 
-void button_onoff_callback()
+void button_getpos_callback()
 {
-   #ifdef UDP_ON
-    //  message_sent_id = COMM_MESSAGE_SYNC_ID;
-    //  udp_send_char(DEST_IP, message_sent_id);
-   #endif
+	#ifdef TEST_GUI
+		if (gui->is_connected == STATE_CONNECTED){
+			message_send_id = COMM_MESSAGE_SYNC_ID;
+			message_send_enable = UDP_SEND_ON;
+		}
+	#endif
 }
 
 #ifdef TEST_COMM
@@ -112,13 +109,13 @@ void createMainBox()
    gui->button_connect = gtk_button_new_with_label("Connect");
    g_signal_connect (gui->button_connect, "clicked", G_CALLBACK (button_connect_callback), NULL);
 
-   gui->button_onoff = gtk_button_new_with_label("Start");
-   g_signal_connect (gui->button_onoff, "clicked", G_CALLBACK (button_onoff_callback), NULL);
-   gtk_widget_set_sensitive(gui->button_onoff, FALSE); // only on a connect button click can enable the onoff
+   gui->button_getpos = gtk_button_new_with_label("Start");
+   g_signal_connect (gui->button_getpos, "clicked", G_CALLBACK (button_getpos_callback), NULL);
+   gtk_widget_set_sensitive(gui->button_getpos, FALSE); // only on a connect button click can enable the getpos
 
    // add the action buttons to the box
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, TRUE, TRUE, 0);
-   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_onoff, TRUE, TRUE, 0);
+   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_getpos, TRUE, TRUE, 0);
 }
 
 void createTestBox()
