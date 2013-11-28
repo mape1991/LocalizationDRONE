@@ -1,21 +1,91 @@
 #include "test_gui.h"
 
+#ifdef TEST_GUI
+
+char message[COMM_MESSAGE_SIZE];
+char message_send_enable = 0;
+char message_send_id = COMM_MESSAGE_INIT_ID;
+
 void test_gui_thread_udp_read()
 {
-	//TODO
+   while(is_udp_listening){
+	  udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_DRONE_TO_SERVER);
+	  // tracing
+	  if (message[0] != 0)
+	  	  printf("udp message %c\n", message[0]);
+	  // dispatch decisions through different cases
+	  switch(message[0])
+	  {
+	  case COMM_MESSAGE_INIT_ID :
+
+	 	 break;
+	  case COMM_MESSAGE_SYNC_ID :
+	 	 break;
+	  case COMM_MESSAGE_EXIT_ID :
+		 break;
+	  default:
+	 	 break;
+	  }
+	  // empty message for new loop
+	  message[0] = 0;
+   }
 }
 
-void test_gui_thread_write()
+// inputs provided by user actions (buttons rule the message enable and the message id
+void test_gui_thread_send()
 {
-	//TODO
+	while (is_udp_sending) {
+	   if (message_send_enable) {
+	   	   udp_send_char(DEST_IP_DRONE, message_send_id, PORT_SERVER_TO_DRONE);
+	   	// FIXME: do we send the usb packet at the meantime ?
+	   	   printf("stm32 write msg %c\n", message_send_id);
+	   	   usb_write_char(message_send_id);
+	   	   // stop sending (send only one message)
+	   	   message_send_enable = 0;
+	   }
+	}
 }
 
 void test_gui_thread_usb_read()
 {
-	//TODO
+   char buffer[USB_BUFFER_MAX_SIZE];
+   while (is_usb_reading) {
+	  int n = usb_read(buffer, 1);
+	  if (n > 0){
+		 printf("stm32 read msg %s\n", buffer);
+		 // dispatch the decision regarding the incoming character
+		 switch(buffer[0])
+		 {
+		 case COMM_MESSAGE_INIT_ID :
+			 break;
+		 case COMM_MESSAGE_SYNC_ID :
+		 	 break;
+		  case COMM_MESSAGE_EXIT_ID :
+			 break;
+		 default:
+			 break;
+		 }
+		 // empty buffer for further use
+		 strcpy(buffer, "");
+		 sleep(1);
+	  }
+   }
 }
 
-void test_gui_main()
+void test_gui_main(int argc, char** argv)
 {
-	//TODO
+   printf("program with ui launched\n\n");
+   // activate the udp comm
+   udp_open_socket();
+   message_send_enable = 0; // avoid sending when initializing
+   is_udp_listening = UDP_LISTEN_ON;
+   is_udp_sending = UDP_SEND_ON;
+   // activate the usb comm
+   usb_init(USB_PORT_NAME);
+   is_usb_reading = USB_READING_ON;
+   // launch gui
+   init_gui(&argc, &argv);
+   gtk_main ();
 }
+
+#endif

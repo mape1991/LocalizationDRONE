@@ -15,6 +15,10 @@
 void test_gui_thread_udp_read();
 void test_gui_thread_send();
 void test_gui_thread_usb_read();
-void test_gui_main();
+void test_gui_main(int argc, char** argv);
+
+// used for UI control when the user wants to send one message to stm32/drone
+extern char message_send_enable;
+extern char message_send_id;
 
 #endif /* TEST_GUI_H_ */
