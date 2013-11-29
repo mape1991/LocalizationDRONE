@@ -28,6 +28,7 @@ GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    ../../ardrone_indoor_commons/com/udp_comm.c \
    tests/test_comm.c \
    tests/test_wifi_delay.c \
+   tests/test_gui.c \
    gui/gui.c \
    video/video_stage.c \
    usb/usb.c
