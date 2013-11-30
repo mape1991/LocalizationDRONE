@@ -30,10 +30,8 @@
 #endif
 
 #ifdef UDP_ON
-   #include "../../ardrone_indoor_commons/com/udp_comm.h"
-
-   int is_udp_listening = UDP_LISTEN_OFF;
-   int is_udp_sending   = UDP_SEND_OFF;
+   int is_udp_listening = 0;
+   int is_udp_sending   = 0;
 
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
@@ -59,10 +57,7 @@
 #endif
    
 #ifdef USB_ON
-
-   #include "usb/usb.h"
-
-   int is_usb_reading = USB_READING_OFF;
+   int is_usb_reading = 0;
 
    DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {

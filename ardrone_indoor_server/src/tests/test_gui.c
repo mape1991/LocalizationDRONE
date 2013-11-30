@@ -34,8 +34,8 @@ void test_gui_thread_udp_read()
 	  case COMM_MESSAGE_EXIT_ID :
 		  	  gtk_label_set_text(get_gui()->text_drone_state, GUI_DRONE_HINT_EXIT);
 		  	  // deactivate threads loops
-			  is_udp_listening = UDP_LISTEN_OFF;
-		     is_udp_sending = UDP_SEND_OFF;
+			  is_udp_listening = 0;
+		     is_udp_sending = 0;
 		  	break;
 	  default:
 	 	  break;
@@ -55,7 +55,7 @@ void test_gui_thread_send()
 			printf("stm32 write msg %c\n", message_send_id);
 			usb_write_char(message_send_id);
 			// stop sending (send only one message)
-			message_send_enable = UDP_SEND_OFF;
+			message_send_enable = 0;
 			// count the number of sync
 			if (message_send_id == COMM_MESSAGE_SYNC_ID){
 				message_sync_count++;
@@ -87,7 +87,7 @@ void test_gui_thread_usb_read()
 		 case COMM_MESSAGE_EXIT_ID :
 			    // deactivate threads loops
 			 	 gtk_label_set_text(get_gui()->text_controller_state,GUI_CONTROLLER_HINT_EXIT);
-			 	 is_usb_reading = USB_READING_OFF;
+			 	 is_usb_reading = 0;
 			 break;
 		 default:
 			 break;
@@ -104,7 +104,7 @@ void test_gui_main()
    printf("program with ui launched\n\n");
    // activate the udp comm
    udp_open_socket();
-   message_send_enable = UDP_SEND_OFF; // avoid sending when initializing
+   message_send_enable = 0; // avoid sending when initializing
    // activate the usb comm
    usb_init(USB_PORT_NAME);
 }

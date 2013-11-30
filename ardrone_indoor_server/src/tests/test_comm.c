@@ -4,7 +4,7 @@
 #ifdef TEST_COMM
 
 char message[COMM_MESSAGE_SIZE];
-char message_send_enable = UDP_SEND_OFF;
+char message_send_enable = 0;
 char message_sent_id = COMM_MESSAGE_INIT_ID;
 char message_sync_count = 0;
 
@@ -46,7 +46,7 @@ void test_comm_thread_send()
    // send S
    message_sent_id = COMM_MESSAGE_SYNC_ID;
    int i = 0;
-   for(i = 0; i < COMM_TEST_COMM_SYNC_COUNT; i++){
+   for(i = 0; i < COMM_TEST_SYNC_COUNT; i++){
       udp_send_char(DEST_IP_DRONE, message_sent_id, PORT_SERVER_TO_DRONE);
       #ifdef USB_ON
          printf("stm32 write msg %c\n", message_sent_id);
@@ -72,13 +72,13 @@ void test_comm_thread_send()
       printf("stm32 write msg %c\n", message_sent_id);
       usb_write_char(message_sent_id);
       // stop usb reading thread
-      is_usb_reading = USB_READING_OFF;
+      is_usb_reading = 0;
    #endif
    // close sockets
    udp_close_socket();
    usb_close();
    // set to OFF for avoiding test_comm_thread_udp_read looping
-   is_udp_listening = UDP_LISTEN_OFF;
+   is_udp_listening = 0;
 }
 
 void test_comm_thread_usb_read()
@@ -99,10 +99,10 @@ void test_comm_main()
    printf("demo program launched\n\n");
    // activate the udp comm
    udp_open_socket();
-   is_udp_listening = UDP_LISTEN_ON;
+   is_udp_listening = 1;
    // activate the usb comm
    usb_init(USB_PORT_NAME);
-   is_usb_reading = USB_READING_ON;
+   is_usb_reading = 1;
 }
 
 #endif
