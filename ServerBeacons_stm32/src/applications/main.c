@@ -5,10 +5,10 @@
  *      This file contains the main function that initializes, configurates
  * 			and start all applications with their services. 
  *
- *	Last modification : 18 Nov 2013 
+ *			Last modification : 30 Nov 2013 
  *
  * @author Martin
- * @version 0.0.3
+ * @version 0.1.1
  * @date 08 Nov 2013
  */
 
@@ -53,30 +53,36 @@ State_APP prev_state = APP_OFF;
  *			Called in the main function
  *			Send special character that depends from the app state
  * 			
+ * @param void
+ * @return 0 if no error
+ * @return 1 if error takes place in send char			
  * @sa main()
  ******************************************************************************/
  
-void app_updateGUI()		
+char app_updateGUI(void)		
 {
+	char code_erreur = 0;
+	
 	switch (state)
 	{
 		case APP_ON:
-			s_serialComm_sendChar(MSG_ON);
+			code_erreur = s_serialComm_sendChar(MSG_ON);
 			break;
-		case APP_START:
-			s_serialComm_sendChar(MSG_START);	
-			break;
-		case APP_STOP:
-			s_serialComm_sendChar(MSG_STOP);
+		case APP_SEND:
+			code_erreur = s_serialComm_sendChar(MSG_BUSY);
 			break;
 		case APP_OFF:
-		default:	
+			code_erreur = s_serialComm_sendChar(MSG_OFF);
 			break;
+		default:
+			code_erreur = 1; 		
 	}
+	
+	return code_erreur;
 }
 
 
-/**
+/*
  *******************************************************************************
  * app_serialCommHandler
  *
@@ -90,6 +96,8 @@ void app_updateGUI()
  
 void app_serialCommHandler(char c)		
 {
+	char error = 0;;
+	
 	if (c == MSG_ON)
 	{
 		if (state == APP_OFF)
@@ -97,36 +105,44 @@ void app_serialCommHandler(char c)
 			prev_state = state;
 			state = APP_ON;
 		}
+		error = app_updateGUI();
 	}
-	else if (c == MSG_START)
+	else if (c == MSG_SEND)
 	{
-		if (state != APP_OFF)
+		if (state == APP_ON)
 		{
 			prev_state = state;
-			state = APP_START;
+			state = APP_SEND;
 			s_beaconSignal_reset();
 			SysTick_On;
 			SysTick_Enable_IT;
 		}
+		else
+		{
+			error = app_updateGUI();
+		}
 	}
-	else if (c == MSG_STOP)
+	else if (c == MSG_OFF)
 	{
-		if (state == APP_START)
+		if (state != APP_OFF)
 		{
 			prev_state = state;
-			state = APP_STOP;
+			state = APP_OFF;
 			s_beaconSignal_zero();
 			SysTick_Disable_IT;
 			SysTick_Off;
 		}
+		error = app_updateGUI();
 	}
 	else
 	{
-		prev_state = state;
-		state = APP_OFF;
-		s_beaconSignal_zero();
-		SysTick_Disable_IT;
-		SysTick_Off;
+		error = app_updateGUI();
+	}
+	
+	if (error != 0)
+	{
+		// update Status LED
+		s_serialComm_setErrorLED(LED_ON);
 	}
 }
 
@@ -136,15 +152,27 @@ void app_serialCommHandler(char c)
  * app_commBeacons
  *
  *      Called when timeout to systick timer
- *			Emission PWM to every Beacon for a pre-defined period of time
+ *			Update State (character send)
+ *			Disable Systick interruption system
+ *			Update GUI ('S')
  * 			
  * @sa main()
  ******************************************************************************/
  
 void app_commBeacons(void)		
 {
-	// PWM emission for pre-defined time interval [ms] 
-	s_beaconSignal_emission_PWM();
+	prev_state = state;
+	state = APP_ON;
+	s_beaconSignal_zero();
+	SysTick_Disable_IT;
+	SysTick_Off;
+	
+	if (s_serialComm_sendChar(MSG_SEND) != 0)
+	{
+		// ERROR LED
+		s_serialComm_setErrorLED(LED_ON);
+	}
+	
 }
 
 
@@ -172,8 +200,10 @@ void app_initialization(void)
 	// service initialization
 	s_beaconSignal_initialization();
 	code_Erreur = s_serialComm_initialization(app_serialCommHandler);
-	
-	// TODO : error process (next version)
+	if (code_Erreur != 0)
+	{
+		s_serialComm_setErrorLED(LED_ON);
+	}
 	
 	// Systick clock configuration
 	duree = Systick_Period(SYSTICK_PERIOD); //[us]
@@ -191,15 +221,11 @@ int main (void)
 {	
 	// Initialization
 	app_initialization();
-	
+
 	// Infinity loop 
 	while(1)
 	{
-		// updateGUI
-		app_updateGUI();
 	}
 		
 	return 0;
 }
-
-
