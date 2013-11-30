@@ -17,7 +17,7 @@ struct sockaddr_in adr_local; // local socket addr
 struct sockaddr_in adr_distant; // remote socket addr
 int lg_adr_local = sizeof(adr_local);
 int lg_adr_distant = sizeof(adr_distant);
-int sock; // internal addr
+int sock[2]; // internal addr
 
 
 // Julien:
@@ -31,7 +31,7 @@ int udp_open_socket(){
       printf("receiving : initialization\n");
    #endif
    // socket creation	
-   if ((sock = socket(AF_INET, SOCK_DGRAM, 0))==-1)
+   if (((sock[0] = socket(AF_INET, SOCK_DGRAM, 0))==-1) || ((sock[1] = socket(AF_INET, SOCK_DGRAM, 0))==-1))
    {
       #ifdef DEBUG_ON 
          printf("receiving : error during the socket creation\n");
@@ -55,7 +55,7 @@ int udp_listen_once(char *message, int lg_mesg_emis, int port)
    adr_local.sin_addr.s_addr = INADDR_ANY;
    
       // association @socket with the internal addr
-   if(bind(sock, (struct sockaddr*) &adr_local, lg_adr_local)==-1)
+   if(bind(sock[0], (struct sockaddr*) &adr_local, lg_adr_local)==-1)
    {
       #ifdef DEBUG_ON
            printf("receiving : failed binding to internal socket\n");
@@ -67,7 +67,7 @@ int udp_listen_once(char *message, int lg_mesg_emis, int port)
    if(error_type == ERROR_TYPE_NONE)
    {   
       // message reception
-      recvfrom(sock, message, lg_mesg_emis, 0, (struct sockaddr*) &adr_distant, &lg_adr_distant);   
+      recvfrom(sock[0], message, lg_mesg_emis, 0, (struct sockaddr*) &adr_distant, &lg_adr_distant);   
       // simple message display
       #ifdef DEBUG_ON
          printf("receiving : %d bytes : %s\n", lg_mesg_emis, message);
@@ -97,7 +97,7 @@ int udp_send(char * dest, char *message, int size, int port)
 
    // construct msg then send
    printf("sending : %d bytes : %s\n", size*sizeof(char), message);
-   sendto(sock, (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_dest, lg_adr_dest);
+   sendto(sock[1], (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_dest, lg_adr_dest);
    
    return 0;
 }
@@ -112,7 +112,7 @@ int udp_send_char(char * dest, char message,int port)
 int udp_respond(char* message, int size, int port){
 	// construct msg then send
    printf("sending : %d bytes : %s\n", size*sizeof(char), message);
-   sendto(sock, (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_distant, lg_adr_distant);
+   sendto(sock[1], (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_distant, lg_adr_distant);
    return 0;
 }
 
@@ -124,7 +124,8 @@ int udp_respond_char(char message,int port) {
 
 int udp_close_socket(){
 	// close the socket
-    close(sock);
+    close(sock[0]);
+	close(sock[1]);
       #ifdef DEBUG_ON
          printf("receiving : end of communication\n");
       #endif
