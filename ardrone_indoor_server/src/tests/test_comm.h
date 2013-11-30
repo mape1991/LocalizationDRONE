@@ -6,9 +6,10 @@
  */
 
 #ifndef TEST_COMM_H
-#define	TEST_COMM_H
+#define TEST_COMM_H
 
 #include "../global_config.h"
+#include "../../../ardrone_indoor_commons/global_com.h"
 #include "../../../ardrone_indoor_commons/com/udp_comm.h"
 #include "../usb/usb.h"
 

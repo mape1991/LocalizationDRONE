@@ -3,8 +3,8 @@
 
 #ifdef TEST_COMM
 
-char message[UDP_MESSAGE_DRONE_SIZE];
-char message_send_enable = 0;
+char message[COMM_MESSAGE_SIZE];
+char message_send_enable = UDP_SEND_OFF;
 char message_sent_id = COMM_MESSAGE_INIT_ID;
 char message_sync_count = 0;
 
@@ -14,20 +14,20 @@ char message_sync_count = 0;
 void test_comm_thread_udp_read()
 {
    while(is_udp_listening){
-      udp_listen_once(message, UDP_MESSAGE_DRONE_SIZE, PORT_DRONE_TO_SERVER);
+   	udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_DRONE_TO_SERVER);
       // init
-      if (strcmp(message, UDP_MESSAGE_DRONE_INIT_ID) == 0)
+      if (message[0] == COMM_MESSAGE_INIT_ID)
       {
          printf("init received\n");
-         strcpy(message, "");
       }
       // sync
-      else if (strcmp(message, UDP_MESSAGE_DRONE_SYNC_ID) == 0)
+      else if (message[0] == COMM_MESSAGE_SYNC_ID)
       {
          message_sync_count++;
          printf("sync %d received\n", message_sync_count);
-         strcpy(message, "");
       }
+
+      message[0] = COMM_MESSAGE_NONE;
    }
 }
 
@@ -42,11 +42,11 @@ void test_comm_thread_send()
    	   printf("stm32 write msg %c\n", message_sent_id);
    	   usb_write_char(message_sent_id);
    #endif
-   sleep(1);
+   sleep(3);
    // send S
    message_sent_id = COMM_MESSAGE_SYNC_ID;
    int i = 0;
-   for(i = 0; i < UDP_MESSAGE_SYNC_COUNT; i++){   
+   for(i = 0; i < COMM_TEST_COMM_SYNC_COUNT; i++){
       udp_send_char(DEST_IP_DRONE, message_sent_id, PORT_SERVER_TO_DRONE);
       #ifdef USB_ON
          printf("stm32 write msg %c\n", message_sent_id);

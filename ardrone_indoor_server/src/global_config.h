@@ -6,7 +6,7 @@
  */
 
 #ifndef GLOBAL_CONFIG_H
-#define	GLOBAL_CONFIG_H
+#define GLOBAL_CONFIG_H
 
 /*
  * This file serves the whole project
@@ -20,9 +20,9 @@
 // Tests
 
 // declare global test definition
-//#define TEST_COMM             // test comm on
+#define TEST_COMM             // test comm on
 //#define TEST_WIFI_DELAY
-#define TEST_GUI
+//#define TEST_GUI
 //#define TEST_GUI_ONLY
 
 // define which features to use in this test

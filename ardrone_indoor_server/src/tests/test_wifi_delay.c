@@ -2,7 +2,7 @@
 
 #ifdef TEST_WIFI_DELAY
 
-char message[UDP_MESSAGE_DRONE_SIZE];
+char message[COMM_MESSAGE_SIZE];
 char message_send_enable = 0;
 char message_sent_id = COMM_MESSAGE_INIT_ID;
 char message_sync_count = 0;
@@ -12,8 +12,8 @@ double time2 = 0;
 void test_wifi_delay_udp_read()
 {
     while(is_udp_listening){
-      udp_listen_once(message, UDP_MESSAGE_DRONE_SIZE, PORT_DRONE_TO_SERVER);
-      if (strcmp(message, UDP_MESSAGE_DRONE_INIT_ID) == 0)
+      udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_DRONE_TO_SERVER);
+      if (message[0] == COMM_MESSAGE_INIT_ID)
       {
          struct timeval tim;
          gettimeofday(&tim,NULL);
@@ -21,8 +21,8 @@ void test_wifi_delay_udp_read()
          time1 = t1;
          printf("time1: %d\n",tim.tv_usec);
          printf("init received\n");
-         strcpy(message, "");
-         printf("attentionnnnnnnnnnnnn  %.6lf seconds elapsed\n", time1-time2);
+         message[0]  = COMM_MESSAGE_NONE;
+         printf("%.6lf seconds elapsed\n", time1-time2);
          return;
       }
     }

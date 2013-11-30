@@ -102,11 +102,11 @@ int main(int argc, char** argv)
    // test of the gui including communication protocols
    // the user can click on buttons and obtain direct message transmissions
    #elif defined(TEST_GUI)
-      test_gui_main(argc, argv);
+      test_gui_main();
       return ardrone_tool_main(argc, argv);
    // test of the gui only (to check the resulting interface display)
    #elif defined(TEST_GUI_ONLY)
-      init_gui(&argc, &argv);
+      init_gui(argc, argv);
       gtk_main ();
       while(1);
       return 0;
@@ -156,7 +156,7 @@ C_RESULT ardrone_tool_shutdown_custom(void)
   
    /* user interface thread */
    #ifdef GUI_ON
-     // JOIN_THREAD(gui);
+      JOIN_THREAD(gui);
    #endif
   
    /* server communication */
