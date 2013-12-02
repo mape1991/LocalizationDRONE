@@ -10,7 +10,6 @@
 #include <sys/types.h>
 
 int fd;
-int is_usb_reading = USB_READING_OFF;
 
 int usb_set_interface_attribs (int fd, int speed, int parity)
 {

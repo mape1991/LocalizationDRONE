@@ -1,5 +1,6 @@
 #include "test_comm.h"
-#define DEST_IP "192.168.1.3"
+
+#ifdef TEST_COMM
 
 void test_comm_main()
 {
@@ -7,24 +8,27 @@ void test_comm_main()
    char message_sent_id;
 
    printf("demo program launched\n\n");
-   udp_listen_once(message, COMM_MESSAGE_SIZE);
-   while (1){
-      if (message[0] == 'I'){
+   udp_open_socket();
+   
+   do {
+      udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_SERVER_TO_DRONE);
+      if (message[0] == COMM_MESSAGE_INIT_ID){
          printf("message init received\n");
-         strcpy(message_sent_id, UDP_MESSAGE_DRONE_INIT_ID);
-         udp_send(DEST_IP, message_sent_id, UDP_MESSAGE_DRONE_SIZE);
-         udp_listen_once(message, COMM_MESSAGE_SIZE);
+         message_sent_id = COMM_MESSAGE_INIT_ID;
+         udp_respond_char(message_sent_id, PORT_DRONE_TO_SERVER);
       }
-      else if (message[0] == 'S'){
+      else if (message[0] == COMM_MESSAGE_SYNC_ID){
          printf("message sync received\n");
-         strcpy(message_sent_id, UDP_MESSAGE_DRONE_SYNC_ID);
-         udp_send(DEST_IP, message_sent_id, UDP_MESSAGE_DRONE_SIZE);
-         udp_listen_once(message, COMM_MESSAGE_SIZE);
-
+         message_sent_id = COMM_MESSAGE_SYNC_ID;
+         udp_respond_char(message_sent_id, PORT_DRONE_TO_SERVER);
       }
-      else if (message[0] == 'X'){
-               printf("message quit received\n");
-               break;
+      else if (message[0] == COMM_MESSAGE_EXIT_ID){
+         printf("message quit received\n");
+         break;
       }
-   }
+      message[0] = COMM_MESSAGE_NONE;
+   } while (1);
+   udp_close_socket();
 }
+
+#endif

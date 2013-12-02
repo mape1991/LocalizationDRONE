@@ -29,46 +29,43 @@
    #include "video/video_stage.h"
 #endif
 
-#ifdef USB_ON
-   #include "usb/usb.h"
-#endif
- 
 #ifdef UDP_ON
-   #include "../../ardrone_indoor_commons/com/udp_comm.h"
+   int is_udp_listening = 0;
+   int is_udp_sending   = 0;
 
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
-      // the server can listen (port 7000)
-      if (is_udp_listening)
-      {
-         #ifdef TEST_COMM
-            test_comm_thread_udp_read();
-         #elif defined TEST_WIFI_DELAY
-            test_wifi_delay_udp_read();
-         #endif
-      }
+	  #ifdef TEST_COMM
+		 test_comm_thread_udp_read();
+	  #elif defined TEST_WIFI_DELAY
+		 test_wifi_delay_udp_read();
+	  #elif defined TEST_GUI
+		 test_gui_thread_udp_read();
+	  #endif
    }
    
    DEFINE_THREAD_ROUTINE(udp_send_comm, data)
    {   
-      // and the server can send at the meantime (port 7001)
-      if (is_udp_sending)
-      {
-         #ifdef TEST_COMM
-            test_comm_thread_write();
-         #elif defined TEST_WIFI_DELAY
-            test_wifi_delay_udp_send();
-         #endif
-      }
+	  #ifdef TEST_COMM
+		 test_comm_thread_send();
+	  #elif defined TEST_WIFI_DELAY
+	 	 test_wifi_delay_udp_send();
+	  #elif defined TEST_GUI
+	     test_gui_thread_send();
+	  #endif
    }
 #endif
    
 #ifdef USB_ON
+   int is_usb_reading = 0;
+
    DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {
-      #ifdef TEST_COMM
-         test_comm_thread_usb_read();
-      #endif
+	  #ifdef TEST_COMM
+		 test_comm_thread_usb_read();
+	  #elif defined TEST_GUI
+		 test_gui_thread_usb_read();
+	  #endif
    }
 #endif
    
@@ -89,17 +86,25 @@ static int32_t exit_ihm_program = 1;
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
-   // execute the main of the selected test
+   // test of communication protocols (udp and usb) (equal to the demo of sprint 1)
    #ifdef TEST_COMM
       test_comm_main();
       return ardrone_tool_main(argc, argv);
+   // test of wifi delay (roundtrip tranmission time of one message)
    #elif defined(TEST_WIFI_DELAY)
       test_wifi_delay_main();
       return ardrone_tool_main(argc, argv);
-   #elif defined(GUI_VERSION_TEST)
-      init_gui(&argc, &argv);
+   // test of the gui including communication protocols
+   // the user can click on buttons and obtain direct message transmissions
+   #elif defined(TEST_GUI)
+      test_gui_main();
+      return ardrone_tool_main(argc, argv);
+   // test of the gui only (to check the resulting interface display)
+   #elif defined(TEST_GUI_ONLY)
+      init_gui(argc, argv);
       gtk_main ();
-      return(0);
+      while(1);
+      return 0;
    #else
       return ardrone_tool_main(argc, argv);
    #endif
@@ -146,7 +151,7 @@ C_RESULT ardrone_tool_shutdown_custom(void)
   
    /* user interface thread */
    #ifdef GUI_ON
-     // JOIN_THREAD(gui);
+      JOIN_THREAD(gui);
    #endif
   
    /* server communication */

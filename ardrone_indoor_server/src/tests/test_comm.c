@@ -3,75 +3,66 @@
 
 #ifdef TEST_COMM
 
-char message[UDP_MESSAGE_DRONE_SIZE];
+char message[COMM_MESSAGE_SIZE];
 char message_send_enable = 0;
 char message_sent_id = COMM_MESSAGE_INIT_ID;
 char message_sync_count = 0;
 
-//TODO : define the correct destination IP
-#define DEST_IP "192.168.1.1"
-
+// listen the incoming port, does not act upon other threads
+// what makes the difference with the test_gui is the use of messages
+// four characters long instead of single character long messages...
 void test_comm_thread_udp_read()
 {
    while(is_udp_listening){
-      udp_listen_once(message, UDP_MESSAGE_DRONE_SIZE);
-      if (strcmp(message, UDP_MESSAGE_DRONE_INIT_ID) == 0)
+   	udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_DRONE_TO_SERVER);
+      // init
+      if (message[0] == COMM_MESSAGE_INIT_ID)
       {
          printf("init received\n");
-         strcpy(message, "");
-         message_sent_id = COMM_MESSAGE_SYNC_ID;
-         message_send_enable = UDP_SEND_ON;
       }
-      else if (strcmp(message, UDP_MESSAGE_DRONE_SYNC_ID) == 0)
+      // sync
+      else if (message[0] == COMM_MESSAGE_SYNC_ID)
       {
-         strcpy(message, "");
-         // initial demo
          message_sync_count++;
          printf("sync %d received\n", message_sync_count);
-         if (message_sync_count <= UDP_MESSAGE_SYNC_COUNT){
-            message_sent_id = COMM_MESSAGE_SYNC_ID;
-            // we exit the demo by an exit message after a certain number of sync messages
-         }else{
-            message_sent_id = COMM_MESSAGE_EXIT_ID;
-         }
-         message_send_enable = UDP_SEND_ON;
       }
+
+      message[0] = COMM_MESSAGE_NONE;
    }
 }
 
-
-void test_comm_thread_write()
+// only send via usb and udp
+void test_comm_thread_send()
 {
    sleep(1);
-   
+   // send I
    message_sent_id = COMM_MESSAGE_INIT_ID;
-   udp_send_char(DEST_IP, message_sent_id);
-
-   printf("stm32 write msg %c\n", message_sent_id);
-   usb_write_char(message_sent_id);
-
-   sleep(1);
-
+   udp_send_char(DEST_IP_DRONE, message_sent_id, PORT_SERVER_TO_DRONE);
+   #ifdef USB_ON
+   	   printf("stm32 write msg %c\n", message_sent_id);
+   	   usb_write_char(message_sent_id);
+   #endif
+   sleep(3);
+   // send S
    message_sent_id = COMM_MESSAGE_SYNC_ID;
    int i = 0;
-   for(i = 0; i < UDP_MESSAGE_SYNC_COUNT; i++){   
-      udp_send_char(DEST_IP, message_sent_id);
+   for(i = 0; i < COMM_TEST_SYNC_COUNT; i++){
+      udp_send_char(DEST_IP_DRONE, message_sent_id, PORT_SERVER_TO_DRONE);
       #ifdef USB_ON
          printf("stm32 write msg %c\n", message_sent_id);
          usb_write_char(message_sent_id);
       #endif
       sleep(1);
    }
-
+   // send X
    message_sent_id = COMM_MESSAGE_EXIT_ID;
-   udp_send_char(DEST_IP, message_sent_id);
+   udp_send_char(DEST_IP_DRONE, message_sent_id, PORT_SERVER_TO_DRONE);
    #ifdef USB_ON
       printf("stm32 write msg %c\n", message_sent_id);
       usb_write_char(message_sent_id);
    #endif
    sleep(1);
-   
-   // put the stm32 back in start mode
+   // send I via usb : put the stm32 back in start mode
    #ifdef USB_ON   
       message_sent_id = COMM_MESSAGE_INIT_ID;
       printf("stm32 write msg %c\n", message_sent_id);
@@ -80,12 +71,14 @@ void test_comm_thread_write()
       message_sent_id = COMM_MESSAGE_SYNC_ID;
       printf("stm32 write msg %c\n", message_sent_id);
       usb_write_char(message_sent_id);
-      
-      is_usb_reading = USB_READING_OFF;
+      // stop usb reading thread
+      is_usb_reading = 0;
    #endif
-
-   is_udp_sending = UDP_SEND_OFF; //Pour koi remettre à OFF ces 2 variables?
-   is_udp_listening = UDP_LISTEN_OFF;
+   // close sockets
+   udp_close_socket();
+   usb_close();
+   // set to OFF for avoiding test_comm_thread_udp_read looping
+   is_udp_listening = 0;
 }
 
 void test_comm_thread_usb_read()
@@ -104,14 +97,12 @@ void test_comm_thread_usb_read()
 void test_comm_main()
 {
    printf("demo program launched\n\n");
-   is_udp_listening = UDP_LISTEN_ON;
-   is_udp_sending = UDP_SEND_ON;
-   // send an init message first
-   // the drone will receive it and reply (and so on for the next steps)
-   message_send_enable = UDP_SEND_ON;
-
+   // activate the udp comm
+   udp_open_socket();
+   is_udp_listening = 1;
+   // activate the usb comm
    usb_init(USB_PORT_NAME);
-   is_usb_reading = USB_READING_ON;
+   is_usb_reading = 1;
 }
 
 #endif
