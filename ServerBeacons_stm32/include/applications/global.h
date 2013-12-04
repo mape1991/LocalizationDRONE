@@ -5,8 +5,10 @@
  *      This file contains global variables and constants used in 
  *			the application.  
  *
+ *			Last modification : 30 Nov 2013 
+ *
  * @author Martin
- * @version 0.0.1
+ * @version 0.1.1
  * @date 14 Nov 2013
  */
 
@@ -42,16 +44,15 @@ typedef enum
 {
 	APP_ON,
 	APP_OFF,
-	APP_START,
-	APP_STOP
+	APP_SEND
 	
 } State_APP;
 
-/** Protocol Messages send to UART Server */
-#define MSG_ON 'I'
-#define MSG_OFF 'X'
-#define MSG_START 'S'
-#define MSG_STOP 'P'
+/** Protocol Messages between the Client and the Server */
+#define MSG_ON 'I'			// Init
+#define MSG_OFF 'X'			// Exit
+#define MSG_SEND 'S'		// Send
+#define MSG_BUSY 'B'		// Busy
 
 
 #endif					/* GLOBAL_H */

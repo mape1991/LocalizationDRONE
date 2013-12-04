@@ -31,10 +31,10 @@
 ******************************************************************************/
 
 /** Signal frequency PWM [KHz] */
-#define FPWM1 39.5  
-#define FPWM2 40.0       				 
-#define FPWM3 40.5
-#define FPWM4 41.0
+#define FPWM1 39.25  
+#define FPWM2 39.75       				 
+#define FPWM3 40.25
+#define FPWM4 40.75
 
 /** Duty Cycle for PWM signal */
 #define DUTYCYCLE_50 0.5

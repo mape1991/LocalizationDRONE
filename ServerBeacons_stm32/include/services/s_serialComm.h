@@ -38,6 +38,13 @@
 /** Communication UART Interruption Priority */
 #define UART_HANDLER_PRIORITY 0
 
+/** Type def for ERROR LED STATE */
+typedef enum
+{
+	LED_ON,
+	LED_OFF
+	
+} State_LED;
 
 /******************************************************************************
 *
@@ -59,6 +66,7 @@ void s_serialComm_it_function(void);
 char s_serialComm_initialization(void (*ptrFunction) (char));
 char s_serialComm_sendChar(char c);
 char s_serialComm_sendString(char string[]);
+void s_serialComm_setErrorLED(State_LED);
 
 
 #endif					/* S_SERIALCOMM_H */

@@ -5,10 +5,10 @@
  *      This file contains the SERVICE serial communication RS232 (UART).
  *			Initialization, configuration and send/receive mode. 
  *
- *	Last modification : 18 Nov 2013 
+ * 			Last modification : 30 Nov 2013 
  *
  * @author Martin
- * @version 0.0.2
+ * @version 0.1.1
  * @date 08 Nov 2013
  */
 
@@ -56,7 +56,7 @@ void s_serialComm_it_function(void)
 	}
 	else
 	{
-		GPIO_Set(GPIOB,8);	// set error LED ON
+		s_serialComm_setErrorLED(LED_ON);
 	}
 }
 
@@ -78,17 +78,19 @@ char s_serialComm_initialization(void (*ptrFunction) (char))
 	char code_Erreur = 0; 
 
 	// I/O configuration for Error_Code
-	GPIO_Configure(GPIOB, 8, OUTPUT, OUTPUT_PPULL);	// LED (On/Off)
+	GPIO_Configure(GPIOB, 10, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
+	//GPIO_Configure(GPIOB, 11, OUTPUT, OUTPUT_PPULL);	// USB ERROR LED (On/Off)
 	
-	if ((code_Erreur = Init_USART (USART1, BAUD_RATE, ODD, STOP_BIT_MODE3, WORD_LENGTH_8BITS)) != 0 )
+	s_serialComm_setErrorLED(LED_OFF);
+	
+	if ((code_Erreur = Init_USART (USART1, BAUD_RATE, DISABLED, STOP_BIT_MODE1, WORD_LENGTH_8BITS)) != 0 )
 	{
 		// error in initialization process
-		GPIO_Set(GPIOB,8);	// set error LED ON
 		return code_Erreur;
 	}
 	
 	// I/O configuration for Tx
-	GPIO_Configure(GPIOA, 9, OUTPUT, OUTPUT_PPULL);	// Tx 
+	GPIO_Configure(GPIOA, 9, OUTPUT, ALT_PPULL);	// Tx 
 	GPIO_Configure(GPIOA, 11, OUTPUT, OUTPUT_PPULL);	// CTS 
 	
 	// I/O configuration for Rx
@@ -105,8 +107,6 @@ char s_serialComm_initialization(void (*ptrFunction) (char))
 	else
 	{
 		code_Erreur = 1;
-		// error in initialization process
-		GPIO_Set(GPIOB,8);	// set error LED ON
 	}
 	
 	return code_Erreur;
@@ -133,8 +133,7 @@ char s_serialComm_sendChar(char c)
 	if ( (code_Erreur = Send_Data_USART(USART1, c)) != 0 )
 	{
 		// error when send data string
-		GPIO_Clear(GPIOA,11);	// set OFF 
-		GPIO_Set(GPIOB,8);	// set error LED ON
+		GPIO_Clear(GPIOA,11);	// set OFF
 		return code_Erreur;
 	}
 	
@@ -164,10 +163,25 @@ char s_serialComm_sendString(char string[])
 	{
 		// error when send data string
 		GPIO_Clear(GPIOA,11);	// set OFF 
-		GPIO_Set(GPIOB,8);	// set error LED ON
 		return code_Erreur;
 	}
 	
 	GPIO_Clear(GPIOA,11);	// set OFF 
 	return code_Erreur;
+}
+
+
+void s_serialComm_setErrorLED(State_LED state)
+{
+	switch(state)
+	{
+		case LED_ON:
+			GPIO_Set(GPIOB,10);	// set error LED ON
+			break;
+		case LED_OFF:
+			GPIO_Clear(GPIOB,10);	// set error LED OFF
+			break;
+		default:
+			GPIO_Set(GPIOB,10);	// set error LED ON
+	}
 }
