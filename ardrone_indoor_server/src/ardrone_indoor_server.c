@@ -30,10 +30,8 @@
 #endif
 
 #ifdef UDP_ON
-   #include "../../ardrone_indoor_commons/com/udp_comm.h"
-
-   int is_udp_listening = UDP_LISTEN_OFF;
-   int is_udp_sending   = UDP_SEND_OFF;
+   int is_udp_listening = 0;
+   int is_udp_sending   = 0;
 
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
@@ -59,10 +57,7 @@
 #endif
    
 #ifdef USB_ON
-
-   #include "usb/usb.h"
-
-   int is_usb_reading = USB_READING_OFF;
+   int is_usb_reading = 0;
 
    DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {
@@ -102,11 +97,11 @@ int main(int argc, char** argv)
    // test of the gui including communication protocols
    // the user can click on buttons and obtain direct message transmissions
    #elif defined(TEST_GUI)
-      test_gui_main(argc, argv);
+      test_gui_main();
       return ardrone_tool_main(argc, argv);
    // test of the gui only (to check the resulting interface display)
    #elif defined(TEST_GUI_ONLY)
-      init_gui(&argc, &argv);
+      init_gui(argc, argv);
       gtk_main ();
       while(1);
       return 0;
@@ -156,7 +151,7 @@ C_RESULT ardrone_tool_shutdown_custom(void)
   
    /* user interface thread */
    #ifdef GUI_ON
-     // JOIN_THREAD(gui);
+      JOIN_THREAD(gui);
    #endif
   
    /* server communication */

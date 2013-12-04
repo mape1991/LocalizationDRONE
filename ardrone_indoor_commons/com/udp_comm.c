@@ -125,6 +125,7 @@ int udp_send_char(char * dest, char message,int port)
 
 int udp_respond(char* message, int size, int port){
 	// construct msg then send
+	adr_distant.sin_port = port;
    printf("sending : %d bytes : %s\n", size*sizeof(char), message);
    sendto(sock[SOCK_SEND], (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_distant, lg_adr_distant);
    return 0;
