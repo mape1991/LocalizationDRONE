@@ -12,12 +12,13 @@
 #include"global_config.h"
 
 #ifdef TEST_COMM
-    #include "tests/test_comm.h"
+   #include "tests/test_comm.h"
+#elif defined TEST_WIFI_DELAY
+   #include "tests/test_wifi_delay.h"
+#elif defined TEST_FULL
+	#include "tests/test_full.h"
 #endif
-#ifdef TEST_WIFI_DELAY
-    #include "tests/test_wifi_delay.h"
-#endif
-#define "comm_drone-stm.h"
+
 
 int main(int argc, char ** argv){
 	
@@ -25,8 +26,8 @@ int main(int argc, char ** argv){
       test_comm_main();
    #elif defined TEST_WIFI_DELAY
       test_wifi_delay_main();
-   #else
-	  communication_main();
+   #elif defined TEST_FULL
+	   test_full_main();
    #endif
   
    return 0;

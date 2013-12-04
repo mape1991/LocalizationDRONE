@@ -1,13 +1,20 @@
+#include "usb.h"
+
 #include <errno.h>
 #include <termios.h>
 #include <unistd.h>
+#include <fcntl.h>
+#include <sys/signal.h>
+#include <sys/types.h>
+
+int fd;
 
 int set_interface_attribs (int fd, int speed, int parity)
 {
 	struct termios tty;
 	memset (&tty, 0, sizeof tty);
 	if (tcgetattr (fd, &tty) != 0) {
-		error_message ("error %d from tcgetattr", errno);
+		printf ("error %d from tcgetattr", errno);
 		return -1;
 	}
 
@@ -34,7 +41,7 @@ int set_interface_attribs (int fd, int speed, int parity)
 	tty.c_cflag &= ~CRTSCTS;
 
 	if (tcsetattr (fd, TCSANOW, &tty) != 0){
-		error_message ("error %d from tcsetattr", errno);
+		printf ("error %d from tcsetattr", errno);
 		return -1;
 	}
 	return 0;
@@ -45,7 +52,7 @@ void set_blocking (int fd, int should_block)
 	struct termios tty;
 	memset (&tty, 0, sizeof tty);
 	if (tcgetattr (fd, &tty) != 0) {
-		error_message ("error %d from tggetattr", errno);
+		printf ("error %d from tggetattr", errno);
 		return;
 	}
 
@@ -53,5 +60,5 @@ void set_blocking (int fd, int should_block)
 	tty.c_cc[VTIME] = 5;            // 0.5 seconds read timeout
 
 	if (tcsetattr (fd, TCSANOW, &tty) != 0)
-		error_message ("error %d setting term attributes", errno);
+		printf ("error %d setting term attributes", errno);
 }

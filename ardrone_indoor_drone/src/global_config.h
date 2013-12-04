@@ -20,13 +20,17 @@
 //#define UDP_ON
 
 // Tests
-#define TEST_COMM             // test comm on
+//#define TEST_COMM             // test comm on
 //#define TEST_WIFI_DELAY
+#define TEST_FULL
 
 #ifdef TEST_COMM
-    #define UDP_ON
+   #define UDP_ON
 #elif defined TEST_WIFI_DELAY
-    #define UDP ON
+   #define UDP_ON
+#elif defined TEST_FULL
+	#define UDP_ON
+	#define USB_ON
 #endif
 
 
