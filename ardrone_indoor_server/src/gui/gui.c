@@ -5,9 +5,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-char msg_is_connected[] = "The server is connected to the devices";
-char msg_is_disconnected[] = "The server is disconnected from the devices";
-
 gui_t *gui = NULL;
  
 gui_t *get_gui()
@@ -24,6 +21,10 @@ void button_connect_callback()
 			message_send_id = COMM_MESSAGE_INIT_ID;
 			message_send_enable = UDP_SEND_ON;
 			gui->is_connected = STATE_CONNECTED;
+			// activate threads loops
+		   is_udp_listening = UDP_LISTEN_ON;
+		   is_udp_sending = UDP_SEND_ON;
+		   is_usb_reading = USB_READING_ON;
 		// connected > disconnected (exit)
 		}else if (gui->is_connected == STATE_CONNECTED){
 			message_send_id = COMM_MESSAGE_EXIT_ID;
@@ -43,52 +44,6 @@ void button_getpos_callback()
 	#endif
 }
 
-#ifdef TEST_COMM
-void on_message_received(char *message) 
-{
-   gtk_label_set_text(gui->text_test_listen, message);
-}
-
-void on_message_sent(char *message) 
-{
-   gtk_label_set_text(gui->text_test_send, message);
-}
-#endif
-
-static void button_listen_callback( GtkWidget *widget, gpointer   data )
-{
-   #ifdef UDP_ON
-      if (is_udp_listening == UDP_LISTEN_OFF){
-         // unlock the server communication thread processing
-         is_udp_listening = UDP_LISTEN_ON;
-         // update the button label
-         gtk_button_set_label(widget, "Stop Listening");
-      }else{
-         // block the server communication thread processing
-         is_udp_listening = UDP_LISTEN_OFF;
-         // update the button label
-         gtk_button_set_label(widget, "Start Listening");
-      }
-   #endif
-}
-
-static void button_send_callback( GtkWidget *widget, gpointer   data )
-{
-   #ifdef UDP_ON
-      if (is_udp_sending == UDP_SEND_OFF){
-         // unlock the server communication thread processing
-         is_udp_sending = UDP_SEND_ON;
-         // update the button label
-         gtk_button_set_label(widget, "Stop Sending");
-      }else{
-         // block the server communication thread processing
-         is_udp_sending = UDP_SEND_OFF;
-         // update the button label
-         gtk_button_set_label(widget, "Start Sending");
-      } 
-   #endif
-}
- 
 static void on_destroy(GtkWidget *widget, gpointer data)
 {
   vp_os_free(gui);
@@ -113,9 +68,14 @@ void createMainBox()
    g_signal_connect (gui->button_getpos, "clicked", G_CALLBACK (button_getpos_callback), NULL);
    gtk_widget_set_sensitive(gui->button_getpos, FALSE); // only on a connect button click can enable the getpos
 
+   gui->text_drone_state = gtk_label_new("Drone: disconnected");
+   gui->text_controller_state = gtk_label_new("Controller: disconnected");
+
    // add the action buttons to the box
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, TRUE, TRUE, 0);
-   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->button_getpos, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_getpos, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state, TRUE, TRUE, 0);
+   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->text_controller_state, TRUE, TRUE, 0);
 }
 
 void createTestBox()

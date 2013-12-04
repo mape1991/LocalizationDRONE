@@ -11,11 +11,22 @@
 #include "../global_config.h"
 #include "../../../ardrone_indoor_commons/com/udp_comm.h"
 #include "../usb/usb.h"
+#include "../gui/gui.h"
+
+#define GUI_MAX_LABEL_SIZE 40
+
+#define GUI_DRONE_HINT_INIT "Drone: initialized"
+#define GUI_DRONE_HINT_SYNC "Drone: synchronized"
+#define GUI_DRONE_HINT_EXIT "Drone: disconnected"
+
+#define GUI_CONTROLLER_HINT_INIT "Controller: initialized"
+#define GUI_CONTROLLER_HINT_SYNC "Controller: synchronized"
+#define GUI_CONTROLLER_HINT_EXIT "Controller: disconnected"
 
 void test_gui_thread_udp_read();
 void test_gui_thread_send();
 void test_gui_thread_usb_read();
-void test_gui_main(int argc, char** argv);
+void test_gui_main();
 
 // used for UI control when the user wants to send one message to stm32/drone
 extern char message_send_enable;
