@@ -83,6 +83,8 @@
 // global variable linking the entry point to the user
 static int32_t exit_ihm_program = 1;
 
+// TODO: call tests with respect to the test, udp and usb parameters
+// (without using defines but a switch (cases) from the user inputs)
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
@@ -97,7 +99,7 @@ int main(int argc, char** argv)
    // test of the gui including communication protocols
    // the user can click on buttons and obtain direct message transmissions
    #elif defined(TEST_GUI)
-      test_gui_main();
+      test_gui_main(argc, argv);
       return ardrone_tool_main(argc, argv);
    // test of the gui only (to check the resulting interface display)
    #elif defined(TEST_GUI_ONLY)
@@ -122,7 +124,7 @@ C_RESULT ardrone_tool_init_custom(void)
    #endif
    // init with arguments
    #ifdef GUI_ON
-      init_gui(0, 0); /* Creating the GUI */
+     // init_gui(0, 0); /* Creating the GUI */
       START_THREAD(gui, NULL); /* Starting the GUI thread */
    #endif 
 

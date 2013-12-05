@@ -1,12 +1,5 @@
 #include "usb.h"
 
-#include <errno.h>
-#include <termios.h>
-#include <unistd.h>
-#include <fcntl.h>
-#include <sys/signal.h>
-#include <sys/types.h>
-
 int fd;
 
 int set_interface_attribs (int fd, int speed, int parity)

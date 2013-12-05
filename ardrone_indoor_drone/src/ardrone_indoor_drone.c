@@ -17,6 +17,8 @@
    #include "tests/test_wifi_delay.h"
 #elif defined TEST_FULL
 	#include "tests/test_full.h"
+#elif defined TEST_USB
+	#include "tests/test_usb.h"
 #endif
 
 
@@ -28,6 +30,8 @@ int main(int argc, char ** argv){
       test_wifi_delay_main();
    #elif defined TEST_FULL
 	   test_full_main();
+	#elif defined TEST_USB
+	   test_usb_main();
    #endif
   
    return 0;

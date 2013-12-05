@@ -19,28 +19,32 @@ void button_connect_callback()
 		if (gui->is_connected == STATE_DISCONNECTED){
 			// server to stm32/drone via usb/udp
 			message_send_id = COMM_MESSAGE_INIT_ID;
-			message_send_enable = UDP_SEND_ON;
 			gui->is_connected = STATE_CONNECTED;
+			gtk_button_set_label(gui->button_connect, "Disconnect");
 			// activate threads loops
-		   is_udp_listening = UDP_LISTEN_ON;
-		   is_udp_sending = UDP_SEND_ON;
-		   is_usb_reading = USB_READING_ON;
+			is_udp_listening = 1;
+			is_udp_sending = 1;
+			#ifdef USB_ON
+				is_usb_reading = 1;
+			#endif
 		// connected > disconnected (exit)
-		}else if (gui->is_connected == STATE_CONNECTED){
+		}else{
 			message_send_id = COMM_MESSAGE_EXIT_ID;
-			message_send_enable = UDP_SEND_ON;
 			gui->is_connected = STATE_DISCONNECTED;
+			gtk_button_set_label(gui->button_connect, "Connect");
+			// desactivate loops in the threads
 		}
+		printf("button %s clicked\n", (gui->is_connected == STATE_CONNECTED ? "connect" : "disconnect"));
+		// disable/enable getpos button
+		gtk_widget_set_sensitive(gui->button_getpos, (gui->is_connected == STATE_CONNECTED ? TRUE : FALSE));
 	#endif
 }
 
 void button_getpos_callback()
 {
 	#ifdef TEST_GUI
-		if (gui->is_connected == STATE_CONNECTED){
-			message_send_id = COMM_MESSAGE_SYNC_ID;
-			message_send_enable = UDP_SEND_ON;
-		}
+		message_send_id = COMM_MESSAGE_SYNC_ID;
+		message_send_enable = 1;
 	#endif
 }
 
@@ -68,12 +72,14 @@ void createMainBox()
    g_signal_connect (gui->button_getpos, "clicked", G_CALLBACK (button_getpos_callback), NULL);
    gtk_widget_set_sensitive(gui->button_getpos, FALSE); // only on a connect button click can enable the getpos
 
-   gui->text_drone_state = gtk_label_new("Drone: disconnected");
-   gui->text_controller_state = gtk_label_new("Controller: disconnected");
+   gui->text_server_state = gtk_label_new("none");
+   gui->text_drone_state = gtk_label_new("none");
+   gui->text_controller_state = gtk_label_new("none");
 
    // add the action buttons to the box
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, TRUE, TRUE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_getpos, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_server_state, TRUE, TRUE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state, TRUE, TRUE, 0);
    gtk_box_pack_end(GTK_BOX(gui->box_main), gui->text_controller_state, TRUE, TRUE, 0);
 }

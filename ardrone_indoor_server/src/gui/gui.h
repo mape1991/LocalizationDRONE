@@ -58,6 +58,7 @@ typedef struct gui
   GtkWidget *label_drone_pos_values[NUM_COORDINATES];
 
   // message text to inform the user on the system state
+  GtkWidget *text_server_state;
   GtkWidget *text_drone_state;
   GtkWidget *text_controller_state;
 
