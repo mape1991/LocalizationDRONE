@@ -8,8 +8,6 @@
 #ifndef USB_H
 #define	USB_H
 
-#include "../global_config.h"
-
 #define USB_PORT_NAME "/dev/ttyUSB0"
 #define USB_BUFFER_MAX_SIZE 100
 
