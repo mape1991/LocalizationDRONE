@@ -32,6 +32,7 @@ typedef struct gui
   // main content
   GtkWidget *box_main; // container
   
+  GtkWidget *button_disconnect;
   GtkWidget *button_connect; // the connect is responsible for the states Connect and Disconnect of the system
   GtkWidget *button_getpos; // the getpos is responsible for the state Sync of the system
 
@@ -61,8 +62,6 @@ typedef struct gui
   GtkWidget *text_server_state;
   GtkWidget *text_drone_state;
   GtkWidget *text_controller_state;
-
-  char is_connected;
 
 } gui_t;
  

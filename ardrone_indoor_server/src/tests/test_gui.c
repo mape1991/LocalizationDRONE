@@ -3,10 +3,11 @@
 #ifdef TEST_GUI
 
 char message[COMM_MESSAGE_SIZE];
-// why is it volatile : http://stackoverflow.com/questions/78172/using-c-pthreads-do-shared-variables-need-to-be-volatile
-volatile char message_send_enable = 0;
-volatile char message_send_id = COMM_MESSAGE_INIT_ID;
+
+char message_send_enable = 0;
+char message_send_id = COMM_MESSAGE_INIT_ID;
 int message_sync_count = 0;
+sem_t message_sema;
 
 void test_gui_thread_udp_read()
 {
@@ -44,13 +45,21 @@ void test_gui_thread_udp_read()
    }
 }
 
+char x = 0;
 // inputs provided by user actions (buttons rule the message enable and the message id
 void test_gui_thread_send()
 {
 	char text_label[GUI_MAX_LABEL_SIZE];
 
 	while (is_udp_sending) {
-	   if (message_send_enable == 1) {
+		/*if (x != message_send_enable){
+			x = message_send_enable;
+			printf("%c\n", x);
+		}*/
+		//printf("%c\n", message_send_enable);
+
+	    sem_wait(&message_sema);       /* down semaphore */
+
 			udp_send_char(DEST_IP_DRONE, message_send_id, PORT_SERVER_TO_DRONE);
 			#ifdef USB_ON
 				// FIXME: do we send the usb packet at the meantime ?
@@ -58,7 +67,7 @@ void test_gui_thread_send()
 				usb_write_char(message_send_id);
 			#endif
 			// stop sending (send only one message)
-			message_send_enable = 0;
+			//message_send_enable = 0;
 			// display the server state
 			switch (message_send_id){
 				case COMM_MESSAGE_INIT_ID :
@@ -81,7 +90,6 @@ void test_gui_thread_send()
 				default:
 					break;
 			}
-	   }
 	}
 }
 
@@ -138,6 +146,10 @@ void test_gui_main(int argc, char **argv)
    	usb_init(USB_PORT_NAME);
    	is_usb_reading = 1;
 	#endif
+
+   sem_init(&message_sema, 0, 0);      /* initialize mutex to 1 - binary semaphore */
+   	                                 /* second param = 0 - semaphore is local */
+
    // initialize the gui
 	init_gui(argc, argv);
 	// put initial states in labels
