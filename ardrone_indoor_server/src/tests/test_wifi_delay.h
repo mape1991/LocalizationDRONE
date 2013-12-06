@@ -9,7 +9,7 @@
 #define	TEST_WIFI_DELAY_H
 
 #include "../global_config.h"
-#include "../../ardrone_indoor_commons/com/udp_comm.h"
+#include "../../../ardrone_indoor_commons/com/udp_comm.h"
 #include <stdlib.h>
 #include <sys/time.h>
 
