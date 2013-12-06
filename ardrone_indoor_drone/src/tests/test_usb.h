@@ -1,0 +1,8 @@
+#ifndef TEST_USB_H
+#define TEST_USB_H
+
+#include "../global_config.h"
+#include "../../../ardrone_indoor_commons/global_com.h"
+#include "../usb/usb.h"
+
+#endif
