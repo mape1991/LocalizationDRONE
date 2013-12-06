@@ -22,7 +22,8 @@ void *esclave(void * arg) {
 	// > server I
 	udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
 	do{
-		read(fd, response, sizeof(response));
+		//read(fd, response, sizeof(response));
+		scanf("%s", response);
 		switch (response[0]){
 		// stm X > thread exit
 		case COMM_MESSAGE_EXIT_ID :
@@ -30,6 +31,9 @@ void *esclave(void * arg) {
 			break;
 		// stm S > server S
 		case COMM_MESSAGE_SYNC_ID :
+			udp_respond(response, sizeof(response), PORT_DRONE_TO_SERVER);
+			break;
+		case 'B' :
 			udp_respond(response, sizeof(response), PORT_DRONE_TO_SERVER);
 			break;
 		// FIXME stm I > do nothing ?
@@ -46,6 +50,8 @@ void test_full_main(){
 	char stm[COMM_MESSAGE_SIZE];
 	int server_is_connected = 0;
 	char from_server[COMM_MESSAGE_SIZE];
+	
+	/*
 	// Serial interface init
 	int fd = open (PORT_NAME, O_RDWR | O_NOCTTY | O_SYNC);
 	if (fd < 0){
@@ -54,11 +60,14 @@ void test_full_main(){
 	}	
 	set_interface_attribs (fd, B115200, 0);	// set speed to 115,200 bps, 8n1 (no parity)
 	set_blocking (fd, 0);	// set no blocking
+	*/
 	
 	// Initiate communication with stm
 	stm[0] = COMM_MESSAGE_EXIT_ID;
-	write (fd, stm, 1);
-	read (fd, stm, 1);
+	//write (fd, stm, 1);
+	//read (fd, stm, 1);
+	printf("%c", stm[0]);
+	scanf("%c", stm);
 	// FIXME: is read blocking until it receives something? any timeout if no value received?
 	if (stm[0] != COMM_MESSAGE_EXIT_ID){
 		exit(-1);
@@ -69,39 +78,41 @@ void test_full_main(){
 	
 	// MAIN MASTER LOOP :
 	// data is read from the server and processed appropriately
-	do {
-      udp_listen_once(from_server, COMM_MESSAGE_SIZE, PORT_SERVER_TO_DRONE);
-      // If we receive an init signal, we launch the other thread
-      // server I > launch thread (server I included)
-      if(!server_is_connected && from_server[0] == COMM_MESSAGE_INIT_ID){
-			server_is_connected = 1;
-			pthread_create(&tid, NULL, esclave, NULL);
-      } else if (server_is_connected){
-      	// Standard treatment
-			switch (from_server[0]) {
-				// server I > server I
-				case COMM_MESSAGE_INIT_ID:
-					udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
-					break;
-				// server S > stm S
-				case COMM_MESSAGE_SYNC_ID:
-					write (fd, from_server, 1);
-					break;
-				// server X > server X and stop
-				case COMM_MESSAGE_EXIT_ID:
-					write (fd, from_server, 1);
-					server_is_connected = 0;
-					pthread_join(tid, NULL);
-					break;
-				// server others > stop
-				default:
-					printf("Unexpected message received\n");
-					pthread_exit(tid);
-						// FIXME : do we really need to exit the process ?
-					exit(-1);
-					break;
-			}
-	  }
+        do {
+	      udp_listen_once(from_server, COMM_MESSAGE_SIZE, PORT_SERVER_TO_DRONE);
+	      // If we receive an init signal, we launch the other thread
+	      // server I > launch thread (server I included)
+	      if (server_is_connected){
+	      	// Standard treatment
+				switch (from_server[0]) {
+					// server I > server I
+					case COMM_MESSAGE_INIT_ID:
+						udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
+						break;
+					// server S > stm S
+					case COMM_MESSAGE_SYNC_ID:
+						//write (fd, from_server, 1);
+						printf("%s", from_server);
+						break;
+					// server X > server X and stop
+					case COMM_MESSAGE_EXIT_ID:
+						//write (fd, from_server, 1);
+						printf("%s", from_server);
+						server_is_connected = 0;
+						pthread_join(tid, NULL);
+						break;
+					// server others > stop
+					default:
+						printf("Unexpected message received\n");
+						pthread_exit(tid);
+							// FIXME : do we really need to exit the process ?
+						exit(-1);
+						break;
+				}
+	  	} else if(from_server[0] == COMM_MESSAGE_INIT_ID){
+				server_is_connected = 1;
+				pthread_create(&tid, NULL, esclave, NULL);
+	      	}
 	} while (1);
 }
 
