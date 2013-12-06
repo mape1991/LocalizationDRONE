@@ -12,6 +12,7 @@
 #include "../../../ardrone_indoor_commons/com/udp_comm.h"
 #include "../usb/usb.h"
 #include "../gui/gui.h"
+#include <semaphore.h>  /* Semaphore */
 
 #define GUI_MAX_LABEL_SIZE 40
 
@@ -34,7 +35,7 @@ void test_gui_main(int argc, char **argv); // arguments for the gui initializati
 
 // used for UI control when the user wants to send one message to stm32/drone
 // why is it volatile : http://stackoverflow.com/questions/78172/using-c-pthreads-do-shared-variables-need-to-be-volatile
-extern volatile char message_send_enable;
-extern volatile char message_send_id;
+extern sem_t message_sema;
+extern char message_send_id;
 
 #endif /* TEST_GUI_H_ */
