@@ -22,7 +22,7 @@ void *esclave(void * arg) {
 	// > server I
 	udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
 	do{
-		read(fd, response, sizeof(response));
+		usb_read(response, sizeof(response));
 		switch (response[0]){
 		// stm X > thread exit
 		case COMM_MESSAGE_EXIT_ID :
@@ -47,18 +47,11 @@ void test_full_main(){
 	int server_is_connected = 0;
 	char from_server[COMM_MESSAGE_SIZE];
 	// Serial interface init
-	int fd = open (PORT_NAME, O_RDWR | O_NOCTTY | O_SYNC);
-	if (fd < 0){
-		printf("error %d opening %s: %s", errno, PORT_NAME, strerror (errno));
-		return;
-	}	
-	set_interface_attribs (fd, B115200, 0);	// set speed to 115,200 bps, 8n1 (no parity)
-	set_blocking (fd, 0);	// set no blocking
-	
+	usb_init(USB_PORT_NAME, B9600, 0, 0);
 	// Initiate communication with stm
 	stm[0] = COMM_MESSAGE_EXIT_ID;
-	write (fd, stm, 1);
-	read (fd, stm, 1);
+	usb_write_char(stm[0]);
+	usb_read(stm, COMM_MESSAGE_SIZE);
 	// FIXME: is read blocking until it receives something? any timeout if no value received?
 	if (stm[0] != COMM_MESSAGE_EXIT_ID){
 		exit(-1);
@@ -85,11 +78,11 @@ void test_full_main(){
 					break;
 				// server S > stm S
 				case COMM_MESSAGE_SYNC_ID:
-					write (fd, from_server, 1);
+					usb_write_char(from_server[0]);
 					break;
 				// server X > server X and stop
 				case COMM_MESSAGE_EXIT_ID:
-					write (fd, from_server, 1);
+					usb_write_char(from_server[0]);
 					server_is_connected = 0;
 					pthread_join(tid, NULL);
 					break;

@@ -63,8 +63,8 @@ $(TARGETDIR_ardrone_indoor_drone)/test_full.o: $(TARGETDIR_ardrone_indoor_drone)
 $(TARGETDIR_ardrone_indoor_drone)/test_usb.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_usb.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_usb.c
 
-$(TARGETDIR_ardrone_indoor_drone)/usb.o: $(TARGETDIR_ardrone_indoor_drone) src/usb/usb.c
-	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/usb/usb.c
+$(TARGETDIR_ardrone_indoor_drone)/usb.o: $(TARGETDIR_ardrone_indoor_drone) ../ardrone_indoor_commons/usb/usb.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ ../ardrone_indoor_commons/usb/usb.c
 
 #### Clean target deletes all generated files ####
 clean:

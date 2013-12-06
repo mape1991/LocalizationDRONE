@@ -20,10 +20,10 @@
 //#define UDP_ON
 
 // Tests
-#define TEST_COMM             // test comm on
+//#define TEST_COMM             // test comm on
 //#define TEST_WIFI_DELAY
 //#define TEST_FULL
-//#define TEST_USB
+#define TEST_USB
 
 #ifdef TEST_COMM
    #define UDP_ON

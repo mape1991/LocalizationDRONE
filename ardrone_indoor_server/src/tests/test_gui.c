@@ -94,7 +94,6 @@ void test_gui_thread_send()
 					break;
 			}
 	   }
-	}
 }
 
 #ifdef USB_ON
