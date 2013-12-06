@@ -19,6 +19,8 @@
 	#include "tests/test_full.h"
 #elif defined TEST_USB
 	#include "tests/test_usb.h"
+#elif defined TEST_THREAD
+	#include "tests/test_thread.h"
 #endif
 
 
@@ -32,6 +34,8 @@ int main(int argc, char ** argv){
 	   test_full_main();
 	#elif defined TEST_USB
 	   test_usb_main();
+	#elif defined TEST_THREAD
+	   test_thread_main();
    #endif
   
    return 0;

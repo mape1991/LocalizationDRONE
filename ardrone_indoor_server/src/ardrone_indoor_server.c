@@ -107,6 +107,8 @@ int main(int argc, char** argv)
       gtk_main ();
       while(1);
       return 0;
+	#elif defined(TEST_USB)
+      test_usb_main();
    #else
       return ardrone_tool_main(argc, argv);
    #endif
