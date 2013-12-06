@@ -37,7 +37,7 @@ void *esclave(void * arg) {
 	return NULL;
 }
 
-void test_full_main(){
+void test_thread_main(){
 
 	pthread_t tid;
 	char stm[COMM_MESSAGE_SIZE];
