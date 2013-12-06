@@ -68,7 +68,7 @@ void usb_set_blocking (int fd, int should_block)
                 printf ("error %d setting term attributes \n", fd);
 }
 
-int usb_init(char *portname)
+int usb_init(char *portname, int speed, int parity, int should_block)
 {
    fd  = open (portname, O_RDWR | O_NOCTTY | O_SYNC);
 
@@ -82,13 +82,13 @@ int usb_init(char *portname)
       printf("usb open port %s \n", portname);
    }
 
-   usb_set_interface_attribs (fd, B9600, 0);  // set speed to 115,200 bps, 8n1 (no parity)
-   //set_interface_attribs (fd2, B115200, 0);  // set speed to 115,200 bps, 8n1 (no parity)
+   usb_set_interface_attribs (fd, speed, parity);
+
    printf("usb set port\n");
    
-   usb_set_blocking (fd, 0);                // set no blocking
-   //set_blocking (fd2, 0);                // set no blocking
-   printf("usb set blocking\n");
+   usb_set_blocking (fd, should_block);
+
+   printf("usb set %sblocking\n");
    
    return 0;
 }
