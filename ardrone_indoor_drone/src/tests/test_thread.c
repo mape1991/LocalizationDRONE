@@ -1,4 +1,4 @@
-#include "test_full.h"
+#include "test_thread.h"
 
 #include <sys/types.h>
 #include <stdio.h>
@@ -9,7 +9,7 @@
 #include <termios.h>
 #include <pthread.h>
 
-void *esclave(void * arg) {
+void *esclave_test(void * arg) {
 	char response[1+NUM_BEACONS*sizeof(int)];
 	// Once the thread is started, he signals his readiness to the server
 	// > server I
@@ -104,7 +104,8 @@ void test_thread_main(){
 				}
 	  	} else if(from_server[0] == COMM_MESSAGE_INIT_ID){
 				server_is_connected = 1;
-				pthread_create(&tid, NULL, esclave, NULL);
+				udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
+				pthread_create(&tid, NULL, esclave_test, NULL);
 	      	}
 	} while (1);
 }
