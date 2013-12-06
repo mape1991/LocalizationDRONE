@@ -101,7 +101,7 @@ void test_comm_main()
    udp_open_socket();
    is_udp_listening = 1;
    // activate the usb comm
-   usb_init(USB_PORT_NAME);
+   usb_init(USB_PORT_NAME, B9600, 0, 0);
    is_usb_reading = 1;
 }
 

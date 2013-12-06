@@ -9,8 +9,9 @@
 #define TEST_GUI_H_
 
 #include "../global_config.h"
+#include "../../../ardrone_indoor_commons/global_com.h"
 #include "../../../ardrone_indoor_commons/com/udp_comm.h"
-#include "../usb/usb.h"
+#include "../../../ardrone_indoor_commons/usb/usb.h"
 #include "../gui/gui.h"
 
 #define GUI_MAX_LABEL_SIZE 40

@@ -25,5 +25,9 @@
 #define COMM_MESSAGE_NONE 0
 #define COMM_TEST_SYNC_COUNT 3
 
+// usb constants
+#define USB_PORT_NAME "/dev/ttyUSB0"
+#define USB_BUFFER_MAX_SIZE 100
+
 #endif	/* ERROR_TYPES_COMM_H */
 

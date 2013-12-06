@@ -106,7 +106,7 @@ void test_gui_main()
    udp_open_socket();
    message_send_enable = 0; // avoid sending when initializing
    // activate the usb comm
-   usb_init(USB_PORT_NAME);
+   usb_init(USB_PORT_NAME, B9600, 0, 0);
 }
 
 #endif
