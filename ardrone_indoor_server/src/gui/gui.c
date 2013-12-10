@@ -12,35 +12,52 @@ gui_t *get_gui()
   return gui;
 }
 
+void button_disconnect_callback()
+{
+	#ifdef TEST_GUI
+		// connected > disconnected (exit)
+		message_send_id = COMM_MESSAGE_EXIT_ID;
+		gtk_widget_set_sensitive(gui->button_disconnect, FALSE);
+		gtk_widget_set_sensitive(gui->button_connect, TRUE);
+		// desactivate loops in the threads
+		printf("button %s clicked\n", "disconnect");
+		// disable getpos button
+		gtk_widget_set_sensitive(gui->button_getpos, FALSE);
+		// post semaphore for the thread in test_gui
+		// it allows to unlock test_comm_thread_send
+		sem_post(&message_sema);       /* up semaphore */
+	#endif
+}
+
 void button_connect_callback()
 {
 	#ifdef TEST_GUI
-		// disconnected > connected (init)
-		if (gui->is_connected == STATE_DISCONNECTED){
-			// server to stm32/drone via usb/udp
-			message_send_id = COMM_MESSAGE_INIT_ID;
-			message_send_enable = UDP_SEND_ON;
-			gui->is_connected = STATE_CONNECTED;
-			// activate threads loops
-		   is_udp_listening = UDP_LISTEN_ON;
-		   is_udp_sending = UDP_SEND_ON;
-		   is_usb_reading = USB_READING_ON;
-		// connected > disconnected (exit)
-		}else if (gui->is_connected == STATE_CONNECTED){
-			message_send_id = COMM_MESSAGE_EXIT_ID;
-			message_send_enable = UDP_SEND_ON;
-			gui->is_connected = STATE_DISCONNECTED;
-		}
+		// server to stm32/drone via usb/udp
+		message_send_id = COMM_MESSAGE_INIT_ID;
+		gtk_widget_set_sensitive(gui->button_disconnect, TRUE);
+		gtk_widget_set_sensitive(gui->button_connect, FALSE);
+		// activate threads loops
+		is_udp_listening = 1;
+		is_udp_sending = 1;
+		#ifdef USB_ON
+			is_usb_reading = 1;
+		#endif
+		// desactivate loops in the threads
+		printf("button %s clicked\n", "connect");
+		// enable getpos button
+		gtk_widget_set_sensitive(gui->button_getpos, TRUE);
+		// post semaphore for the thread in test_gui
+		// it allows to unlock test_comm_thread_send
+		sem_post(&message_sema);       /* up semaphore */
 	#endif
 }
 
 void button_getpos_callback()
 {
 	#ifdef TEST_GUI
-		if (gui->is_connected == STATE_CONNECTED){
-			message_send_id = COMM_MESSAGE_SYNC_ID;
-			message_send_enable = UDP_SEND_ON;
-		}
+		message_send_id = COMM_MESSAGE_SYNC_ID;
+		// post semaphore for the thread in test_gui
+		sem_post(&message_sema);       /* up semaphore */
 	#endif
 }
 
@@ -64,16 +81,23 @@ void createMainBox()
    gui->button_connect = gtk_button_new_with_label("Connect");
    g_signal_connect (gui->button_connect, "clicked", G_CALLBACK (button_connect_callback), NULL);
 
-   gui->button_getpos = gtk_button_new_with_label("Start");
+   gui->button_disconnect = gtk_button_new_with_label("Disconnect");
+   g_signal_connect (gui->button_disconnect, "clicked", G_CALLBACK (button_disconnect_callback), NULL);
+   gtk_widget_set_sensitive(gui->button_disconnect, FALSE); // only on a connect button click can enable the getpos
+
+   gui->button_getpos = gtk_button_new_with_label("Get position");
    g_signal_connect (gui->button_getpos, "clicked", G_CALLBACK (button_getpos_callback), NULL);
    gtk_widget_set_sensitive(gui->button_getpos, FALSE); // only on a connect button click can enable the getpos
 
-   gui->text_drone_state = gtk_label_new("Drone: disconnected");
-   gui->text_controller_state = gtk_label_new("Controller: disconnected");
+   gui->text_server_state = gtk_label_new("none");
+   gui->text_drone_state = gtk_label_new("none");
+   gui->text_controller_state = gtk_label_new("none");
 
    // add the action buttons to the box
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_disconnect, TRUE, TRUE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_getpos, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_server_state, TRUE, TRUE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state, TRUE, TRUE, 0);
    gtk_box_pack_end(GTK_BOX(gui->box_main), gui->text_controller_state, TRUE, TRUE, 0);
 }

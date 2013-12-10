@@ -22,12 +22,17 @@ all: $(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone
 
 ## Target: ardrone_indoor_drone
 CPPFLAGS_ardrone_indoor_drone = \
-	-Isrc
+	-Isrc -lpthread 
+	#-P_REENTRANT
 OBJS_ardrone_indoor_drone =  \
 	$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
 	$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o \
 	$(TARGETDIR_ardrone_indoor_drone)/test_comm.o \
-	$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o
+	$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o \
+	$(TARGETDIR_ardrone_indoor_drone)/test_full.o \
+	$(TARGETDIR_ardrone_indoor_drone)/test_usb.o \
+	$(TARGETDIR_ardrone_indoor_drone)/test_thread.o \
+	$(TARGETDIR_ardrone_indoor_drone)/usb.o
 	
 SYSLIBS_ardrone_indoor_drone = -lm 
 USERLIBS_ardrone_indoor_drone = $(SYSLIBS_ardrone_indoor_drone) 
@@ -53,6 +58,17 @@ $(TARGETDIR_ardrone_indoor_drone)/test_comm.o: $(TARGETDIR_ardrone_indoor_drone)
 $(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_wifi_delay.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_wifi_delay.c
 
+$(TARGETDIR_ardrone_indoor_drone)/test_full.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_full.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_full.c
+
+$(TARGETDIR_ardrone_indoor_drone)/test_usb.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_usb.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_usb.c
+	
+$(TARGETDIR_ardrone_indoor_drone)/test_thread.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_thread.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_thread.c
+
+$(TARGETDIR_ardrone_indoor_drone)/usb.o: $(TARGETDIR_ardrone_indoor_drone) ../ardrone_indoor_commons/usb/usb.c
+	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ ../ardrone_indoor_commons/usb/usb.c
 
 #### Clean target deletes all generated files ####
 clean:
@@ -61,7 +77,11 @@ clean:
 		$(TARGETDIR_ardrone_indoor_drone)/ardrone_indoor_drone.o \
 		$(TARGETDIR_ardrone_indoor_drone)/udp_comm.o \
 		$(TARGETDIR_ardrone_indoor_drone)/test_comm.o \
-		$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o
+		$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o \
+		$(TARGETDIR_ardrone_indoor_drone)/test_usb.o \
+		$(TARGETDIR_ardrone_indoor_drone)/test_thread.o \
+		$(TARGETDIR_ardrone_indoor_drone)/usb.o \
+		$(TARGETDIR_ardrone_indoor_drone)/test_full.o
 
 	rm -f -r $(TARGETDIR_ardrone_indoor_drone)
 

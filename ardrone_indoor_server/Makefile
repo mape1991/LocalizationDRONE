@@ -26,13 +26,14 @@ GENERIC_BINARIES_SOURCE_DIR:=$(SRC_DIR)
 GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    nav/navdata.c    \
    ../../ardrone_indoor_commons/com/udp_comm.c \
+   ../../ardrone_indoor_commons/usb/usb.c \
    tests/test_comm.c \
    tests/test_wifi_delay.c \
    tests/test_gui.c \
+   tests/test_usb.c \
    gui/gui.c \
-   video/video_stage.c \
-   usb/usb.c
-
+   video/video_stage.c 
+   
 GENERIC_INCLUDES+=					\
 	$(SRC_DIR) \
 	$(LIB_DIR) \

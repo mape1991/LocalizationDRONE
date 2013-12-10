@@ -9,11 +9,17 @@
 #define TEST_GUI_H_
 
 #include "../global_config.h"
+#include "../../../ardrone_indoor_commons/global_com.h"
 #include "../../../ardrone_indoor_commons/com/udp_comm.h"
-#include "../usb/usb.h"
+#include "../../../ardrone_indoor_commons/usb/usb.h"
 #include "../gui/gui.h"
+#include <semaphore.h>  /* Semaphore */
 
 #define GUI_MAX_LABEL_SIZE 40
+
+#define GUI_SERVER_HINT_INIT "Server: initialized"
+#define GUI_SERVER_HINT_SYNC "Server: synchronized"
+#define GUI_SERVER_HINT_EXIT "Server: disconnected"
 
 #define GUI_DRONE_HINT_INIT "Drone: initialized"
 #define GUI_DRONE_HINT_SYNC "Drone: synchronized"
@@ -26,10 +32,11 @@
 void test_gui_thread_udp_read();
 void test_gui_thread_send();
 void test_gui_thread_usb_read();
-void test_gui_main();
+void test_gui_main(int argc, char **argv); // arguments for the gui initialization
 
 // used for UI control when the user wants to send one message to stm32/drone
-extern char message_send_enable;
+// why is it volatile : http://stackoverflow.com/questions/78172/using-c-pthreads-do-shared-variables-need-to-be-volatile
+extern sem_t message_sema;
 extern char message_send_id;
 
 #endif /* TEST_GUI_H_ */

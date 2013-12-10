@@ -11,7 +11,7 @@
 #include "../global_config.h"
 #include "../../../ardrone_indoor_commons/global_com.h"
 #include "../../../ardrone_indoor_commons/com/udp_comm.h"
-#include "../usb/usb.h"
+#include "../../../ardrone_indoor_commons/usb/usb.h"
 
 void test_comm_thread_udp_read();
 void test_comm_thread_send();
