@@ -13,20 +13,22 @@ void *esclave_test(void * arg) {
 	char response[1+NUM_BEACONS*sizeof(int)];
 	// Once the thread is started, he signals his readiness to the server
 	// > server I
+        printf("ESCLAVE -> thread démarré.\n");
 	udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
 	do{
 		//read(fd, response, sizeof(response));
 		scanf("%s", response);
+                printf("ESCLAVE -> message reçu : %c.\n", response[0]);
 		switch (response[0]){
 		// stm X > thread exit
 		case COMM_MESSAGE_EXIT_ID :
+                        printf("ESCLAVE -> commande arrêt reçue, arrêt du thread.\n");
 			pthread_exit(NULL);
 			break;
 		// stm S > server S
 		case COMM_MESSAGE_SYNC_ID :
-			udp_respond(response, sizeof(response), PORT_DRONE_TO_SERVER);
-			break;
-		case 'B' :
+                case 'B' :
+                        printf("ESCLAVE -> envoi de la commande au drone.\n");
 			udp_respond(response, sizeof(response), PORT_DRONE_TO_SERVER);
 			break;
 		// FIXME stm I > do nothing ?
@@ -54,17 +56,22 @@ void test_thread_main(){
 	set_interface_attribs (fd, B115200, 0);	// set speed to 115,200 bps, 8n1 (no parity)
 	set_blocking (fd, 0);	// set no blocking
 	*/
-	
+
+        printf("Thread principal démarré.\n");
 	// Initiate communication with stm
 	stm[0] = COMM_MESSAGE_EXIT_ID;
 	//write (fd, stm, 1);
 	//read (fd, stm, 1);
+        printf("Initialisation de la communication avec le STM.\n");
 	printf("%c", stm[0]);
-	scanf("%c", stm);
+	stm[0] = getchar();
+        getchar();
 	// FIXME: is read blocking until it receives something? any timeout if no value received?
 	if (stm[0] != COMM_MESSAGE_EXIT_ID){
+                printf("Mauvaise réponse de STM, arrêt du programme.\n");
 		exit(-1);
 	}
+        printf("Le STM a répondu.\n");
 
 	// Inititate communication with server
 	udp_open_socket();
@@ -80,15 +87,18 @@ void test_thread_main(){
 				switch (from_server[0]) {
 					// server I > server I
 					case COMM_MESSAGE_INIT_ID:
+                                                printf("MASTER -> message init reçu, serveur déjà connecté\n");
 						udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
 						break;
 					// server S > stm S
 					case COMM_MESSAGE_SYNC_ID:
+                                                printf("MASTER -> message sync reçu, relai au STM32\n");
 						//write (fd, from_server, 1);
 						printf("%s", from_server);
 						break;
 					// server X > server X and stop
 					case COMM_MESSAGE_EXIT_ID:
+                                                printf("MASTER -> message exit reçu, relai au STM32\n");
 						//write (fd, from_server, 1);
 						printf("%s", from_server);
 						server_is_connected = 0;
@@ -103,6 +113,7 @@ void test_thread_main(){
 						break;
 				}
 	  	} else if(from_server[0] == COMM_MESSAGE_INIT_ID){
+                                printf("MASTER -> message init reçu : serveur connecté, démarrage du thread esclave.\n");
 				server_is_connected = 1;
 				udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
 				pthread_create(&tid, NULL, esclave_test, NULL);

@@ -6,7 +6,7 @@ void test_usb_main()
 {
 	char stm[COMM_MESSAGE_SIZE];
 	// Serial interface init
-	usb_init(USB_PORT_NAME);
+	usb_init(USB_PORT_NAME, B9600, 0, 1);
 //	   is_usb_reading = 1;
 	// Initiate communication with stm
 	/*stm[0] = COMM_MESSAGE_EXIT_ID;

@@ -22,9 +22,9 @@
 // declare global test definition
 //#define TEST_COMM             // test comm on
 //#define TEST_WIFI_DELAY
-//#define TEST_GUI
+#define TEST_GUI
 //#define TEST_GUI_ONLY
-#define TEST_USB
+//#define TEST_USB
 
 // define which features to use in this test
 #ifdef TEST_COMM
