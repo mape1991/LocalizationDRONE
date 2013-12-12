@@ -29,7 +29,7 @@
 #define GUI_CONTROLLER_HINT_SYNC "Controller: synchronized"
 #define GUI_CONTROLLER_HINT_EXIT "Controller: disconnected"
 
-void test_gui_thread_udp_read();
+void test_gui_thread_udp_read(int message_size);
 void test_gui_thread_send();
 void test_gui_thread_usb_read();
 void test_gui_main(int argc, char **argv); // arguments for the gui initialization
@@ -38,5 +38,6 @@ void test_gui_main(int argc, char **argv); // arguments for the gui initializati
 // why is it volatile : http://stackoverflow.com/questions/78172/using-c-pthreads-do-shared-variables-need-to-be-volatile
 extern sem_t message_sema;
 extern char message_send_id;
+extern void (*thread_udp_read_sync)(char *message);
 
 #endif /* TEST_GUI_H_ */

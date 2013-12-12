@@ -15,6 +15,8 @@
 #elif defined TEST_GUI_ONLY
 #elif defined TEST_USB
 	#include "tests/test_usb.h"
+#elif defined TEST_FULL
+	#include "tests/test_full.h"
 #endif
 
 C_RESULT signal_exit();

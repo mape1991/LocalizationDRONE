@@ -1,11 +1,15 @@
 #include "test_usb.h"
 
 
-void test_usb_main()
+void test_usb_main(char *port)
 {
 	char stm[COMM_MESSAGE_SIZE];
 
-	usb_init(USB_PORT_NAME, B9600, 0, 1);	// set speed to 9600 bps, 8n1 (no parity)
+	if (port == 0){
+		port = USB_DRONE_PORT_NAME;
+	}
+
+	usb_init(port, B9600, 0, 1);	// set speed to 9600 bps, 8n1 (no parity)
 	// set blocking (timeout = 0.5sec)
 
 	// Initiate communication with stm
@@ -22,8 +26,10 @@ void test_usb_main()
 		stm[0] = getchar();
 		printf("\n");
 		usb_write_char(stm[0]);
+		stm[0] = 0;
 		// is blocking, react on timeout
 	   usb_read(stm, COMM_MESSAGE_SIZE);
 	   printf("Stm response: %c", stm[0]);
+	   stm[0] = 0;
 	}
 }
