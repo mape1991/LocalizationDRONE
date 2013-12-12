@@ -14,7 +14,7 @@ gui_t *get_gui()
 
 void button_disconnect_callback()
 {
-	#ifdef TEST_GUI
+	#if defined(TEST_GUI) || defined(TEST_FULL)
 		// connected > disconnected (exit)
 		message_send_id = COMM_MESSAGE_EXIT_ID;
 		gtk_widget_set_sensitive(gui->button_disconnect, FALSE);
@@ -31,7 +31,7 @@ void button_disconnect_callback()
 
 void button_connect_callback()
 {
-	#ifdef TEST_GUI
+	#if defined(TEST_GUI) || defined(TEST_FULL)
 		// server to stm32/drone via usb/udp
 		message_send_id = COMM_MESSAGE_INIT_ID;
 		gtk_widget_set_sensitive(gui->button_disconnect, TRUE);
@@ -54,7 +54,7 @@ void button_connect_callback()
 
 void button_getpos_callback()
 {
-	#ifdef TEST_GUI
+	#if defined(TEST_GUI) || defined(TEST_FULL)
 		message_send_id = COMM_MESSAGE_SYNC_ID;
 		// post semaphore for the thread in test_gui
 		sem_post(&message_sema);       /* up semaphore */
@@ -100,36 +100,6 @@ void createMainBox()
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_server_state, TRUE, TRUE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state, TRUE, TRUE, 0);
    gtk_box_pack_end(GTK_BOX(gui->box_main), gui->text_controller_state, TRUE, TRUE, 0);
-}
-
-void createTestBox()
-{
-   #ifdef TEST_COMM
-      /*gui->box_test = gtk_vbox_new(FALSE, 10);
-      // send testing
-      // create the box containing the textbox and the scrollbar
-      //GtkWidget *text_test_send_hbox = gtk_hbox_new(FALSE, 10);
-      //GtkAdjustment *vadj = gtk_adjustment_new(0, 0, )
-      gui->text_test_send = gtk_text_view_new("No send");
-
-      //GtkWidget *vscrollbar = gtk_vscrollbar_new((GtkText*)(gui->text_test_send)->vadj); //GTK_TEXT 
-      //gtk_box_pack_start(GTK_BOX(text_test_send_hbox), gui->text_test_send, FALSE, FALSE, 0);
-      //gtk_box_pack_end(GTK_BOX(text_test_send_hbox), vscrollbar, FALSE, FALSE, 0);
-      // populate the box including the box with the textbox and the scrollbar
-      gtk_box_pack_start(GTK_BOX(gui->box_test), gui->text_test_send, TRUE, TRUE, 0);
-      // listen testing
-      // create the box containing the textbox and the scrollbar
-      //GtkWidget *text_test_listen_hbox = gtk_hbox_new(FALSE, 10);
-      gui->text_test_listen = gtk_text_view_new("No receive");
-      
-      //gtk_text_view_
-
-      //GtkWidget *vscrollbar2 = gtk_vscrollbar_new(GTK_TEXT (gui->text_test_listen)->vadj);
-      //gtk_box_pack_start(GTK_BOX(text_test_listen_hbox), gui->text_test_listen, FALSE, FALSE, 0);
-      //gtk_box_pack_end(GTK_BOX(text_test_listen_hbox), vscrollbar, FALSE, FALSE, 0);
-      // populate the box including the box with the textbox and the scrollbar
-      gtk_box_pack_end(GTK_BOX(gui->box_test), gui->text_test_listen, TRUE, TRUE, 0);  */
-   #endif
 }
 
 void createBeaconsBox()

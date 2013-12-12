@@ -17,6 +17,8 @@
 
 #ifdef TEST_GUI
 	#include "../tests/test_gui.h"
+#elif defined TEST_FULL
+	#include "../tests/test_full.h"
 #endif
 
 #define NUM_COORDINATES 3
@@ -70,6 +72,7 @@ gui_t *get_gui();
 void init_gui(int argc, char **argv);
 
 void button_connect_callback();
+void button_disconnect_callback();
 void button_getpos_callback();
 
 #endif
