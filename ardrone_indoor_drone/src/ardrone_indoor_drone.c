@@ -33,7 +33,10 @@ int main(int argc, char ** argv){
    #elif defined TEST_FULL
 	   test_full_main();
 	#elif defined TEST_USB
-	   test_usb_main();
+	   if (argc >= 2)
+	   	test_usb_main(argv[1]);
+	   else
+	   	test_usb_main(NULL);
 	#elif defined TEST_THREAD
 	   test_thread_main();
    #endif
