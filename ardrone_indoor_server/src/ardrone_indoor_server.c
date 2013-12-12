@@ -40,7 +40,9 @@
 	  #elif defined TEST_WIFI_DELAY
 		 test_wifi_delay_udp_read();
 	  #elif defined TEST_GUI
-		 test_gui_thread_udp_read();
+		 test_gui_thread_udp_read(COMM_MESSAGE_SIZE);
+	  #elif defined TEST_FULL
+		 test_gui_thread_udp_read(COMM_MESSAGE_DTS_SIZE);
 	  #endif
    }
    
@@ -50,7 +52,8 @@
 		 test_comm_thread_send();
 	  #elif defined TEST_WIFI_DELAY
 	 	 test_wifi_delay_udp_send();
-	  #elif defined TEST_GUI
+	 	 	 // no changes for udp sending behavior between test_gui and test_full
+	  #elif defined(TEST_GUI) || defined (TEST_FULL)
 	     test_gui_thread_send();
 	  #endif
    }
@@ -63,7 +66,7 @@
    {
 	  #ifdef TEST_COMM
 		 test_comm_thread_usb_read();
-	  #elif defined TEST_GUI
+	  #elif defined(TEST_GUI) || defined(TEST_FULL)
 		 test_gui_thread_usb_read();
 	  #endif
    }
@@ -88,6 +91,15 @@ static int32_t exit_ihm_program = 1;
 /* Implementing Custom methods for the main function of an ARDrone application */
 int main(int argc, char** argv)
 {
+	// template for changing the tests according to input user arguments
+	/*
+	if (argc > 1){
+		if (strcmp(argv[1], "test_comm") == -1){
+		}else if (strcmp(argv[1], "test_wifi_delay") == -1){
+			#undef TEST_COMM
+		}
+	}*/
+
    // test of communication protocols (udp and usb) (equal to the demo of sprint 1)
    #ifdef TEST_COMM
       test_comm_main();
@@ -100,6 +112,10 @@ int main(int argc, char** argv)
    // the user can click on buttons and obtain direct message transmissions
    #elif defined(TEST_GUI)
       test_gui_main(argc, argv);
+      return ardrone_tool_main(argc, argv);
+	//
+   #elif defined (TEST_FULL)
+      test_full_main();
       return ardrone_tool_main(argc, argv);
    // test of the gui only (to check the resulting interface display)
    #elif defined(TEST_GUI_ONLY)

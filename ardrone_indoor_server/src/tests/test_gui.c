@@ -1,6 +1,6 @@
 #include "test_gui.h"
 
-#ifdef TEST_GUI
+#if defined(TEST_GUI) || defined (TEST_FULL)
 
 char message[COMM_MESSAGE_SIZE];
 
@@ -8,13 +8,22 @@ char message_send_enable = 0;
 char message_send_id = COMM_MESSAGE_INIT_ID;
 int message_sync_count = 0;
 sem_t message_sema;
+void (*thread_udp_read_sync)(char *message) = 0;
 
-void test_gui_thread_udp_read()
+void test_gui_thread_udp_read_sync(char *message)
 {
 	char text_label[GUI_MAX_LABEL_SIZE];
+	printf("udp sync %d received\n", message_sync_count);
+	// display the usual message including the sync message id (incremented when the user clicks on Get Position)
+	strcpy(text_label, "");
+	sprintf(text_label, "%s %d", GUI_DRONE_HINT_SYNC, message_sync_count);
+	gtk_label_set_text(get_gui()->text_drone_state, text_label);
+}
 
+void test_gui_thread_udp_read(int message_size)
+{
    while(is_udp_listening){
-	  udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_DRONE_TO_SERVER);
+	  udp_listen_once(message, message_size, PORT_DRONE_TO_SERVER);
 	  // tracing
 	  if (message[0] != 0)
 	  	  printf("udp message %c\n", message[0]);
@@ -25,11 +34,7 @@ void test_gui_thread_udp_read()
 				  gtk_label_set_text(get_gui()->text_drone_state, GUI_DRONE_HINT_INIT);
 			  break;
 		  case COMM_MESSAGE_SYNC_ID :
-				  printf("udp sync %d received\n", message_sync_count);
-				  // display the usual message including the sync message id (incremented when the user clicks on Get Position)
-				  strcpy(text_label, "");
-				  sprintf(text_label, "%s %d", GUI_DRONE_HINT_SYNC, message_sync_count);
-				  gtk_label_set_text(get_gui()->text_drone_state, text_label);
+				  thread_udp_read_sync(message);
 			  break;
 		  case COMM_MESSAGE_EXIT_ID :
 				  printf("udp exit received\n");
@@ -48,18 +53,12 @@ void test_gui_thread_udp_read()
    }
 }
 
-char x = 0;
 // inputs provided by user actions (buttons rule the message enable and the message id
 void test_gui_thread_send()
 {
 	char text_label[GUI_MAX_LABEL_SIZE];
 
 	while (is_udp_sending) {
-		/*if (x != message_send_enable){
-			x = message_send_enable;
-			printf("%c\n", x);
-		}*/
-		//printf("%c\n", message_send_enable);
 
 	    sem_wait(&message_sema);       /* down semaphore */
 

@@ -31,6 +31,7 @@ GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    tests/test_wifi_delay.c \
    tests/test_gui.c \
    tests/test_usb.c \
+   tests/test_full.c \
    gui/gui.c \
    video/video_stage.c 
    

@@ -20,11 +20,13 @@
 // Tests
 
 // declare global test definition
-//#define TEST_COMM             // test comm on
-//#define TEST_WIFI_DELAY
-#define TEST_GUI
-//#define TEST_GUI_ONLY
-//#define TEST_USB
+
+	//#define TEST_COMM             // test comm on
+	//#define TEST_WIFI_DELAY
+	#define TEST_GUI
+	//#define TEST_GUI_ONLY
+	//#define TEST_USB
+	//#define TEST_FULL
 
 // define which features to use in this test
 #ifdef TEST_COMM
@@ -32,7 +34,7 @@
 	#define USB_ON
 #elif defined TEST_WIFI_DELAY
 	#define UDP_ON
-#elif defined TEST_GUI
+#elif defined(TEST_GUI) || defined(TEST_FULL)
 	#define GUI_ON
 	#define UDP_ON
 // remove the usb since we have the issue related to the usb port name detection
