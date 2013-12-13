@@ -8,7 +8,7 @@ char message_send_enable = 0;
 char message_send_id = COMM_MESSAGE_INIT_ID;
 int message_sync_count = 0;
 sem_t message_sema;
-void (*thread_udp_read_sync)(char *message) = 0;
+void (*thread_udp_read_sync)(char *message) = &test_gui_thread_udp_read_sync; // default value for test_gui
 
 void test_gui_thread_udp_read_sync(char *message)
 {
@@ -43,7 +43,7 @@ void test_gui_thread_udp_read(int message_size)
 				  is_udp_listening = 0;
 				  is_udp_sending = 0;
 
-				  udp_close_socket();
+				  //udp_close_socket();
 				break;
 		  default:
 			  break;
@@ -145,7 +145,7 @@ void test_gui_main(int argc, char **argv)
    is_udp_sending = 1;
    // activate the usb comm
 	#ifdef USB_ON
-   	usb_init(USB_PORT_NAME);
+   	usb_init(USB_PORT_NAME, B9600, 0, 0);
    	is_usb_reading = 1;
 	#endif
 

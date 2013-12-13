@@ -3,6 +3,10 @@
  *
  *  Created on: Nov 27, 2013
  *      Author: julien
+ *
+ *  This test is meant to cover the basic actions of the GUI
+ *  including the connection/disconnection and synchronization with the drone and Server Emitter (stm32)
+ *  NOT INTENDED FOR RECEIVING MESSAGES EXCEEDING ONE BYTE
  */
 
 #ifndef TEST_GUI_H_
@@ -29,6 +33,8 @@
 #define GUI_CONTROLLER_HINT_SYNC "Controller: synchronized"
 #define GUI_CONTROLLER_HINT_EXIT "Controller: disconnected"
 
+
+void test_gui_thread_udp_read_sync(char *message);
 void test_gui_thread_udp_read(int message_size);
 void test_gui_thread_send();
 void test_gui_thread_usb_read();

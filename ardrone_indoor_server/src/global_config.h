@@ -37,8 +37,7 @@
 #elif defined(TEST_GUI) || defined(TEST_FULL)
 	#define GUI_ON
 	#define UDP_ON
-// remove the usb since we have the issue related to the usb port name detection
-	//#define USB_ON
+	#define USB_ON
 #elif defined TEST_GUI_ONLY
 	#define GUI_ON
 #elif defined TEST_USB
