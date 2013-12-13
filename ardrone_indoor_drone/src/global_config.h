@@ -22,8 +22,8 @@
 // Tests
 //#define TEST_COMM             // test comm on
 //#define TEST_WIFI_DELAY
-//#define TEST_FULL
-#define TEST_USB
+#define TEST_FULL
+//#define TEST_USB
 //#define TEST_THREAD
 
 #ifdef TEST_COMM
@@ -34,6 +34,9 @@
 	#define UDP_ON
 	#define USB_ON
 #elif defined TEST_USB
+	#define USB_ON
+#elif defined TEST_THREAD
+	#define UDP_ON
 	#define USB_ON
 #endif
 
