@@ -30,8 +30,7 @@
 /** maximum number of sync when performing a comm_test */
 #define COMM_TEST_SYNC_COUNT 3
 /** usb constants */
-#define USB_PORT_NAME "/dev/ttyUSB0"
-#define USB_DRONE_PORT_NAME "/dev/usbdev1.2"
+#define USB_PORT_NAME "/dev/ttyUSB0" // common port name for both server and drone
 #define USB_BUFFER_MAX_SIZE 100
 
 #endif	/* ERROR_TYPES_COMM_H */

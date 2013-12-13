@@ -14,7 +14,7 @@
 /**
  * parity: 0 for 8n1
  * speed : B9600 (by instance..), unit in bps
- * should_block : if equals 1 then timeout of 0.5 s
+ * should_block : if equals 0 then timeout of 0.5 s
  */
 int usb_init(char *portname, int speed, int parity, int should_block);
 void usb_write(char *message, int message_size);
