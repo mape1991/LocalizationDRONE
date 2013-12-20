@@ -17,13 +17,10 @@ struct sockaddr_in adr_local; // local socket addr
 struct sockaddr_in adr_distant; // remote socket addr
 int lg_adr_local = sizeof(adr_local);
 int lg_adr_distant = sizeof(adr_distant);
-int sock[2]; // internal addr
+int sock[2]; // socket descriptors
 int socket_is_bound = 0;
 
 
-// Julien:
-// the thread structure is taken from the video_stage thread example
-// the udp connection code is included with new error signals to handle the diff cases..
 
 int udp_open_socket(){
    int error_type = ERROR_TYPE_NONE;
@@ -37,6 +34,7 @@ int udp_open_socket(){
       #ifdef DEBUG_ON 
          printf("receiving : error during the socket creation\n");
       #endif
+	  /* program has failed to create both sockets */
       error_type = ERROR_TYPE_SOCKET_CREATION;
    }
    
@@ -49,16 +47,17 @@ int udp_listen_once(char *message, int lg_mesg_emis, int port)
 {
    int error_type = ERROR_TYPE_NONE;
    
-   /* on saute l'étape de bind si le socket est déjà bound
-      (i.e. si on est déjà passé dand la fonction) */
+   /* binding step is bypassed if socket is already bound
+      (i.e. if the function has already been executed) */
     if(!socket_is_bound){
-	   // socket addr creation with the IP of the machine executing the program
+	
+	   // socket address creation with local IP address and port
 	   memset((char*) &adr_local,0,sizeof(adr_local)); // reset
 	   adr_local.sin_family = AF_INET;
 	   adr_local.sin_port = port;
 	   adr_local.sin_addr.s_addr = INADDR_ANY;
 	   
-	   // association @socket with the internal addr
+	   // socket is bound with the internal address
 	   if(bind(sock[SOCK_LISTEN], (struct sockaddr*) &adr_local, lg_adr_local)==-1)
 	   {
 		  #ifdef DEBUG_ON
@@ -66,10 +65,10 @@ int udp_listen_once(char *message, int lg_mesg_emis, int port)
 		  #endif
 		  error_type = ERROR_TYPE_SOCKET_BINDING;
 	   }
+       // if no error has occurred, socket is marked as bound
 	   else socket_is_bound = 1;
 	   
-	/* on vérifie quand même qu'on a pas bindé le socket
-	   à un autre port */
+	/* if we try to listen on a different port from the one whereto the socket is bound*/
 	} else if (adr_local.sin_port != port){
 		#ifdef DEBUG_ON
 			   printf("socket already bound to another port\n");
@@ -96,20 +95,19 @@ int udp_listen_once(char *message, int lg_mesg_emis, int port)
 
 int udp_send(char * dest, char *message, int size, int port)
 {
-	struct sockaddr_in adr_dest; // remote socket addr
-	int lg_adr_dest = sizeof(adr_dest);
+   struct sockaddr_in adr_dest; // remote socket address
+   int lg_adr_dest = sizeof(adr_dest);
 	
    printf("sending : initialization\n");
 
-   //affectation domaine et n° de port
+   //domain et port number association
    memset((char*) &adr_dest, 0, sizeof(adr_dest));
    adr_dest.sin_family = AF_INET;
    adr_dest.sin_port = port;
-
-   //affectation @IP
+   //IP address association
    inet_aton(dest, &adr_dest.sin_addr);
 
-   // construct msg then send
+   // message is sent
    printf("sending : %d bytes : %s\n", size*sizeof(char), message);
    sendto(sock[SOCK_SEND], (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_dest, lg_adr_dest);
    
@@ -124,8 +122,9 @@ int udp_send_char(char * dest, char message,int port)
 }
 
 int udp_respond(char* message, int size, int port){
-	// construct msg then send
-	adr_distant.sin_port = port;
+   // destination port number association
+   adr_distant.sin_port = port;
+   // message is sent
    printf("sending : %d bytes : %s\n", size*sizeof(char), message);
    sendto(sock[SOCK_SEND], (void *) message, size*sizeof(char), 0, (struct sockaddr*) &adr_distant, lg_adr_distant);
    return 0;
@@ -138,9 +137,10 @@ int udp_respond_char(char message,int port) {
 }
 
 int udp_close_socket(){
-	// close the socket
+	// close both sockets
     close(sock[SOCK_LISTEN]);
 	close(sock[SOCK_SEND]);
+	// socket is marked as unbound 
 	socket_is_bound = 0;
       #ifdef DEBUG_ON
          printf("receiving : end of communication\n");
