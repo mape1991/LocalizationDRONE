@@ -17,11 +17,14 @@ The repository is split in different parts:
 - ardrone_stm32_drone : stm32 receiver code for beacon-drone interface
 
 ## Server - ardrone_indoor_server
-Requirements: JDK installed, JRE installed, Netbeans C/C++ IDE, ARDrone SDK
+Requirements: JDK installed, JRE installed, Eclipse CDT, ARDrone SDK, Gtk (>= 2.0), GtkExtra (>= 3.0)
 
-0. Download the project code from your workspace with the git commands
-1. create new C/C++ project with existing sources
-2. Tools > Libraries > Add : put the ARDrone SDK ARDroneLib path (to be tried as I was stuck Friday 7th Nov)
+0. Download the project code from your workspace with the git commands, download the gtkextra lib 3.0
+1. Create new C/C++ project with existing sources
+2. Project > Properties > C/C++ General > Paths and Symbols > Includes section > GNU C : put the ARDrone SDK ARDroneLib path, put the gtkextra3.X/gtkextra directory path (if you want to get rid of any unresolved includes, you need to specify any dependent subpaths)
+3. Specify all mandatory paths of the user_template.properties in a user.properties file with the same properties names.
+
+
 
 ## Drone - ardrone_indoor_drone
 Requirements: USB Support modules (pl2303.ko and usbserial.ko)
