@@ -1,4 +1,5 @@
 #include "navdata.h"
+
 #ifdef NAV_ON
 #include <ardrone_tool/Navdata/ardrone_navdata_client.h>
 #include <stdio.h>

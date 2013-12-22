@@ -22,11 +22,11 @@ void test_gui_thread_udp_read_sync(char *message)
 
 void test_gui_thread_udp_read(int message_size)
 {
-   while(is_udp_listening){
+   while(1){
 	  udp_listen_once(message, message_size, PORT_DRONE_TO_SERVER);
 	  // tracing
 	  if (message[0] != 0)
-	  	  printf("udp message %c\n", message[0]);
+		  printf("udp message %c\n", message[0]);
 	  // dispatch decisions through different cases
 	  switch(message[0]) {
 		  case COMM_MESSAGE_INIT_ID :
@@ -39,9 +39,6 @@ void test_gui_thread_udp_read(int message_size)
 		  case COMM_MESSAGE_EXIT_ID :
 				  printf("udp exit received\n");
 				  gtk_label_set_text(get_gui()->text_drone_state, GUI_DRONE_HINT_EXIT);
-				  // deactivate threads loops
-				  is_udp_listening = 0;
-				  is_udp_sending = 0;
 
 				  //udp_close_socket();
 				break;
@@ -58,7 +55,7 @@ void test_gui_thread_send()
 {
 	char text_label[GUI_MAX_LABEL_SIZE];
 
-	while (is_udp_sending) {
+	while (1) {
 
 	    sem_wait(&message_sema);       /* down semaphore */
 
