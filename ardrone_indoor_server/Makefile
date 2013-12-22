@@ -19,6 +19,7 @@ endif
 TARGET=ardrone_indoor_server
 
 SRC_DIR:=$(shell pwd)/src
+LIB_DIR_LOCAL:=$(shell pwd)/lib
 
 # Define application source files
 GENERIC_BINARIES_SOURCE_DIR:=$(SRC_DIR)
@@ -33,13 +34,19 @@ GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    tests/test_usb.c \
    tests/test_full.c \
    gui/gui.c \
+   gui/scene.c \
    video/video_stage.c 
    
+# Including headers means also adding the lib folder to the generic_lib_paths
+# i.e. for the gtkextra, we have added the path to the headers (defined in the custom user properties)
+# of the gtkextra and we have added the static shared library libgtkextra compiled from the folder of gtkextra (containing a
+# configure command and a makefile)
 GENERIC_INCLUDES+=					\
 	$(SRC_DIR) \
 	$(LIB_DIR) \
 	$(SDK_PATH)/Soft/Common \
-	$(SDK_PATH)/Soft/Lib
+	$(SDK_PATH)/Soft/Lib \
+	$(GTK_EXTRA_PATH)
 
 GENERIC_TARGET_BINARIES_PREFIX=
 
@@ -50,8 +57,9 @@ GENERIC_BINARIES_SOURCE_ENTRYPOINTS+=			\
 
 GENERIC_INCLUDES:=$(addprefix -I,$(GENERIC_INCLUDES))
 
-GENERIC_LIB_PATHS=-L$(GENERIC_TARGET_BINARIES_DIR)
-GENERIC_LIBS=-lpc_ardrone -lgtk-x11-2.0 -lrt
+GENERIC_LIB_PATHS=-L$(GENERIC_TARGET_BINARIES_DIR) -L$(LIB_DIR_LOCAL)
+#warning: when specifying the name of the library, do not put the prefix lib in front of it
+GENERIC_LIBS=-lpc_ardrone -lgtk-x11-2.0 -lrt -lgtkextra-x11-3.0
 
 SDK_FLAGS+="USE_APP=yes"
 SDK_FLAGS+="APP_ID=ardrone_indoor_server"

@@ -15,6 +15,10 @@
 #include "../../../ardrone_indoor_commons/com/udp_comm.h"
 #include <gtk/gtk.h>
 
+#ifdef GUI_SCENE_ON
+	#include "scene.h"
+#endif
+
 #ifdef TEST_GUI
 	#include "../tests/test_gui.h"
 #elif defined TEST_FULL
@@ -30,6 +34,7 @@ typedef struct gui
 {
   GtkWidget *window;
   GtkWidget *box_window; // contain all the containers
+  GtkWidget *box_subwindow; // contains the mainbox, beaconsbox, dronepositionbox, except the graphbox
   
   // main content
   GtkWidget *box_main; // container
@@ -64,6 +69,11 @@ typedef struct gui
   GtkWidget *text_server_state;
   GtkWidget *text_drone_state;
   GtkWidget *text_controller_state;
+
+  // 3D graph for position
+  #ifdef GUI_SCENE_ON
+  	  scene_t *scene;
+  #endif
 
 } gui_t;
  

@@ -1,22 +1,27 @@
 /**
  * @file main.c
- * @author sylvain.gaeremynck@parrot.com
+ * @author julien, aymeric and vu hai
  * @date 2009/07/01
  * 
  * Modifications:
  *    - use of a global config with definitions to enable/disable functionalities of the program (gui,...)
+ *
+ *
+ * procedure to install the gtk extra 3.0 for the 3d graph
+ *    http://gtkextra.sourceforge.net/cms/index.php?option=com_content&view=article&id=40&Itemid=21
+ *    add the directory path to your user property file
  */
 #include "ardrone_indoor_server.h"
+
+//Common
+#include <config.h>
+#include <ardrone_api.h>
 
 //ARDroneLib
 #include <utils/ardrone_time.h>
 #include <ardrone_tool/Navdata/ardrone_navdata_client.h>
 #include <ardrone_tool/Control/ardrone_control.h>
 #include <ardrone_tool/UI/ardrone_input.h>
-
-//Common
-#include <config.h>
-#include <ardrone_api.h>
 
 //VP_SDK
 #include <ATcodec/ATcodec_api.h>

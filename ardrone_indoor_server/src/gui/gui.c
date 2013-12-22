@@ -37,8 +37,6 @@ void button_connect_callback()
 		gtk_widget_set_sensitive(gui->button_disconnect, TRUE);
 		gtk_widget_set_sensitive(gui->button_connect, FALSE);
 		// activate threads loops
-		is_udp_listening = 1;
-		is_udp_sending = 1;
 		#ifdef USB_ON
 			is_usb_reading = 1;
 		#endif
@@ -63,19 +61,25 @@ void button_getpos_callback()
 
 static void on_destroy(GtkWidget *widget, gpointer data)
 {
-  vp_os_free(gui);
-  gtk_main_quit();
+#ifdef GUI_SCENE_ON
+	scene_destroy();
+#endif
+	vp_os_free(gui);
+	gtk_main_quit();
 }
 
-void createMainBox()
+void create_main_box()
 {
+	#ifdef DEBUG_ON
+		printf("Creating the Window>SubWindow>MainBox\n");
+	#endif
    //vbox for having same Vertical size for each element
    // 10 is the space between two consecutive elements
    gui->box_main = gtk_vbox_new(FALSE, 10); 
    
    // adds the camera image to the main box
    gui->cam = gtk_image_new();
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->cam, FALSE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->cam, FALSE, FALSE, 0);
    
    // initializes action buttons
    gui->button_connect = gtk_button_new_with_label("Connect");
@@ -94,16 +98,19 @@ void createMainBox()
    gui->text_controller_state = gtk_label_new("none");
 
    // add the action buttons to the box
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_disconnect, TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_getpos, TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_server_state, TRUE, TRUE, 0);
-   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state, TRUE, TRUE, 0);
-   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->text_controller_state, TRUE, TRUE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_disconnect, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_getpos, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_server_state, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state, FALSE, FALSE, 0);
+   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->text_controller_state, FALSE, FALSE, 0);
 }
 
-void createBeaconsBox()
+void create_beacons_box()
 {
+	#ifdef DEBUG_ON
+		printf("Creating the Window>SubWindow>BeaconsBox\n");
+	#endif
    gui->box_beacons = gtk_vbox_new(FALSE, 10);
    
    int beacon_id = 0;
@@ -115,17 +122,20 @@ void createBeaconsBox()
       gui->label_beacon_ids[beacon_id] = gtk_label_new(label_text);
       gui->label_beacon_timevals[beacon_id] = gtk_label_new("none");
       // add labels to the box for beacons
-      gtk_box_pack_start(GTK_BOX(gui->box_beacons), gui->label_beacon_ids[beacon_id], TRUE, TRUE, 0);
+      gtk_box_pack_start(GTK_BOX(gui->box_beacons), gui->label_beacon_ids[beacon_id], FALSE, FALSE, 0);
       if (beacon_id < NUM_BEACONS-1)
       {
-         gtk_box_pack_start(GTK_BOX(gui->box_beacons), gui->label_beacon_timevals[beacon_id], TRUE, TRUE, 0);
+         gtk_box_pack_start(GTK_BOX(gui->box_beacons), gui->label_beacon_timevals[beacon_id], FALSE, FALSE, 0);
       }
    }
-   gtk_box_pack_end(GTK_BOX(gui->box_beacons), gui->label_beacon_timevals[beacon_id-1], TRUE, TRUE, 0);
+   gtk_box_pack_end(GTK_BOX(gui->box_beacons), gui->label_beacon_timevals[beacon_id-1], FALSE, FALSE, 0);
 }
 
-void createDroneBox()
+void create_drone_box()
 {
+	#ifdef DEBUG_ON
+		printf("Creating the Window>SubWindow>DroneBox\n");
+	#endif
    gui->box_drone_pos = gtk_vbox_new(FALSE, 5);
 
    // X axis
@@ -138,47 +148,80 @@ void createDroneBox()
    for (; pos_id < NUM_COORDINATES; pos_id++)
    {
       // add label ids to the container
-      gtk_box_pack_start(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_ids[pos_id], TRUE, TRUE, 0);
+      gtk_box_pack_start(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_ids[pos_id], FALSE, FALSE, 0);
       // init values to default
       gui->label_drone_pos_values[pos_id] = gtk_label_new("none");
       if (pos_id < NUM_COORDINATES-1)
-         gtk_box_pack_start(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_values[pos_id], TRUE, TRUE, 0);
+         gtk_box_pack_start(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_values[pos_id], FALSE, FALSE, 0);
    }
-   gtk_box_pack_end(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_values[pos_id-1], TRUE, TRUE, 0);
+   gtk_box_pack_end(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_values[pos_id-1], FALSE, FALSE, 0);
 }
- 
+
+#ifdef GUI_SCENE_ON
+void create_graph_box()
+{
+	#ifdef DEBUG_ON
+		printf("Creating the Window>GraphBox\n");
+	#endif
+
+	scene_init();
+}
+#endif
+
+
+void create_sub_window()
+{
+	#ifdef DEBUG_ON
+		printf("Creating the Window>SubWindow\n");
+	#endif
+	gui->box_subwindow = gtk_hbox_new(FALSE, 15);
+
+	create_main_box();
+	create_beacons_box();
+	create_drone_box();
+
+	gtk_box_pack_start(GTK_BOX(gui->box_subwindow), gui->box_main, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gui->box_subwindow), gui->box_beacons, FALSE, FALSE, 0);
+	gtk_box_pack_end(GTK_BOX(gui->box_subwindow), gui->box_drone_pos, FALSE, FALSE, 0);
+}
+
+void create_window()
+{
+	#ifdef DEBUG_ON
+		printf("Creating the Window\n");
+	#endif
+
+	gui->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_default_size(gui->window, 800, 600);
+	// callback on window destroy event
+	g_signal_connect(G_OBJECT(gui->window), "destroy", G_CALLBACK(on_destroy), NULL);
+	// create window box
+	gui->box_window = gtk_vbox_new(FALSE, 15);
+	// create sub window
+   create_sub_window();
+   // create the scene
+	#ifdef GUI_SCENE_ON
+		create_graph_box();
+   	gui->scene = get_scene();
+	#endif
+   // add boxes onto the window
+	gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_subwindow, FALSE, FALSE, 0);
+	#ifdef GUI_SCENE_ON
+		gtk_box_pack_end(GTK_BOX(gui->box_window), gui->scene->box_graph, TRUE, TRUE, 0);
+	#endif
+}
+
 void init_gui(int argc, char **argv)
 {
    gui = vp_os_malloc(sizeof (gui_t));
-
    // what is this function ? Undefined reference if uncommented
    //g_thread_init(NULL);
    gdk_threads_init();
    gtk_init(&argc, &argv);
-
-   gui->window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-   // callback on window destroy event
-   g_signal_connect(G_OBJECT(gui->window), "destroy", G_CALLBACK(on_destroy), NULL);
-  
-   gui->box_window = gtk_hbox_new(FALSE, 15);
-   
-   createMainBox();
-   #ifdef TEST_COMM
-      createTestBox();
-   #endif 
-   createBeaconsBox();
-   createDroneBox();
- 
-   gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_main, TRUE, TRUE, 0);
-   #ifdef TEST_COMM
-      gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_test, TRUE, TRUE, 0);
-   #endif
-   gtk_box_pack_start(GTK_BOX(gui->box_window), gui->box_beacons, TRUE, TRUE, 0);
-   gtk_box_pack_end(GTK_BOX(gui->box_window), gui->box_drone_pos, TRUE, TRUE, 0);
-
+   // create all elements with subboxes
+   create_window();
    // pack all the window box into the main window
    gtk_container_add (GTK_CONTAINER (gui->window), gui->box_window);
-   
    // show all elements of the window
    gtk_widget_show_all(gui->window);
 }

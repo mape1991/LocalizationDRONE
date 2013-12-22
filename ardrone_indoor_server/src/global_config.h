@@ -20,13 +20,20 @@
 // Tests
 
 // declare global test definition
-
+#define DEBUG_ON
 	//#define TEST_COMM             // test comm on
 	//#define TEST_WIFI_DELAY
-	#define TEST_GUI
-	//#define TEST_GUI_ONLY
+	//#define TEST_GUI
+#define TEST_GUI_ONLY
 	//#define TEST_USB
 	//#define TEST_FULL
+
+
+// subtests when testing gui alone
+#ifdef TEST_GUI_ONLY
+	//#define TEST_GUI_SCENE_EXAMPLE
+	#define TEST_GUI_SCENE_LOCATION
+#endif
 
 // define which features to use in this test
 #ifdef TEST_COMM
@@ -40,6 +47,7 @@
 	#define USB_ON
 #elif defined TEST_GUI_ONLY
 	#define GUI_ON
+	#define GUI_SCENE_ON
 #elif defined TEST_USB
 	#define USB_ON
 #endif
