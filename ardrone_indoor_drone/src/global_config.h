@@ -30,13 +30,10 @@
    #define UDP_ON
 #elif defined TEST_WIFI_DELAY
    #define UDP_ON
-#elif defined TEST_FULL
+#elif defined (TEST_FULL) || defined (TEST_THREAD)
 	#define UDP_ON
 	#define USB_ON
 #elif defined TEST_USB
-	#define USB_ON
-#elif defined TEST_THREAD
-	#define UDP_ON
 	#define USB_ON
 #endif
 

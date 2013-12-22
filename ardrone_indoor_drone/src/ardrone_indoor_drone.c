@@ -30,15 +30,15 @@ int main(int argc, char ** argv){
       test_comm_main();
    #elif defined TEST_WIFI_DELAY
       test_wifi_delay_main();
-   #elif defined TEST_FULL
+   #elif defined (TEST_FULL) || defined (TEST_THREAD)
 	   test_full_main();
 	#elif defined TEST_USB
 	   if (argc >= 2)
 	   	test_usb_main(argv[1]);
 	   else
 	   	test_usb_main(NULL);
-	#elif defined TEST_THREAD
-	   test_thread_main();
+	/*#elif defined TEST_THREAD
+	   test_thread_main();*/
    #endif
   
    return 0;

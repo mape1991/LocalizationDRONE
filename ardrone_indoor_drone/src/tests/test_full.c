@@ -1,6 +1,6 @@
 #include "test_full.h"
 
-#ifdef TEST_FULL
+#if (defined(TEST_FULL) || defined(TEST_THREAD))
 
 #include <sys/types.h>
 #include <stdio.h>
@@ -15,10 +15,16 @@ void *esclave(void * arg) {
 	char response[1+NUM_BEACONS*sizeof(int)];
 	// Once the thread is started, he signals his readiness to the server
 	// > server I
-        printf("ESCLAVE -> thread démarré.\n");
+   printf("ESCLAVE -> thread démarré.\n");
 	udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
 	do{
-		usb_read(response, sizeof(response));
+		#ifdef TEST_FULL
+			usb_read(response, sizeof(response));
+		#elif TEST_THREAD
+			// note: space before %s for ignoring the whitespaces/newlines
+			// see http://stackoverflow.com/questions/8300963/while-loop-ignores-scanf-the-second-time
+			scanf(" %s", response);
+		#endif
 		printf("ESCLAVE -> message reçu : %c.\n", response[0]);
 		switch (response[0]){
 			// stm X > thread exit
@@ -57,9 +63,16 @@ void test_full_main(){
 	// Initiate communication with stm
 	stm[0] = COMM_MESSAGE_INIT_ID;
    printf("Initialisation de la communication avec le STM.\n");
-	usb_write_char(stm[0]);
-	stm[0] = 0;
-	usb_read(stm, 1);
+   // send the init message and wait for acknowledgement
+	#ifdef TEST_FULL
+		usb_write_char(stm[0]);
+		stm[0] = 0;
+		usb_read(stm, 1);
+	// if testing thread, wait for user input
+	#elif TEST_THREAD
+		stm[0] = getchar();
+	   getchar();
+	#endif
 	// FIXME: is read blocking until it receives something? any timeout if no value received?
 	if (stm[0] != COMM_MESSAGE_INIT_ID){
       printf("Mauvaise réponse de STM, arrêt du programme.\n");
@@ -73,7 +86,7 @@ void test_full_main(){
 	// MAIN MASTER LOOP :
 	// data is read from the server and processed appropriately
    do {
-     udp_listen_once(from_server, COMM_MESSAGE_SIZE, PORT_SERVER_TO_DRONE);
+	  udp_listen_once(from_server, COMM_MESSAGE_SIZE, PORT_SERVER_TO_DRONE);
 	  // If we receive an init signal, we launch the other thread
 	  // server I > launch thread (server I included)
 	  if (server_is_connected){
@@ -87,12 +100,18 @@ void test_full_main(){
 					// server S > stm S
 					case COMM_MESSAGE_SYNC_ID:
                   printf("MASTER -> message sync reçu, relai au STM32\n");
-						usb_write_char(from_server[0]);
+						#ifdef TEST_FULL
+                  	usb_write_char(from_server[0]);
+						#endif
+                  printf("%s", from_server);
 						break;
 					// server X > server X and stop
 					case COMM_MESSAGE_EXIT_ID:
                   printf("MASTER -> message exit reçu, relai au STM32\n");
-                  usb_write_char(from_server[0]);
+						#ifdef TEST_FULL
+                  	usb_write_char(from_server[0]);
+						#endif
+                  printf("%s", from_server);
 						server_is_connected = 0;
 						pthread_join(tid, NULL);
 						break;
