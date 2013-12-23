@@ -14,7 +14,7 @@
  * this will disable the attached functionality
  * i.e. if GUI_ON is commented, nothing related to user interface will be activated 
  */
-// debug tracking
+/** debug tracking */
 #define DEBUG_ON
 // udp communication
 //#define UDP_ON
@@ -36,8 +36,6 @@
 #elif defined TEST_USB
 	#define USB_ON
 #endif
-
-
 
 #endif	/* GLOBAL_CONFIG_H */
 
