@@ -16,6 +16,14 @@ The repository is split in different parts:
 - ardrone_stm32_server : stm32 emitter code for server-beacon interface
 - ardrone_stm32_drone : stm32 receiver code for beacon-drone interface
 
+### Source Documentation
+The Drone,Server and Commons projects are documented using doxygen.
+A .doxygen file is to be found at each root project folder containing parameters to parse the source comments along with the code files.
+For adding your comments to the documentation, please respect the syntax specified in doxygen reference manual.
+See http://www.stack.nl/~dimitri/doxygen/manual/docblocks.html
+
+You can either generate the sources using doxygen from the command line or adding a plugin to your IDE supporting the build utility for .doxygen files (i.e. Eclipse uses Eclox).
+
 ## Server - ardrone_indoor_server
 Requirements: JDK installed, JRE installed, Eclipse CDT, ARDrone SDK, Gtk (>= 2.0), GtkExtra (>= 3.0)
 
@@ -23,8 +31,6 @@ Requirements: JDK installed, JRE installed, Eclipse CDT, ARDrone SDK, Gtk (>= 2.
 1. Create new C/C++ project with existing sources
 2. Project > Properties > C/C++ General > Paths and Symbols > Includes section > GNU C : put the ARDrone SDK ARDroneLib path, put the gtkextra3.X/gtkextra directory path (if you want to get rid of any unresolved includes, you need to specify any dependent subpaths)
 3. Specify all mandatory paths of the user_template.properties in a user.properties file with the same properties names.
-
-
 
 ## Drone - ardrone_indoor_drone
 Requirements: USB Support modules (pl2303.ko and usbserial.ko)
