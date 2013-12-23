@@ -34,6 +34,7 @@ GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    tests/test_usb.c \
    tests/test_full.c \
    gui/gui.c \
+   gui/gtk_utils.c \
    gui/scene.c \
    video/video_stage.c 
    

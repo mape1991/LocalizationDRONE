@@ -37,15 +37,7 @@ typedef struct scene {
 	GtkWidget *surface;
 
 	GtkPlotCanvasChild *child;
-	gdouble *x,*y,*z,*a;
-	gdouble xmin;
-	gdouble xmax;
-	gdouble ymin;
-	gdouble ymax;
-	gdouble zmin;
-	gdouble zmax;
-	gdouble dx,dy,dz;
-	gint n, nx, ny;
+	gtk_boundaries_t boundaries;
 	gint max_points; // the maximum number of plotted points
 
 
