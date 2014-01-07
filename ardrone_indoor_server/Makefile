@@ -19,7 +19,6 @@ endif
 TARGET=ardrone_indoor_server
 
 SRC_DIR:=$(shell pwd)/src
-LIB_DIR_LOCAL:=$(shell pwd)/lib
 
 # Define application source files
 GENERIC_BINARIES_SOURCE_DIR:=$(SRC_DIR)
@@ -47,7 +46,7 @@ GENERIC_INCLUDES+=					\
 	$(LIB_DIR) \
 	$(SDK_PATH)/Soft/Common \
 	$(SDK_PATH)/Soft/Lib \
-	$(GTK_EXTRA_PATH)
+	$(GTK_EXTRA_PATH_INCLUDE)
 
 GENERIC_TARGET_BINARIES_PREFIX=
 
@@ -58,7 +57,7 @@ GENERIC_BINARIES_SOURCE_ENTRYPOINTS+=			\
 
 GENERIC_INCLUDES:=$(addprefix -I,$(GENERIC_INCLUDES))
 
-GENERIC_LIB_PATHS=-L$(GENERIC_TARGET_BINARIES_DIR) -L$(LIB_DIR_LOCAL)
+GENERIC_LIB_PATHS=-L$(GENERIC_TARGET_BINARIES_DIR) -L$(GTK_EXTRA_PATH)
 #warning: when specifying the name of the library, do not put the prefix lib in front of it
 GENERIC_LIBS=-lpc_ardrone -lgtk-x11-2.0 -lrt -lgtkextra-x11-3.0
 
