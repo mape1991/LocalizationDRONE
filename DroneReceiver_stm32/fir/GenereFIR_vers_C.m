@@ -1,0 +1,214 @@
+%%______________________________________________
+% Conception d'un filtre FIR de la forme
+%         _ N-1
+%  s(k) = \        a(n).e(k-n)
+%         /_ n=0
+% Et génération du code C associé à ce filtre
+
+clc       % efface la console
+clear all % efface les variables du workspace
+close all % ferme toutes les fenêtres graphiques
+
+
+
+%% MODIF sélectionner le filtre à générer
+%monfiltre='rect'; % dans ce cas modifez le M et Ns du filtre ligne 50-53
+%monfiltre='sinc'; % dans ce cas modifiez le M et Ns du filtre lignes 69-72
+monfiltre='pers'; %   définissez le M, Ns et h du filtre lignes 93-97
+
+%% MODIF donner un nom au .c à générer
+%Nom_Fich='FIR_0.c';
+%Nom_Fich='FIR_1.c';
+%Nom_Fich='FIR_2.c';
+Nom_Fich='FIR_3.c';
+%Nom_Fich='FIR_4.c';
+%Nom_Fich='FIR_5.c';
+%Nom_Fich='FIR_6.c';
+%Nom_Fich='FIR_7.c';
+
+
+
+%%
+% Calcul des coeffitients a(n) du filtre :
+% On rapelle que la réponse impulsionelle h(k) d'un FIR est la série
+% des coefficients a(n) 
+% temps ------------------------------------------------------------->
+% e(k) =  0   0   0   1       0       0       ...   0         0       0
+% s(k) =  0   0   0   a(0)    a(1)    a(2)    ...   a(N-1)    0       0 
+%                     =h(1)   =h(2)   =h(3)   ...   =h(N)
+% les a(n) sont stockés dans un vecteur h dont l'indice commence à 1
+% car contrairement au langage C il n'y a pas d'indice 0 en Matlab 
+
+
+%% Exemple d'un filtre rectangle
+%_________________________________________________________________________
+if monfiltre=='rect'
+% temps ------------------------------------------------------------->
+% e(k) =  0   0   0   1    0    0    ...   0    0       0
+% s(k) =  0   0   0   1    1    1    ...   1    0       0
+%                     h(1) h(2) h(3) ...   h(N)
+M=10; % MODIF facteur de suréchantillonage du moment de symbole :
+      % M points par moment de symbole
+
+Ns=1; % MODIF facteur d'étalement de la réponse impulsionelle :
+      % la réponse d'une impulsion s'étend sur Ns moments de symbole
+      % Dans ce cas 1 seul moment
+
+N = M*Ns; % L'ordre du filtre doit couvris Ns symboles de M échantillons :
+         % dans cet exemple 1 symbole de 10 échantillons donne un filtre
+         % d'ordre 10  
+for k = 1:N
+    h(k)=1;
+end
+end % Filtre rectangle
+%_________________________________________________________________________
+
+%% Exemple d'un filtre Sinus Cardinal tronqué étalé sur Ns symboles
+%_________________________________________________________________________
+if monfiltre=='sinc'
+M=10; % MODIF facteur de suréchantillonage du moment de ssymbole :
+      % M points par moment de symbole
+
+Ns=6; % MODIF facteur d'étalement de la réponse impulsionelle :
+      % la réponse d'une impulsion s'étend sur Ns moments de symbole
+      % ATTENTION à la condition de non-interférence inter symbole !
+      % la réponse d'une impulsion doit être nulle sur les moments suivants
+      % pour ne pas interférer avec les moments suivants voir la figure 1
+      
+N = M*Ns; % L'ordre du filtre doit couvris Ns symboles de M échantillons :
+         % dans cet exemple 6 symboles de 10 échantillons donne un filtre
+         % d'ordre 60  
+
+for k = 1:N
+    t = (k-1)/M - Ns/2; % temps qui vaut -1 au premier symbole ; 0 au second etc
+    h(k)=sinc(t);
+end
+
+end % Filtre sinc
+%_________________________________________________________________________
+
+%% Votre propre design de filtre
+%_________________________________________________________________________
+if monfiltre=='pers'
+M=256;    % MODIF facteur de suréchantillonnage
+Ns=1;   % MODIF facteur d'étalement
+N = M*Ns;
+
+% h = 1; %MODIF réponse impulsionelle en N échantillons
+for k = 1:N
+    h(k)=sin(2*pi*40750*k/128000);
+end
+end % Filtre personnel
+%_________________________________________________________________________
+
+
+
+
+%% Visualisation de la réponse du filtre
+%_________________________________________________________________________
+temps = 1 : (M+2*N);
+temps = (temps - 1)/M;
+
+entree = temps*0;
+entree(N+1)=1;  %sur-échantillonne de M de l'impulsion
+
+sortie=filter(h,1,entree); % passage dans le filtre
+
+figure
+title('Temporel et fréquentiel du filtre');
+subplot(121);
+stem(temps,entree,'gs');hold on;
+stem(temps,sortie,'r')
+plot(Ns,1.4)
+line ([Ns Ns+Ns/2],[1.05 1.05]);
+line ([Ns+Ns/2-0.1 Ns+Ns/2],[1.07 1.05]);
+line ([Ns+Ns/2-0.1 Ns+Ns/2],[1.03 1.05]);
+text(Ns,1.15,['Remarquez le délais'])
+text(Ns,1.11,[' de groupe de ' num2str(Ns/2) ' symboles']);
+grid on;
+xlabel('temps en moments de symboles');
+ylabel('Réponse impulsionnelle');
+subplot(122)
+Np=2^nextpow2(max(1024,(M+N)));
+Df = M/Np;
+freq = 0 : Df : M-Df;
+freq = freq-M/2;
+Hf=abs(fft(h,Np)); % TFD
+plot(freq,fftshift(Hf),'g'); hold on;
+maxH=max(Hf);
+line([-1 -1],[0 maxH]);
+line([1 1],[0 maxH]);
+text(1.1,maxH*0.91,'+/-B (Hz)');
+xlabel('Fréquence unitaire (en Débit de moment B)');
+ylabel('Spectre du filtre');
+grid on;
+
+%% Simulation de N symboles binaires transmit
+%_________________________________________________________________________
+L=10; % on simule L symboles
+
+temps = 1 : (L*M+N);
+temps = (temps - 1)/M;
+
+bits = 2*(randn(1,L)>0)-1; % tire L bits au hasard
+entree = temps*0;
+entree(1:M:(M*L))=bits;  %sur-échantillonne de M les L bits de data
+
+sortie=filter(h,1,entree); % passage dans le filtre
+
+% affichage
+figure
+title('Simulation de quelques bits transmis par ce filtre');
+subplot(211);
+stem(temps,entree,'g'); 
+xlabel('temps en moments de symboles');
+ylabel('entree');
+grid on;
+subplot(212)
+stem(temps,sortie); hold on;
+line ([0 Ns/2],[bits(1)*1.2 bits(1)*1.2]);
+line ([Ns/2-0.1 Ns/2],[bits(1)*1.2+0.05 bits(1)*1.2]);
+line ([Ns/2-0.1 Ns/2],[bits(1)*1.2-0.05 bits(1)*1.2]);
+
+line ([Ns/2 Ns/2+0.5],[bits(1)*1.2 bits(1)*1.5]);
+text(Ns/2+0.5,bits(1)*1.5,['Remarquez le délais de groupe de ' num2str(Ns/2) ' symboles']);
+stem(temps(Ns/2*M+1:M:end),sortie(Ns/2*M+1:M:end),'rs');
+xlabel('temps en moments de symboles');
+ylabel('bande de base');
+grid on;
+
+%% génération ddu fichier .c avec les coefficients
+%_________________________________________________________________________
+disp('Génère les coefficients suivants :');
+disp(h);
+disp(['Dans le fichier ' Nom_Fich]);
+
+fileID = fopen([Nom_Fich], 'w');
+  fprintf(fileID,'#include "stm32f10x.h"\n');
+ fprintf(fileID,'#include "FIR_Filter.h"\n');
+ fprintf(fileID,'\n');
+ fprintf(fileID,'\n');
+ fprintf(fileID,'//_________________________________________________');
+ fprintf(fileID,'\n');
+ fprintf(fileID,'//      DESCRIPTION DU FILTRE FIR_0, 8.24 \n');
+ fprintf(fileID,'//_________________________________________________');
+ fprintf(fileID,'\n');
+ fprintf(fileID,'\n');
+ 
+ fprintf(fileID,'const u16 N_0 = %d; \n', N); 
+ fprintf(fileID,'s16 TabE_0[%d]; \n', N); 
+ fprintf(fileID,'s16 *Ptr_Tab_E_0; \n');  
+ fprintf(fileID,'\n');
+ fprintf(fileID,'const s32 h_0[%d]= {\n',N); 
+ 
+ for  k = 1: N
+     fprintf(fileID,'K_8_24*%d,\n',h(k));
+ end
+ fprintf(fileID,'};\n'); 
+ 
+ fclose(fileID);
+ 
+
+  
+    
+  
