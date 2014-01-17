@@ -44,13 +44,16 @@
 #elif defined(TEST_GUI) || defined(TEST_FULL)
 	#define GUI_ON
 	#define UDP_ON
-	//#define USB_ON
-	#define GUI_SCENE_ON
-	#define GUI_SCENE_3D
+	#define USB_ON
 #elif defined TEST_GUI_ONLY
 	#define GUI_ON
 	/** display a scene for graphic drone position tracking */
 	#define GUI_SCENE_ON
+
+	//#define TEST_GUI_SCENE_EXAMPLE
+	#define TEST_GUI_SCENE_LOCATION
+	//#define TEST_GUI_SCENE_LOCATION_2D
+
 	/**
 	 * we decided to make a 3d view of the environment.
 	 * it appeared not to be emphasizing enough the drone position and
@@ -59,7 +62,10 @@
 	 * In the meantime, for simplicity and deadlines, we use a 2d canvas for displaying a XxY space
 	 * and a side verticalbar for the Z dimension
 	 */
-	#define GUI_SCENE_3D
+	#ifndef TEST_GUI_SCENE_LOCATION_2D
+		#define GUI_SCENE_3D
+	#endif
+
 #elif defined TEST_USB
 	#define USB_ON
 #endif

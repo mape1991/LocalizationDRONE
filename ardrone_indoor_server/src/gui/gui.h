@@ -69,6 +69,9 @@ typedef struct gui
   GtkWidget *text_server_state;
   GtkWidget *text_drone_state;
   GtkWidget *text_controller_state;
+  GtkWidget *text_server_state_label;
+  GtkWidget *text_drone_state_label;
+  GtkWidget *text_controller_state_label;
 
   // 3D graph for position
   #ifdef GUI_SCENE_ON
