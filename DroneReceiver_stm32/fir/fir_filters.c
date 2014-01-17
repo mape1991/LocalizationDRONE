@@ -28,11 +28,6 @@
 *
 ******************************************************************************/
 
-// all filters are on
-State_Filter fir_0_ON = FILTER_ON;
-State_Filter fir_1_ON = FILTER_ON;
-State_Filter fir_2_ON = FILTER_ON;
-State_Filter fir_3_ON = FILTER_ON;
 
 
 /******************************************************************************

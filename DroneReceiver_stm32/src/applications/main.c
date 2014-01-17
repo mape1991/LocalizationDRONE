@@ -49,6 +49,13 @@ State_APP prev_state = APP_OFF;
 *
 ******************************************************************************/
 
+char app_updateDrone(void);
+void app_serialCommHandler(char c);
+void app_responseDrone(void)		;
+void app_send_droneData(int toa1, int toa2, int toa3, int toa4);
+void app_initialization(void);
+
+
 /**
  *******************************************************************************
  * app_updateDrone
@@ -104,7 +111,8 @@ void app_serialCommHandler(char c)
 		{
 			prev_state = state;
 			state = APP_OFF;
-			// TODO stop all timers
+			// KILL STOP SIGNAL
+			s_filterFIR_it_function(STOP_X);
 		}
 		error = app_updateDrone();
 	}
@@ -114,8 +122,12 @@ void app_serialCommHandler(char c)
 		{
 			prev_state = state;
 			state = APP_RECEIVE;
-			// TODO if state = APP_RECEIVE
-			// use Systick for timeout options
+			toa_0 = 0;
+			toa_1 = 0;
+			toa_2 = 0;
+			toa_3 = 0;
+			data_ready = 0;
+			s_filterFIR_startReception();
 		}
 		else
 		{
@@ -135,7 +147,7 @@ void app_serialCommHandler(char c)
 }
 
 
-/** TODO TODO TODO (collect toa from service)
+/**
  *******************************************************************************
  * app_responseDrone
  *
@@ -152,11 +164,11 @@ void app_responseDrone(void)
 	prev_state = state;
 	
 	// Send data to drone
-	
+	app_send_droneData(toa_0, toa_1, toa_2, toa_3);
+	data_ready = 0;
 	
 	// Update App state
-	//state = APP_RECEIVE;
-	
+	state = APP_OFF;
 }
 
 
@@ -295,7 +307,16 @@ int main (void)
 	// Infinity loop 
 	while(1)
 	{
-		
+		// Compute filter outputs 
+		if(nb_outputs_count < nb_it_compute)
+		{
+			s_filterFIR_computeOutputs();
+		}
+		// check if drone data is read to be send
+		if (data_ready == 1) 
+		{
+			app_responseDrone();
+		}
 	}
 	return 0;
 }

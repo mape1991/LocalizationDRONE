@@ -40,14 +40,6 @@
 /** ADC Channel */
 #define CHANNEL_ADC 10
 
-/** */
-//u16 adc_sample_count = 0;
-
-// supprime a la fin
-//int test_i = 0;
-
-//char etat_adc_test = 0;
-
 
 /******************************************************************************
 *
@@ -55,8 +47,10 @@
 *
 ******************************************************************************/
 
-void s_filterFIR_it_function(void);
+void s_filterFIR_it_function(Stop_Signal signal);
 void s_filterFIR_IT_ADC (void);
+void s_filterFIR_computeOutputs(void);
+void s_filterFIR_startReception(void);
 char s_filterFIR_initialization(void);
 void s_filterFIR_computeOutputs(void);
 

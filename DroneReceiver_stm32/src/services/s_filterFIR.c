@@ -28,11 +28,6 @@
 // include all filters
 #include "s_filterFIR.h"
 
-//TODO:
-// Init tables to zero
-// init global variables
-// Init every buffer, indicator, count, table
-
 
 /******************************************************************************
 *
@@ -73,6 +68,11 @@ int32_t output_1[OUTPUT_SIZE];
 int32_t output_2[OUTPUT_SIZE];
 int32_t output_3[OUTPUT_SIZE];
 
+/** Number of it for output computation */
+int nb_it_compute = 0;
+
+/** TOA data is ready to be send to the drone */
+char data_ready = 0;
 
 /******************************************************************************
 *
@@ -94,45 +94,41 @@ int32_t output_3[OUTPUT_SIZE];
  * @return void
  ******************************************************************************/
 
-// TODO : 
-// Convert READ ADC from 1.15 to 8.24
-// ADD check conditions for MAX nb_samples_count
-// Check if call s_filterFIR_computeOutputs blocks the next interruption .... See option if in while with global var
-
 void s_filterFIR_IT_ADC (void)
 {
 	// Acquisition and storage of ADC sample and conversion of said sample to s32
-  buffer_block[buffer_count] = (s16) ((Read_ADC(ADC1)-2048)<<4);
+  buffer_block[buffer_count] = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
 
 	// Update nb samples
   adc_samples_count++;
   
-	// Update Buffer counter
-	buffer_count++;
-	
-	switch (state_buffer)
+	if (adc_samples_count < NB_SAMPLES_TOTAL)
 	{
-		case BUFFER_PART_1 :
-			if (buffer_count > SAMPLE_BLOCK_SIZE-1)
-			{
-				// change state and call filter_output calcul
-				state_buffer = BUFFER_PART_2;
-				s_filterFIR_computeOutputs();
-			}
-			break;
-			
-		case BUFFER_PART_2 :
-			if (buffer_count > 2*SAMPLE_BLOCK_SIZE-1)
-			{
-				// reset buffer count (start from 0 again)
-				buffer_count = 0;
-				// change state and call filter_output calcul
-				state_buffer = BUFFER_PART_1;
-				s_filterFIR_computeOutputs();
-			}
-		default:
-			break;
-	}			
+		// Update Buffer counter
+		buffer_count++;
+		
+		if (buffer_count == SAMPLE_BLOCK_SIZE)
+		{
+			// change state and call filter_output calcul
+			state_buffer = BUFFER_PART_2;
+			nb_it_compute ++;
+		}
+
+		else if (buffer_count == 2*SAMPLE_BLOCK_SIZE)
+		{
+			// reset buffer count (start from 0 again)
+			buffer_count = 0;
+			// change state and call filter_output calcul
+			state_buffer = BUFFER_PART_1;
+			nb_it_compute ++;
+		}
+	}
+	else
+	{
+		// Stop Timer tri conversion and Reset Properties
+		Bloque_Timer(TIM1);
+		Reset_Timer(TIM1);
+	}
 }
 
 
@@ -153,17 +149,11 @@ void s_filterFIR_IT_ADC (void)
  * @return 0 if no error
  * @return 1 if no error
  ******************************************************************************/
-// TODO
-// Test limits (intervalles)
 
 void s_filterFIR_computeOutputs(void)
 {
-	int32_t out_filter_0_8_24 = 0;
-	int32_t out_filter_1_8_24 = 0;
-	int32_t out_filter_2_8_24 = 0;
-	int32_t out_filter_3_8_24 = 0;
-
 	int i = 0;
+	int j= 0;
 	
 	// Table rearrangement
 	for (i = SAMPLE_BLOCK_SIZE; i<SIGNAL_INPUT_SIZE; i++)
@@ -177,47 +167,28 @@ void s_filterFIR_computeOutputs(void)
 		// initial condition : Called when buffer_part_x = 2
 		case BUFFER_PART_1 :
 			// Buffer_Part_2 is finished
-			for (i=SIGNAL_INPUT_SIZE - SAMPLE_BLOCK_SIZE ; i<SIGNAL_INPUT_SIZE; i++)
-			{
-				signal_input[i] = buffer_block[i - 2*SAMPLE_BLOCK_SIZE];
-			}
+		  j= SAMPLE_BLOCK_SIZE;
 			break;
 			
 		case BUFFER_PART_2 :
 			// Buffer_Part_1 is finished
-			for (i=SIGNAL_INPUT_SIZE - SAMPLE_BLOCK_SIZE ; i<SIGNAL_INPUT_SIZE; i++)
-			{
-				signal_input[i] = buffer_block[i - 3*SAMPLE_BLOCK_SIZE];
-			}
+		  j=0;
 			break;
 			
 		default:
 			break;
 	}			
 	
-	// Compute outputs
-	if (fir_0_ON == FILTER_ON)
+	for (i=SIGNAL_INPUT_SIZE - SAMPLE_BLOCK_SIZE; i<SIGNAL_INPUT_SIZE; i++,j++)
 	{
-		out_filter_0_8_24 = filter_output(signal_input, filter_0);
+			signal_input[i] = buffer_block[j];
 	}
-	if (fir_1_ON == FILTER_ON)
-	{
-		out_filter_1_8_24 = filter_output(signal_input, filter_1);
-	}
-	if (fir_2_ON == FILTER_ON)
-	{
-		out_filter_2_8_24 = filter_output(signal_input, filter_2);
-	}
-	if (fir_3_ON == FILTER_ON)
-	{
-		out_filter_3_8_24 = filter_output(signal_input, filter_3);
-	}
-	
-	// Store outputs in tables
-	output_0[nb_outputs_count] = out_filter_0_8_24;
-	output_1[nb_outputs_count] = out_filter_1_8_24;
-	output_2[nb_outputs_count] = out_filter_2_8_24;
-	output_3[nb_outputs_count] = out_filter_3_8_24;
+			
+	// Compute outputs and Store outputs in tables
+	output_0[nb_outputs_count] = filter_output(signal_input, filter_0);
+	output_1[nb_outputs_count] = filter_output(signal_input, filter_1);
+	output_2[nb_outputs_count] = filter_output(signal_input, filter_2);
+	output_3[nb_outputs_count] = filter_output(signal_input, filter_3);
 	
 	// Update output count
 	nb_outputs_count++;
@@ -228,13 +199,8 @@ void s_filterFIR_computeOutputs(void)
 
 	if (nb_outputs_count >= OUTPUT_SIZE)
 	{
-		fir_0_ON = FILTER_OFF;
-		fir_1_ON = FILTER_OFF;
-		fir_2_ON = FILTER_OFF;
-		fir_3_ON = FILTER_OFF;
-		
 		// call function to compute TOA algorithm and finish the reception
-		s_filterFIR_it_function();
+		s_filterFIR_it_function(STOP_NORMAL);
 	}
 }
 
@@ -247,14 +213,72 @@ void s_filterFIR_computeOutputs(void)
  * 			
  * @return void
  ******************************************************************************/
-// TODO 
-void s_filterFIR_it_function(void)
+
+void s_filterFIR_it_function(Stop_Signal signal)
 {
-	// check Timer
-	//time = CNT(TIM3);
-	//Stop_DMA1;
-	// call Function to compute all filter multiplications
-	//s_filterFIR_computeIter();
+	switch (signal)
+	{
+		case STOP_NOT :
+			break;
+		
+		case STOP_NORMAL :
+			// Compute TOA values /TODO
+			toa_0 = 6000;
+			toa_1 = 5000;
+			toa_2 = 2000;
+			toa_3 = 10000;
+			
+			// Data is ready to be send 
+			data_ready = 1;
+			
+		case STOP_X:
+			/** Stop timer */
+			Bloque_Timer(TIM1);
+			Reset_Timer(TIM1);
+		
+			/** Reset tables and variables to zero */
+			// Buffer initialization for filter s output
+			initTab_E(output_0, OUTPUT_SIZE);
+			initTab_E(output_1, OUTPUT_SIZE);
+			initTab_E(output_2, OUTPUT_SIZE);
+			initTab_E(output_3, OUTPUT_SIZE);
+	
+			// Buffer initialization for input tables
+			initTab_E(buffer_block, 2*SAMPLE_BLOCK_SIZE);
+			initTab_E(signal_input, SIGNAL_INPUT_SIZE);
+	
+			//TODO Reset variables 	
+			/** TOA values for each beacon */
+			adc_samples_count = 0;
+			nb_outputs_count = 0;
+			buffer_count = 0;
+			state_buffer = BUFFER_PART_1;
+			nb_it_compute = 0;
+		
+			break;		
+		
+		default:
+			break;
+	}
+}
+
+/**
+ *******************************************************************************
+ * s_filterFIR_startReception
+ *
+ *      Init timer for ADC conversion manually
+ *			Start Timer
+ *
+ * @return void
+ ******************************************************************************/
+
+void s_filterFIR_startReception(void)
+{
+	// Init Timer conversion on the ADC with the Trig Timer
+	Init_Conversion_On_Trig_Timer(ADC1 , TIM1_CC1, SAMPLE_FREQUENCY);
+	
+	// Start Timer
+	Run_Timer(TIM1);
 }
 
 
@@ -270,6 +294,8 @@ void s_filterFIR_it_function(void)
  * @return 0 if no error
  * @return 1 if error takes place in the initialization
  ******************************************************************************/
+// TODO Change Init Trig Timer
+// Add timeout for robust code
 
 char s_filterFIR_initialization()
 {
@@ -292,7 +318,6 @@ char s_filterFIR_initialization()
 	time_conv = Init_TimingADC_ActiveADC( ADC1, 0);
 	Single_Channel_ADC(ADC1, CHANNEL_ADC);
 	Init_IT_ADC_EOC(ADC1, ADC_HANDLER_PRIORITY, s_filterFIR_IT_ADC);
-	Init_Conversion_On_Trig_Timer(ADC1 , TIM1_CC1, SAMPLE_FREQUENCY);
 	
 	
 	return code_Erreur;
