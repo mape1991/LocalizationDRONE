@@ -15,12 +15,10 @@
    #include "tests/test_comm.h"
 #elif defined TEST_WIFI_DELAY
    #include "tests/test_wifi_delay.h"
-#elif defined TEST_FULL
+#elif defined(TEST_FULL) || defined(TEST_THREAD)
 	#include "tests/test_full.h"
 #elif defined TEST_USB
 	#include "tests/test_usb.h"
-#elif defined TEST_THREAD
-	#include "tests/test_thread.h"
 #endif
 
 
