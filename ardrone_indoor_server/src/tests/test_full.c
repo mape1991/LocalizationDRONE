@@ -11,6 +11,13 @@
 #include <stdio.h>
 
 #ifdef TEST_FULL
+
+void test_full_retrieve_message_values(int **values, char *message)
+{
+		// copy all message values into a integer array of values
+		memcpy(*values, ((int *) (message+1), NUM_BEACONS*sizeof(int));
+}
+
 // handle the data received by the drone including the timeofarrivals/distances of the beacons (on integers)
 void test_full_thread_udp_read_sync(char *message)
 {
@@ -18,8 +25,8 @@ void test_full_thread_udp_read_sync(char *message)
 	// we check the rest for retrieving the data
 	char text_label[GUI_MAX_LABEL_SIZE];
 	int i = 0, values[NUM_BEACONS];
-	// copy all message values into a integer array of values
-	memcpy(values, ((int *) (message+1), NUM_BEACONS*sizeof(int));
+	// retrieve the message values from the message
+	test_full_retrieve_message_values(&values, message);
 	// report the value on the GUI
 	for (; i < NUM_BEACONS; i++){
 		itoa(values[i], text_label, 10);
