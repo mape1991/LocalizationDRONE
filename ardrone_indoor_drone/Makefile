@@ -31,7 +31,6 @@ OBJS_ardrone_indoor_drone =  \
 	$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o \
 	$(TARGETDIR_ardrone_indoor_drone)/test_full.o \
 	$(TARGETDIR_ardrone_indoor_drone)/test_usb.o \
-	$(TARGETDIR_ardrone_indoor_drone)/test_thread.o \
 	$(TARGETDIR_ardrone_indoor_drone)/usb.o
 	
 SYSLIBS_ardrone_indoor_drone = -lm 
@@ -64,9 +63,6 @@ $(TARGETDIR_ardrone_indoor_drone)/test_full.o: $(TARGETDIR_ardrone_indoor_drone)
 $(TARGETDIR_ardrone_indoor_drone)/test_usb.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_usb.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_usb.c
 	
-$(TARGETDIR_ardrone_indoor_drone)/test_thread.o: $(TARGETDIR_ardrone_indoor_drone) src/tests/test_thread.c
-	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ src/tests/test_thread.c
-
 $(TARGETDIR_ardrone_indoor_drone)/usb.o: $(TARGETDIR_ardrone_indoor_drone) ../ardrone_indoor_commons/usb/usb.c
 	$(COMPILE.c) $(CFLAGS_ardrone_indoor_drone) $(CPPFLAGS_ardrone_indoor_drone) -o $@ ../ardrone_indoor_commons/usb/usb.c
 
@@ -79,7 +75,6 @@ clean:
 		$(TARGETDIR_ardrone_indoor_drone)/test_comm.o \
 		$(TARGETDIR_ardrone_indoor_drone)/test_wifi_delay.o \
 		$(TARGETDIR_ardrone_indoor_drone)/test_usb.o \
-		$(TARGETDIR_ardrone_indoor_drone)/test_thread.o \
 		$(TARGETDIR_ardrone_indoor_drone)/usb.o \
 		$(TARGETDIR_ardrone_indoor_drone)/test_full.o
 

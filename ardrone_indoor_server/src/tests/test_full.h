@@ -14,11 +14,12 @@
 #define TEST_FULL_H_
 
 #include "test_gui.h"
+//#include "../pos/trilateration.h"
 
 /**
  * Populates the values array with the string values contained in the message using a string-to-integer conversion
  */
-void test_full_retrieve_message_values(int **values, char *message);
+void test_full_retrieve_message_values(int *values, char *message);
 
 /**
  *

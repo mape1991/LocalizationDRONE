@@ -20,7 +20,7 @@ void *esclave(void * arg) {
 	do{
 		#ifdef TEST_FULL
 			usb_read(response, sizeof(response));
-		#elif TEST_THREAD
+		#elif defined(TEST_THREAD)
 			// note: space before %s for ignoring the whitespaces/newlines
 			// see http://stackoverflow.com/questions/8300963/while-loop-ignores-scanf-the-second-time
 			scanf(" %s", response);
@@ -69,7 +69,7 @@ void test_full_main(){
 		stm[0] = 0;
 		usb_read(stm, 1);
 	// if testing thread, wait for user input
-	#elif TEST_THREAD
+	#elif defined(TEST_THREAD)
 		stm[0] = getchar();
 	   getchar();
 	#endif

@@ -4,13 +4,9 @@
  *  Created on: Dec 31, 2013
  *      Author: julien
  */
+#include "Test_test_full.h"
 
-#include "../../../ardrone_indoor_commons/cunit/CuTest.h"
-
-#define TEST_FULL
-#include "../../src/tests/test_full.h"
-
-void Test_full_retrieve_message_values(CuTest *tc)
+void Test_full_retrieve_message_values2(CuTest *tc)
 {
 	int values[NUM_BEACONS];
 	// 255 255 255 255

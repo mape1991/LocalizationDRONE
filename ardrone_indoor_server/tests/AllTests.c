@@ -2,14 +2,14 @@
 
 #include "../../ardrone_indoor_commons/cunit/CuTest.h"
 
-extern void Test_full_retrieve_message_values(CuTest*);
+#include "tests/Test_test_full.h"
 
 void RunAllTests(void)
 {
 	CuString *output = CuStringNew();
 	CuSuite* suite = CuSuiteNew();
 
-   SUITE_ADD_TEST(suite, Test_full_retrieve_message_values);
+   SUITE_ADD_TEST(suite, Test_full_retrieve_message_values2);
 
    CuSuiteRun(suite);
    CuSuiteSummary(suite, output);

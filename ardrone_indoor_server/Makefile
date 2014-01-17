@@ -35,6 +35,7 @@ GENERIC_BINARIES_COMMON_SOURCE_FILES+=			\
    gui/gui.c \
    gui/gtk_utils.c \
    gui/scene.c \
+   pos/trilateration.c \
    video/video_stage.c 
    
 # Including headers means also adding the lib folder to the generic_lib_paths
