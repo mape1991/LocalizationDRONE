@@ -19,6 +19,8 @@ include $(shell pwd)/../user.properties
 # You can simplify this makefile by removing the C or C++ parts if
 # your code only uses one language.
 
+SRC_TESTS:=../src/tests
+
 #this makefile reuses parameters/paths/libs from the global makefile
 # need to adjust the relative paths
 GENERIC_INCLUDES+=					\
@@ -31,23 +33,28 @@ GENERIC_INCLUDES+=					\
 	$(GTK_PATH_INCLUDE)/gtk \
 	/usr/lib/glib-2.0/include \
 	$(GLIB_PATH_INCLUDE) \
-	$(CUNIT_PATH)
-
+	$(CUNIT_PATH) \
+	$(SRC_TESTS)
 
 GENERIC_INCLUDES:=$(addprefix -I,$(GENERIC_INCLUDES))
+
 
 # C source and object files (autodetected in the current directory)
 CSRC	= $(wildcard *.c)
 CTESTSRC = $(wildcard tests/*.c)
+CUNITSRC = $(wildcard $(CUNIT_PATH)/*.c)
+CTESTFULLSRC =  $(wildcard $(SRC_TESTS)/*.c)
 COBJ	= $(CSRC:.c=.o)
 CTESTOBJ = $(CTESTSRC:tests/%.c=tests/%.o)
+CUNITOBJ = $(CUNITSRC:$(CUNIT_PATH)/%.c=$(CUNIT_PATH)/%.o)
+CTESTFULLOBJ = $(CTESTFULLSRC:$(SRC_TESTS)/%.c=$(SRC_TESTS)/%.o)
 # C++ source and object files (autodetected in the current directory)
 CXXSRC	= $(wildcard *.cpp)
 CXXOBJ	= $(CXXSRC:.c=.o)
 
 # C optimization and options
 COPT	= -O2
-CFLAGS	= $(COPT) $(GENERIC_INCLUDES)
+CFLAGS	= $(COPT) $(GENERIC_INCLUDES) `pkg-config --cflags --libs gtk+-2.0`
 # C++ optimization and options
 CXXOPT	= -O2
 CXXFLAGS	= $(CXXOPT) 
@@ -68,7 +75,7 @@ all	: $(BIN)
 
 # dependencies collected with cc -MM
 -include Makefile.dep
-Makefile.dep	: $(CSRC) $(CTESTSRC) $(CXXSRC)
+Makefile.dep	: $(CSRC) $(CTESTSRC) $(CUNITSRC) $(CTESTFULLSRC) $(CXXSRC) 
 	$(CC) -MM $(CPPFLAGS) $^ > $@
 
 # C object compilation
@@ -79,7 +86,7 @@ Makefile.dep	: $(CSRC) $(CTESTSRC) $(CXXSRC)
 	$(CXX) $(CXXFLAGS) $(CPPFLAGS) -c $< -o $@
 
 # final link
-$(BIN)	:  $(COBJ) $(CTESTOBJ) $(CXXOBJ)
+$(BIN)	:  $(COBJ) $(CTESTOBJ) $(CUNITOBJ) $(CTESTFULLOBJ) $(CXXOBJ)
 ifeq ($(CXXOBJ),)
 	$(CC) $^ $(LDFLAGS) $(LDLIBS) -o $@
 else
@@ -90,7 +97,7 @@ endif
 # utilities
 
 clean	: 
-	$(RM) $(COBJ) $(CTESTOBJ) $(CXXOBJ)
+	$(RM) $(COBJ) $(CTESTOBJ) $(CUNITOBJ) $(CTESTFULLOBJ) $(CXXOBJ)
 
 distclean	: clean
 	$(RM) $(EXEC)
