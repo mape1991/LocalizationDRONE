@@ -34,6 +34,9 @@ void test_gui_thread_udp_read(int message_size)
 				  gtk_label_set_text(get_gui()->text_drone_state, GUI_DRONE_HINT_INIT);
 			  break;
 		  case COMM_MESSAGE_SYNC_ID :
+			  	  // executes the proper behavior according to the test
+			  	  // (by default, the executed function is the test_gui_thread_udp_read_sync
+			     // for the test_full, the test_full_thread_udp_read_sync is executed
 				  thread_udp_read_sync(message);
 			  break;
 		  case COMM_MESSAGE_EXIT_ID :

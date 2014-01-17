@@ -25,6 +25,7 @@ static void exit() {
 	scene_destroy();
 }
 
+#ifdef GUI_SCENE_3D
 gdouble test_gui_scene_example_compute_z(gdouble x, gdouble y)
 {
  return cos(((x-0.5)*(x-0.5) + (y-0.5)*(y-0.5))*24) / 4. + .5;
@@ -91,6 +92,12 @@ void test_gui_location()
 	gtk_plot3d_set_xrange(GTK_PLOT3D(scene->active_plot), scene->boundaries.xmin, scene->boundaries.xmax);
 	gtk_plot3d_set_yrange(GTK_PLOT3D(scene->active_plot), scene->boundaries.ymin, scene->boundaries.ymax);
 	gtk_plot3d_set_zrange(GTK_PLOT3D(scene->active_plot), scene->boundaries.zmin, scene->boundaries.zmax);
+
+	//scene->surface = gtk_plot_surface_new();
+
+	gtk_plot_surface_plot_plane(GTK_PLOT(scene->active_plot), 3.0,3.0, 3.0, 2.0);
+//	test_gui_location_new_point(NULL, NULL);
+
 /*
 	scene->surface = gtk_plot_surface_new();
 
@@ -102,6 +109,7 @@ void test_gui_location()
 	gtk_plot_surface_use_amplitud(GTK_PLOT_SURFACE(scene->surface), TRUE);
 	gtk_plot_data_set_a(GTK_PLOT_DATA(scene->surface), scene->a);
 	gtk_plot_data_gradient_set_visible(GTK_PLOT_DATA(scene->surface), TRUE);*/
+
 }
 
 void test_gui_location_new_point(GtkWidget *button, gpointer data)
@@ -114,12 +122,11 @@ void test_gui_location_new_point(GtkWidget *button, gpointer data)
 
 	printf("add pt x %.2f y %.2f z %.2f\n", x,y,z);
 
-
-	scene->surface = gtk_plot_surface_new();
 	// add it into the graph //sphere
-	gtk_plot_surface_plot_square(scene->surface, &scene->boundaries, x,y,z, 2.0);
+	//gtk_plot_surface_plot_square(scene->surface, x,y,z, 2.0);
 	//scene__point(x,y,z);
 	gtk_plot_add_data(GTK_PLOT(scene->active_plot), GTK_PLOT_DATA(scene->surface));
+
 	gtk_widget_show(scene->surface);
 }
 /*
@@ -228,12 +235,20 @@ void scene_init(){
 
    scene->active_plot = scene_new_layer(scene);
 
+   GtkPlot3D *plot = (GtkPlot3D *) scene->active_plot;
+
+   // we display an axis every 50cms (refering to the default initialization in gtkplot3d.c of the gtkextra lib)
+   plot->ax->ticks.step = 0.5;
+   plot->ay->ticks.step = 0.5;
+   plot->az->ticks.step = 0.5;
+
+
    scene->child = gtk_plot_canvas_plot_new(GTK_PLOT(scene->active_plot));
    gtk_plot_canvas_put_child(GTK_PLOT_CANVAS(scene->canvas), scene->child, .10, .06, .85, .85);
    printf("creating test samples\n");
 
-	gtk_plot3d_set_minor_ticks(GTK_PLOT3D(scene->active_plot), GTK_PLOT_AXIS_X, 1);
-	gtk_plot3d_set_minor_ticks(GTK_PLOT3D(scene->active_plot), GTK_PLOT_AXIS_Y, 1);
+	/*gtk_plot3d_set_minor_ticks(GTK_PLOT3D(scene->active_plot), GTK_PLOT_AXIS_X, 2);
+	gtk_plot3d_set_minor_ticks(GTK_PLOT3D(scene->active_plot), GTK_PLOT_AXIS_Y, 2);
 	gtk_plot3d_show_ticks(GTK_PLOT3D(scene->active_plot),
 									 GTK_PLOT_SIDE_XY,
 									 GTK_PLOT_TICKS_OUT, GTK_PLOT_TICKS_OUT);
@@ -252,7 +267,7 @@ void scene_init(){
 	gtk_plot3d_show_ticks(GTK_PLOT3D(scene->active_plot),
 									 GTK_PLOT_SIDE_ZY,
 									 GTK_PLOT_TICKS_OUT, GTK_PLOT_TICKS_OUT);
-
+*/
    // init each sample
 	#ifdef TEST_GUI_SCENE_EXAMPLE
 		test_gui_scene_example();
@@ -378,6 +393,7 @@ void scene_init(){
 */
 printf("fully initialized\n");
 }
+#endif
 
 void scene_destroy()
 {
