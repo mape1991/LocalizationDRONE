@@ -26,10 +26,6 @@ typedef struct scene {
 	GtkWidget *box_graph; // box containing the graph and alternative graphical utilities
 	GtkWidget *active_plot; // 3D plotter (GtkPlot3d component of the GtkExtra)
 	GdkPixmap *pixmap;
-	GtkWidget **plots;
-	GtkWidget **buttons;
-	GtkPlotData *dataset[5];
-	gint nlayers;
 
 	GtkWidget *scrollw1;
 	GtkWidget *canvas;

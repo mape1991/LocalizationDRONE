@@ -61,9 +61,9 @@ void button_getpos_callback()
 
 static void on_destroy(GtkWidget *widget, gpointer data)
 {
-#ifdef GUI_SCENE_ON
-	scene_destroy();
-#endif
+	/*#ifdef GUI_SCENE_ON
+		scene_destroy();
+	#endif*/
 	vp_os_free(gui);
 	gtk_main_quit();
 }
@@ -97,13 +97,20 @@ void create_main_box()
    gui->text_drone_state = gtk_label_new("none");
    gui->text_controller_state = gtk_label_new("none");
 
+   gui->text_server_state_label = gtk_label_new("Server state");
+   gui->text_drone_state_label = gtk_label_new("Drone state");
+   gui->text_controller_state_label = gtk_label_new("Controller state");
+
    // add the action buttons to the box
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_connect, FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_disconnect, FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->button_getpos, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_server_state_label, FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_server_state, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state_label, FALSE, FALSE, 0);
    gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_drone_state, FALSE, FALSE, 0);
-   gtk_box_pack_end(GTK_BOX(gui->box_main), gui->text_controller_state, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_controller_state_label, FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_main), gui->text_controller_state, FALSE, FALSE, 0);
 }
 
 void create_beacons_box()
@@ -128,7 +135,7 @@ void create_beacons_box()
          gtk_box_pack_start(GTK_BOX(gui->box_beacons), gui->label_beacon_timevals[beacon_id], FALSE, FALSE, 0);
       }
    }
-   gtk_box_pack_end(GTK_BOX(gui->box_beacons), gui->label_beacon_timevals[beacon_id-1], FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_beacons), gui->label_beacon_timevals[beacon_id-1], FALSE, FALSE, 0);
 }
 
 void create_drone_box()
@@ -154,7 +161,7 @@ void create_drone_box()
       if (pos_id < NUM_COORDINATES-1)
          gtk_box_pack_start(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_values[pos_id], FALSE, FALSE, 0);
    }
-   gtk_box_pack_end(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_values[pos_id-1], FALSE, FALSE, 0);
+   gtk_box_pack_start(GTK_BOX(gui->box_drone_pos), gui->label_drone_pos_values[pos_id-1], FALSE, FALSE, 0);
 }
 
 #ifdef GUI_SCENE_ON
@@ -182,7 +189,7 @@ void create_sub_window()
 
 	gtk_box_pack_start(GTK_BOX(gui->box_subwindow), gui->box_main, FALSE, FALSE, 0);
 	gtk_box_pack_start(GTK_BOX(gui->box_subwindow), gui->box_beacons, FALSE, FALSE, 0);
-	gtk_box_pack_end(GTK_BOX(gui->box_subwindow), gui->box_drone_pos, FALSE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(gui->box_subwindow), gui->box_drone_pos, FALSE, FALSE, 0);
 }
 
 void create_window()
@@ -196,7 +203,7 @@ void create_window()
 	// callback on window destroy event
 	g_signal_connect(G_OBJECT(gui->window), "destroy", G_CALLBACK(on_destroy), NULL);
 	// create window box
-	gui->box_window = gtk_vbox_new(FALSE, 15);
+	gui->box_window = gtk_hbox_new(FALSE, 15);
 	// create sub window
    create_sub_window();
    // create the scene
