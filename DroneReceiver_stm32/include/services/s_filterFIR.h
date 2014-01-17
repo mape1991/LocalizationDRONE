@@ -24,7 +24,8 @@
 ******************************************************************************/
 
 #include "stdint.h"
-//#include "FIR_Filter.h"
+#include "fir_filters.h"
+#include "global.h"
 
 
 /******************************************************************************
@@ -33,33 +34,19 @@
 *
 ******************************************************************************/ 
 
-/** ADC Sample time [us] */
-#define SAMPLE_TIME_ADC 7.8125
-
-/** Sampling Frequency [KHz] */
-#define SAMPLE_FREQUENCY 128.0
-
 /** EOC ADC Interruption Priority */
 #define ADC_HANDLER_PRIORITY 1
 
 /** ADC Channel */
 #define CHANNEL_ADC 10
 
-/** Number of samples saved in filter tables and ADC samples tables */
-#define SIZE_TABLE_SAMPLES 256
+/** */
+//u16 adc_sample_count = 0;
 
-/** Number of samples for 100 ms with Fe=128KHz */
-#define NB_SAMPLES_TOTAL 12800
+// supprime a la fin
+//int test_i = 0;
 
-/** Number of samples for one block that updates the filter Input Table */
-#define SAMPLE_BLOCK_SIZE 64
-
-
-/******************************************************************************
-*
-*   POINTER FUNCTIONS
-*
-******************************************************************************/
+//char etat_adc_test = 0;
 
 
 /******************************************************************************
@@ -67,8 +54,10 @@
 *   PRIVATE FUNCTIONS
 *
 ******************************************************************************/
-char s_filterFIR_initialization(void);
 
-//void s_filterFIR_computeIter(void);
+void s_filterFIR_it_function(void);
+void s_filterFIR_IT_ADC (void);
+char s_filterFIR_initialization(void);
+void s_filterFIR_computeOutputs(void);
 
 #endif					/* S_SERIALCOMM_H */

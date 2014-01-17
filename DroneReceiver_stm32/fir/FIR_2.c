@@ -1,16 +1,34 @@
+/**
+ * @file FIR_2.c
+ * @brief Filter FIR 2 source file
+ *
+ *      This file contains the filter 2 values written in the table
+ *
+ * 			Last modification : 16 Jan 2014 
+ *
+ * @author Martin
+ * @version 0.0.1
+ * @date 12 Jan 2014
+ */
+
+
+/******************************************************************************
+* 
+*		INCLUDED FILES 
+*
+******************************************************************************/
+
 #include "stm32f10x.h"
-#include "FIR_Filter.h"
+#include "fir_filters.h"
 
 
-//_________________________________________________
-//      DESCRIPTION DU FILTRE FIR_0, 8.24 
-//_________________________________________________
+/******************************************************************************
+* 
+*		DESCRIPTION DU FILTRE FIR_2, 8.24 
+*
+******************************************************************************/
 
-const u16 N_2 = 256; 
-s16 TabE_2[256]; 
-s16 *Ptr_Tab_E_2; 
-
-const s32 h_2[256]= {
+const int32_t filter_2[FILTER_SIZE]= {
 K_8_24*9.191139e-01,
 K_8_24*-7.242471e-01,
 K_8_24*-3.484187e-01,
