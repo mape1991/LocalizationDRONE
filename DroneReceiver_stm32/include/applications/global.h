@@ -49,7 +49,7 @@
 #define SIGNAL_INPUT_SIZE 256
 
 /** Number of samples savec in the output tables */
-#define OUTPUT_SIZE NB_SAMPLES_TOTAL/SAMPLE_BLOCK_SIZE
+#define OUTPUT_SIZE NB_SAMPLES_TOTAL/SAMPLE_BLOCK_SIZE 
 
 /** Number of samples for 100 ms with Fe=128KHz */
 #define NB_SAMPLES_TOTAL 12800
@@ -168,5 +168,9 @@ extern int nb_it_compute;
 /** Send toa data to drone ready */
 extern char data_ready;
 
+extern char toto;
+
 #endif					/* GLOBAL_H */
+
+
 

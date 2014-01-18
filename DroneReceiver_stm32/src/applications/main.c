@@ -27,6 +27,7 @@
 #include "s_filterFIR.h"
 #include "global.h"
 
+#include "GPIO.h"
 
 //#include "FIR_Filter.h"
 //#include "fir_filters.h"
@@ -42,6 +43,7 @@
 State_APP state = APP_OFF;
 State_APP prev_state = APP_OFF;
 
+char toto = 0;
 
 /******************************************************************************
 *
@@ -301,6 +303,7 @@ void test_extern_include_tables(void)
 
 int main (void)
 {	
+	
 	// Initialization
 	app_initialization();
 		
@@ -310,11 +313,15 @@ int main (void)
 		// Compute filter outputs 
 		if(nb_outputs_count < nb_it_compute)
 		{
+			toto++;	
 			s_filterFIR_computeOutputs();
+			toto = 0;
+			
 		}
 		// check if drone data is read to be send
 		if (data_ready == 1) 
 		{
+			
 			app_responseDrone();
 		}
 	}

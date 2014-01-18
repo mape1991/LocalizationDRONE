@@ -680,7 +680,7 @@
             <interw>1</interw>
             <bigend>0</bigend>
             <Strict>0</Strict>
-            <Optim>0</Optim>
+            <Optim>3</Optim>
             <wLevel>2</wLevel>
             <uThumb>1</uThumb>
             <VariousControls>

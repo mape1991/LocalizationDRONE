@@ -95,12 +95,9 @@ char data_ready = 0;
  ******************************************************************************/
 
 void s_filterFIR_IT_ADC (void)
-{
+{	
 	// Acquisition and storage of ADC sample and conversion of said sample to s32
   buffer_block[buffer_count] = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
-
-	// Update nb samples
-  adc_samples_count++;
   
 	if (adc_samples_count < NB_SAMPLES_TOTAL)
 	{
@@ -112,6 +109,7 @@ void s_filterFIR_IT_ADC (void)
 			// change state and call filter_output calcul
 			state_buffer = BUFFER_PART_2;
 			nb_it_compute ++;
+			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
 		}
 
 		else if (buffer_count == 2*SAMPLE_BLOCK_SIZE)
@@ -121,14 +119,19 @@ void s_filterFIR_IT_ADC (void)
 			// change state and call filter_output calcul
 			state_buffer = BUFFER_PART_1;
 			nb_it_compute ++;
+			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
 		}
 	}
 	else
 	{
+		GPIO_Set(GPIOB,11);	// set error LED ON
 		// Stop Timer tri conversion and Reset Properties
 		Bloque_Timer(TIM1);
 		Reset_Timer(TIM1);
 	}
+	
+	// Update nb samples
+  adc_samples_count++;
 }
 
 
@@ -197,8 +200,9 @@ void s_filterFIR_computeOutputs(void)
 	//    out_filter_0_16_48 = ((s64) out_filter_0_8_24) * ((s64)(K_8_24 * 0.2));
 	//    out_filter_0_8_24 = (s32) (out_filter_0_16_48>>24);
 
-	if (nb_outputs_count >= OUTPUT_SIZE)
+	if (nb_outputs_count > OUTPUT_SIZE - 1 ) //OUTPUT_SIZE)
 	{
+		GPIO_Set(GPIOB,13);	// set error LED ON
 		// call function to compute TOA algorithm and finish the reception
 		s_filterFIR_it_function(STOP_NORMAL);
 	}
@@ -223,7 +227,7 @@ void s_filterFIR_it_function(Stop_Signal signal)
 		
 		case STOP_NORMAL :
 			// Compute TOA values /TODO
-			toa_0 = 6000;
+			toa_0 = 6000; // 17 
 			toa_1 = 5000;
 			toa_2 = 2000;
 			toa_3 = 10000;
@@ -260,6 +264,9 @@ void s_filterFIR_it_function(Stop_Signal signal)
 		default:
 			break;
 	}
+	
+	GPIO_Clear(GPIOB,11);	// set error LED ON
+	
 }
 
 /**
@@ -319,6 +326,13 @@ char s_filterFIR_initialization()
 	Single_Channel_ADC(ADC1, CHANNEL_ADC);
 	Init_IT_ADC_EOC(ADC1, ADC_HANDLER_PRIORITY, s_filterFIR_IT_ADC);
 	
+	// debug LED
+	GPIO_Configure(GPIOB, 11, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
+	GPIO_Clear(GPIOB,11);	// set error LED OFF
+	GPIO_Configure(GPIOB, 12, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
+	GPIO_Clear(GPIOB,12);	// set error LED OFF
+	GPIO_Configure(GPIOB, 13, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
+	GPIO_Clear(GPIOB,13);	// set error LED OFF
 	
 	return code_Erreur;
 }
