@@ -24,6 +24,7 @@
 #include "ADC_DMA.h"
 #include "TIMER_1234.h"
 #include "GPIO.h"
+#include "timer_slave.h"
 
 // include all filters
 #include "s_filterFIR.h"
@@ -99,43 +100,53 @@ char data_ready = 0;
 void s_filterFIR_IT_ADC (void)
 {	
 	// Acquisition and storage of ADC sample and conversion of said sample to s32
-  buffer_block[buffer_count] = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
+	buffer_block[buffer_count] = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
   
-	/* À CHANGER : 12799 COMPARAISONS ET JUMP INUTILES --> 25598 INSTRUCTIONS INUTILES */
-	if (adc_samples_count < NB_SAMPLES_TOTAL)
-	{
-		// Update Buffer counter
-		buffer_count++;
-		
-		if (buffer_count == SAMPLE_BLOCK_SIZE)
-		{
-			// change state and call filter_output calcul
-			state_buffer = BUFFER_PART_2;
-			nb_it_compute ++;
-			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
-		}
-
-		else if (buffer_count == buffer_size)
-		{
-			// reset buffer count (start from 0 again)
-			buffer_count = 0;
-			
-			// change state and call filter_output calcul
-			state_buffer = BUFFER_PART_1;
-			nb_it_compute ++;
-			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
-		}
-	}
-	else
-	{
-		GPIO_Set(GPIOB,11);	// set error LED ON
-		// Stop Timer tri conversion and Reset Properties
-		Bloque_Timer(TIM1);
-		Reset_Timer(TIM1);
-	}
+	// Update Buffer counter
+	buffer_count++;
 	
+	if (buffer_count == SAMPLE_BLOCK_SIZE)
+	{
+		// change state and call filter_output calcul
+		state_buffer = BUFFER_PART_2;
+		nb_it_compute ++;
+		if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
+	}
+
+	else if (buffer_count == buffer_size)
+	{
+		// reset buffer count (start from 0 again)
+		buffer_count = 0;
+		
+		// change state and call filter_output calcul
+		state_buffer = BUFFER_PART_1;
+		nb_it_compute ++;
+		if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
+	}
+
 	// Update nb samples
     adc_samples_count++;
+}
+
+
+/**
+ *******************************************************************************
+ * s_filterFIR_IT_samplecount
+ *
+ *      IT Function called when ADC has been interrupted NB_SAMPLES_TOTAL times
+ *		(as counted by TIMER2)
+ *			Light a LED
+ *			Stop and reset TIMER1
+ *			This stop the ADC acquisition
+ * 			
+ * @return void
+ ******************************************************************************/
+ void s_filterFIR_IT_samplecount (void){
+
+	GPIO_Set(GPIOB,11);	// set error LED ON
+	// Stop Timer tri conversion and Reset Properties
+	Bloque_Timer(TIM1);
+	Reset_Timer(TIM1);
 }
 
 
@@ -305,11 +316,13 @@ void s_filterFIR_it_function(Stop_Signal signal)
 
 void s_filterFIR_startReception(void)
 {
+	
 	// Init Timer conversion on the ADC with the Trig Timer
 	Init_Conversion_On_Trig_Timer(ADC1 , TIM1_CC1, SAMPLE_FREQUENCY);
 	
 	// Start Timer
 	Run_Timer(TIM1);
+	Run_Timer(TIM2);
 }
 
 
@@ -349,6 +362,12 @@ char s_filterFIR_initialization()
 	time_conv = Init_TimingADC_ActiveADC( ADC1, 0);
 	Single_Channel_ADC(ADC1, CHANNEL_ADC);
 	Init_IT_ADC_EOC(ADC1, ADC_HANDLER_PRIORITY, s_filterFIR_IT_ADC);
+
+	// Init secondary timer
+	TIMER_Slave_Mode_UEV(TIM2, TIM1);
+	TIMER_onepulse(TIM2);
+	TIMER_set_max(TIM2, NB_SAMPLES_TOTAL);
+	Active_IT_Debordement_Timer( TIM2, 0, s_filterFIR_IT_samplecount);
 	
 	// debug LED
 	GPIO_Configure(GPIOB, 11, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)

@@ -53,5 +53,6 @@ void s_filterFIR_computeOutputs(void);
 void s_filterFIR_startReception(void);
 char s_filterFIR_initialization(void);
 void s_filterFIR_computeOutputs(void);
+void s_filterFIR_IT_samplecount(void);
 
 #endif					/* S_SERIALCOMM_H */
