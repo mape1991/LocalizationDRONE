@@ -1,16 +1,34 @@
+/**
+ * @file FIR_3.c
+ * @brief Filter FIR 3 source file
+ *
+ *      This file contains the filter 3 values written in the table
+ *
+ * 			Last modification : 16 Jan 2014 
+ *
+ * @author Martin
+ * @version 0.0.1
+ * @date 12 Jan 2014
+ */
+
+
+/******************************************************************************
+* 
+*		INCLUDED FILES 
+*
+******************************************************************************/
+
 #include "stm32f10x.h"
-#include "FIR_Filter.h"
+#include "fir_filters.h"
 
 
-//_________________________________________________
-//      DESCRIPTION DU FILTRE FIR_0, 8.24 
-//_________________________________________________
+/******************************************************************************
+* 
+*		DESCRIPTION DU FILTRE FIR_3, 8.24 
+*
+******************************************************************************/
 
-const u16 N_3 = 256; 
-s16 TabE_3[256]; 
-s16 *Ptr_Tab_E_3; 
-
-const s32 h_3[256]= {
+const int32_t filter_3[FILTER_SIZE]= {
 K_8_24*9.091680e-01,
 K_8_24*-7.572088e-01,
 K_8_24*-2.785197e-01,

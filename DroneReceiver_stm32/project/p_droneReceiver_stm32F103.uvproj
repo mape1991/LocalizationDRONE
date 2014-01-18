@@ -376,6 +376,16 @@
               <FileType>5</FileType>
               <FilePath>..\fir\FIR_Filter.h</FilePath>
             </File>
+            <File>
+              <FileName>fir_filters.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\fir\fir_filters.h</FilePath>
+            </File>
+            <File>
+              <FileName>fir_filters.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\fir_filters.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -670,7 +680,7 @@
             <interw>1</interw>
             <bigend>0</bigend>
             <Strict>0</Strict>
-            <Optim>0</Optim>
+            <Optim>3</Optim>
             <wLevel>2</wLevel>
             <uThumb>1</uThumb>
             <VariousControls>
@@ -779,6 +789,16 @@
               <FileName>FIR_Filter.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\fir\FIR_Filter.h</FilePath>
+            </File>
+            <File>
+              <FileName>fir_filters.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\fir\fir_filters.h</FilePath>
+            </File>
+            <File>
+              <FileName>fir_filters.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\fir_filters.c</FilePath>
             </File>
           </Files>
         </Group>
