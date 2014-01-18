@@ -44,8 +44,10 @@ int toa_3 = 0;
 /** Filter input table of 256 values */
 int32_t signal_input[SIGNAL_INPUT_SIZE];
 
+
 /** Block table of 128 values (2 * block table size) to prevent overwriting of block size */
-int32_t buffer_block[2*SAMPLE_BLOCK_SIZE];
+const int buffer_size = 2*SAMPLE_BLOCK_SIZE;  //avoid useless multiplications
+int32_t buffer_block[buffer_size];
 
 /** Number of samples */
 int adc_samples_count = 0;
@@ -99,6 +101,7 @@ void s_filterFIR_IT_ADC (void)
 	// Acquisition and storage of ADC sample and conversion of said sample to s32
   buffer_block[buffer_count] = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
   
+	/* À CHANGER : 12799 COMPARAISONS ET JUMP INUTILES --> 25598 INSTRUCTIONS INUTILES */
 	if (adc_samples_count < NB_SAMPLES_TOTAL)
 	{
 		// Update Buffer counter
@@ -112,10 +115,11 @@ void s_filterFIR_IT_ADC (void)
 			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
 		}
 
-		else if (buffer_count == 2*SAMPLE_BLOCK_SIZE)
+		else if (buffer_count == buffer_size)
 		{
 			// reset buffer count (start from 0 again)
 			buffer_count = 0;
+			
 			// change state and call filter_output calcul
 			state_buffer = BUFFER_PART_1;
 			nb_it_compute ++;
@@ -131,7 +135,7 @@ void s_filterFIR_IT_ADC (void)
 	}
 	
 	// Update nb samples
-  adc_samples_count++;
+    adc_samples_count++;
 }
 
 
@@ -155,8 +159,12 @@ void s_filterFIR_IT_ADC (void)
 
 void s_filterFIR_computeOutputs(void)
 {
-	int i = 0;
-	int j= 0;
+	int i;
+	int j;
+	// temporary results of filter computation (signed int 64 bits)
+	int64_t result0 = 0, result1 = 0, result2 = 0, result3 = 0;	
+
+	/* BLOCK SHIFTING IN TABLE */
 	
 	// Table rearrangement
 	for (i = SAMPLE_BLOCK_SIZE; i<SIGNAL_INPUT_SIZE; i++)
@@ -170,12 +178,12 @@ void s_filterFIR_computeOutputs(void)
 		// initial condition : Called when buffer_part_x = 2
 		case BUFFER_PART_1 :
 			// Buffer_Part_2 is finished
-		  j= SAMPLE_BLOCK_SIZE;
+		  j = SAMPLE_BLOCK_SIZE;
 			break;
 			
 		case BUFFER_PART_2 :
 			// Buffer_Part_1 is finished
-		  j=0;
+		  j = 0;
 			break;
 			
 		default:
@@ -186,23 +194,39 @@ void s_filterFIR_computeOutputs(void)
 	{
 			signal_input[i] = buffer_block[j];
 	}
+	
+
+	/* FILTER COMPUTATION */
+	
+	// compute filter output
+	for (i=0;i<FILTER_SIZE;i++) 
+	{	
+		result0 += (int64_t) filter_0[i]*signal_input[i];
+		result1 += (int64_t) filter_1[i]*signal_input[i];
+		result2 += (int64_t) filter_2[i]*signal_input[i];
+		result3 += (int64_t) filter_3[i]*signal_input[i];
 			
-	// Compute outputs and Store outputs in tables
-	output_0[nb_outputs_count] = filter_output(signal_input, filter_0);
-	output_1[nb_outputs_count] = filter_output(signal_input, filter_1);
-	output_2[nb_outputs_count] = filter_output(signal_input, filter_2);
-	output_3[nb_outputs_count] = filter_output(signal_input, filter_3);
+	}
+	
+	// Conversion from 64 (signed int) to 8.24 format  and storage of result
+	output_0[nb_outputs_count] = (int32_t) (result0 >> 15);
+	output_1[nb_outputs_count] = (int32_t) (result1 >> 15);
+	output_2[nb_outputs_count] = (int32_t) (result2 >> 15);
+	output_3[nb_outputs_count] = (int32_t) (result3 >> 15);
+	
+	/* END OF FILTERS COMPUTATION */
 	
 	// Update output count
 	nb_outputs_count++;
 
-  // Application d'une atténuation de 0.2 à sortie (par exemple)
-	//    out_filter_0_16_48 = ((s64) out_filter_0_8_24) * ((s64)(K_8_24 * 0.2));
-	//    out_filter_0_8_24 = (s32) (out_filter_0_16_48>>24);
+	// Application d'une atténuation de 0.2 à sortie (par exemple)
+		//    out_filter_0_16_48 = ((s64) out_filter_0_8_24) * ((s64)(K_8_24 * 0.2));
+		//    out_filter_0_8_24 = (s32) (out_filter_0_16_48>>24);
 
-	if (nb_outputs_count > OUTPUT_SIZE - 1 ) //OUTPUT_SIZE)
+	// check if the last filter block has been computed
+	if (nb_outputs_count >= OUTPUT_SIZE)
 	{
-		GPIO_Set(GPIOB,13);	// set error LED ON
+		GPIO_Set(GPIOB,13);	// set calculations finished LED ON
 		// call function to compute TOA algorithm and finish the reception
 		s_filterFIR_it_function(STOP_NORMAL);
 	}
