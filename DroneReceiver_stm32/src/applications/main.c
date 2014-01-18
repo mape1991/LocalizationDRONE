@@ -270,6 +270,7 @@ void app_initialization(void)
 	{
 		s_serialComm_setErrorLED(LED_ON);
 	}
+	
 
 }
 

@@ -37,3 +37,8 @@ void TIMER_set_max(TIM_TypeDef *timer, int value){
 	timer->ARR = value ;
 }
 
+/*Permet de passet un timer en mode onepulse*/
+void TIMER_onepulse(TIM_TypeDef *timer){
+	timer->CR1 |=TIM_CR1_OPM;
+}
+

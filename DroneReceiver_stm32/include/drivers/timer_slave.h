@@ -15,9 +15,7 @@ void TIMER_Slave_Mode_UEV(TIM_TypeDef *timer, TIM_TypeDef *control_timer);
 void TIMER_set_max(TIM_TypeDef *timer, int value);
 
 /*Permet de passet un timer en mode onepulse*/
-void TIMER_onepulse(TIM_TypeDef *timer){
-	timer->CR1 |=TIM_CR1_OPM;
-}
+void TIMER_onepulse(TIM_TypeDef *timer);
 
 #endif 
 
