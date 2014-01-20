@@ -22,10 +22,10 @@
 // Tests
 //#define TEST_COMM             // test comm on
 //#define TEST_WIFI_DELAY
-//#define TEST_FULL
+#define TEST_FULL
 //#define TEST_USB
 /** test_thread code is nested in the test_full code */
-#define TEST_THREAD
+//#define TEST_THREAD
 
 #ifdef TEST_COMM
    #define UDP_ON
