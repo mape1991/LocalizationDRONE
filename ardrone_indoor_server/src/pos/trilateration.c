@@ -1,4 +1,9 @@
+
+
 #include "trilateration.h"
+
+#ifdef TEST_FULL
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
@@ -342,6 +347,7 @@ void trilateration (double *mesu_distances, double *p_coord, double *p_dim_room,
 	
 }
 
+#endif
 
 
 

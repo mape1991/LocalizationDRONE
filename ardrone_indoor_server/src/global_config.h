@@ -20,12 +20,12 @@
 // Tests
 
 // declare global test definition
-#define DEBUG_ON
+#define DEBUG_ON // this constant is not implemented... should uncomment the printf when debugging
 	//#define TEST_COMM             // test comm on
 	//#define TEST_WIFI_DELAY
 	//#define TEST_GUI
    //#define TEST_GUI_ONLY
-	//#define TEST_USB
+	//define TEST_USB
 	#define TEST_FULL
 
 // define which features to use in this test
@@ -35,9 +35,14 @@
 #elif defined TEST_WIFI_DELAY
 	#define UDP_ON
 #elif defined(TEST_GUI) || defined(TEST_FULL)
-	#define GUI_ON
+
 	#define UDP_ON
 	#define USB_ON
+
+	#define GUI_ON
+	#define GUI_SCENE_ON
+	#define GUI_SCENE_3D
+
 #elif defined TEST_GUI_ONLY
 	#define GUI_ON
 	/** display a scene for graphic drone position tracking */
@@ -66,13 +71,6 @@
 // global communication definitions
 #ifdef UDP_ON
 	#define DEST_IP_DRONE "192.168.1.1"
-
-	extern int is_udp_listening;
-	extern int is_udp_sending;
-#endif
-
-#ifdef USB_ON
-	extern int is_usb_reading;
 #endif
 
 #endif	/* GLOBAL_CONFIG_H */

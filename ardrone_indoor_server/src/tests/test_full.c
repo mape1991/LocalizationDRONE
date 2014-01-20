@@ -37,23 +37,28 @@ void test_full_thread_udp_read_sync(char *message)
 
 	printf("executing test_full_thread_udp_read_sync\n");
 	//printf("message %s\n", message);
-	printf("message %d\n", message);
+
 	// first byte is the message id
 	// we check the rest for retrieving the data
 	char text_label[GUI_MAX_LABEL_SIZE];
 	int i = 0, values[NUM_BEACONS];
+	printf("message ");
+	for (i=1;i<COMM_MESSAGE_DTS_SIZE;i++)
+	printf("%d ", message[i]);
+	printf("\n");
+	i=0;
 	// retrieve the message values from the message
 	test_full_retrieve_message_values(values, message);
 	// report the value on the GUI
 	printf("displaying toas on the gui\n");
 	for (; i < NUM_BEACONS; i++){
-		values[i] -= 65*(1+256+256*256+256*256*256);
+		//values[i] -= 65*(1+256+256*256+256*256*256);
 		printf("beacon%d : %d\n", i, values[i]);
 		snprintf(text_label, GUI_MAX_LABEL_SIZE, "%d", values[i]);
 		gtk_label_set_text(get_gui()->label_beacon_timevals[i], text_label);
 	}
 
-	// TODO: launch calculations from beacons values
+	// launch calculations from beacons values
 	for(i = 0; i < NUM_BEACONS; i++){
 		distances[i] = (double)(values[i]*340.0)/(128000.0);
 		printf("distances%d : %f\n", i, distances[i]);

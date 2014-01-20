@@ -101,7 +101,8 @@ void test_gui_thread_send()
 	{
 		char buffer[USB_BUFFER_MAX_SIZE];
 		char text_label[GUI_MAX_LABEL_SIZE];
-		while (is_usb_reading) {
+		printf("entering test_gui_thread_usb_read\n");
+		while (1) {
 		  int n = usb_read(buffer, 1);
 		  if (n > 0){
 			 printf("stm32 read msg %s\n", buffer);
@@ -118,10 +119,8 @@ void test_gui_thread_send()
 					 gtk_label_set_text(get_gui()->text_controller_state, text_label);
 				 break;
 			 case COMM_MESSAGE_EXIT_ID :
-					 // deactivate threads loops
 					 gtk_label_set_text(get_gui()->text_controller_state,GUI_CONTROLLER_HINT_EXIT);
-					 is_usb_reading = 0;
-					 usb_close();
+					// usb_close();
 				 break;
 			 default:
 				 break;
@@ -141,12 +140,9 @@ void test_gui_main(int argc, char **argv)
    // activate the udp comm
    udp_open_socket();
 
-   is_udp_listening = 1;
-   is_udp_sending = 1;
    // activate the usb comm
 	#ifdef USB_ON
    	usb_init(USB_PORT_NAME, B9600, 0, 0);
-   	is_usb_reading = 1;
 	#endif
 
    sem_init(&message_sema, 0, 0);      /* initialize mutex to 1 - binary semaphore */

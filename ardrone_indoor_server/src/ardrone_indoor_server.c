@@ -35,8 +35,6 @@
 #endif
 
 #ifdef UDP_ON
-   int is_udp_listening = 0;
-   int is_udp_sending   = 0;
 
    DEFINE_THREAD_ROUTINE(udp_listen_comm, data)
    {
@@ -65,7 +63,6 @@
 #endif
    
 #ifdef USB_ON
-   int is_usb_reading = 0;
 
    DEFINE_THREAD_ROUTINE(usb_listen_comm, data)
    {

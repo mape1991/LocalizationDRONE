@@ -10,6 +10,10 @@ double *p_dim_room;
 int chose_beacon[4]={1,2,3,4};
 int number_beacon = sizeof(chose_beacon)/sizeof(*chose_beacon);
 double target[3]={10,7,2.5};*/
+#include "../global_config.h"
+#ifdef TEST_FULL
+
 
 void trilateration (double *mesu_distances, double *p_coord, double *p_dim_room, int number_beacon, int *p_chose_beacon);
+#endif
 #endif

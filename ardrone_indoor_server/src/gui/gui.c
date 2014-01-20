@@ -36,10 +36,6 @@ void button_connect_callback()
 		message_send_id = COMM_MESSAGE_INIT_ID;
 		gtk_widget_set_sensitive(gui->button_disconnect, TRUE);
 		gtk_widget_set_sensitive(gui->button_connect, FALSE);
-		// activate threads loops
-		#ifdef USB_ON
-			is_usb_reading = 1;
-		#endif
 		// desactivate loops in the threads
 		printf("button %s clicked\n", "connect");
 		// enable getpos button

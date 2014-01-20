@@ -14,6 +14,12 @@
 void *esclave(void * arg) {
 	char response[COMM_MESSAGE_DTS_SIZE];
 	int i;
+	printf("init buffer message ");
+						for (i=1;i<COMM_MESSAGE_DTS_SIZE;i++)
+						printf("%d ", response[i]);
+						printf("\n");
+
+
 	// Once the thread is started, he signals his readiness to the server
 	// > server I
    printf("ESCLAVE -> thread démarré.\n");
