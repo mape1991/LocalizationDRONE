@@ -65,7 +65,7 @@ void (* s_serialComm_pFct) (char);
 void s_serialComm_it_function(void);
 char s_serialComm_initialization(void (*ptrFunction) (char));
 char s_serialComm_sendChar(char c);
-char s_serialComm_sendString(char string[]);
+char s_serialComm_sendString(char string[], u16 size);
 void s_serialComm_setErrorLED(State_LED);
 
 

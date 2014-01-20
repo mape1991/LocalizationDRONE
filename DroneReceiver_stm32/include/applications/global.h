@@ -55,7 +55,10 @@
 #define NB_SAMPLES_TOTAL 12800
 
 /** Number of samples for one block that updates the filter Input Table */
-#define SAMPLE_BLOCK_SIZE 64
+#define SAMPLE_BLOCK_SIZE 128
+
+/** Number of samples for buffer input table */
+#define BUFFER_SIZE 2*SAMPLE_BLOCK_SIZE
 
 /** Constants (fixed point)*/
 #define K_8_24 16777216 // constante 2^24
@@ -63,6 +66,9 @@
 
 /** Filter Table size */
 #define FILTER_SIZE 256
+
+/** Size protocol USART STM - Drone */
+#define FRAME_SIZE 17
 
 /** Protocol Messages between the Client and the Server */
 #define MSG_OFF 'X'			// Exit
@@ -133,6 +139,11 @@ extern const int32_t filter_0[FILTER_SIZE];
 extern const int32_t filter_1[FILTER_SIZE];
 extern const int32_t filter_2[FILTER_SIZE];
 extern const int32_t filter_3[FILTER_SIZE];
+extern const int32_t filter_0_cos[FILTER_SIZE];
+extern const int32_t filter_1_cos[FILTER_SIZE];
+extern const int32_t filter_2_cos[FILTER_SIZE];
+extern const int32_t filter_3_cos[FILTER_SIZE];
+
 
 /** TOA values : initialized in s_filterFIR.c file */
 extern int toa_0;
@@ -161,6 +172,15 @@ extern int32_t output_0[OUTPUT_SIZE];
 extern int32_t output_1[OUTPUT_SIZE];
 extern int32_t output_2[OUTPUT_SIZE];
 extern int32_t output_3[OUTPUT_SIZE];
+extern int32_t output_0_cos[OUTPUT_SIZE];
+extern int32_t output_1_cos[OUTPUT_SIZE];
+extern int32_t output_2_cos[OUTPUT_SIZE];
+extern int32_t output_3_cos[OUTPUT_SIZE];
+
+extern int32_t module_FIR0[OUTPUT_SIZE];
+extern int32_t module_FIR1[OUTPUT_SIZE];
+extern int32_t module_FIR2[OUTPUT_SIZE];
+extern int32_t module_FIR3[OUTPUT_SIZE];
 
 /** Number of compute interruptions */
 extern int nb_it_compute;

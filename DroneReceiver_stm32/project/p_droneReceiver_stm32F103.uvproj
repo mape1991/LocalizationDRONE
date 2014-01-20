@@ -386,6 +386,26 @@
               <FileType>1</FileType>
               <FilePath>..\fir\fir_filters.c</FilePath>
             </File>
+            <File>
+              <FileName>FIR_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_4.c</FilePath>
+            </File>
+            <File>
+              <FileName>FIR_5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_5.c</FilePath>
+            </File>
+            <File>
+              <FileName>FIR_6.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_6.c</FilePath>
+            </File>
+            <File>
+              <FileName>FIR_7.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_7.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -799,6 +819,26 @@
               <FileName>fir_filters.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\fir\fir_filters.c</FilePath>
+            </File>
+            <File>
+              <FileName>FIR_4.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_4.c</FilePath>
+            </File>
+            <File>
+              <FileName>FIR_5.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_5.c</FilePath>
+            </File>
+            <File>
+              <FileName>FIR_6.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_6.c</FilePath>
+            </File>
+            <File>
+              <FileName>FIR_7.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\fir\FIR_7.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -45,7 +45,7 @@ int toa_3 = 0;
 int32_t signal_input[SIGNAL_INPUT_SIZE];
 
 /** Block table of 128 values (2 * block table size) to prevent overwriting of block size */
-int32_t buffer_block[2*SAMPLE_BLOCK_SIZE];
+int32_t buffer_block[BUFFER_SIZE];
 
 /** Number of samples */
 int adc_samples_count = 0;
@@ -67,6 +67,14 @@ int32_t output_0[OUTPUT_SIZE];
 int32_t output_1[OUTPUT_SIZE];
 int32_t output_2[OUTPUT_SIZE];
 int32_t output_3[OUTPUT_SIZE];
+int32_t output_0_cos[OUTPUT_SIZE];
+int32_t output_1_cos[OUTPUT_SIZE];
+int32_t output_2_cos[OUTPUT_SIZE];
+int32_t output_3_cos[OUTPUT_SIZE];
+int32_t module_FIR0[OUTPUT_SIZE];
+int32_t module_FIR1[OUTPUT_SIZE];
+int32_t module_FIR2[OUTPUT_SIZE];
+int32_t module_FIR3[OUTPUT_SIZE];
 
 /** Number of it for output computation */
 int nb_it_compute = 0;
@@ -112,14 +120,18 @@ void s_filterFIR_IT_ADC (void)
 			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
 		}
 
-		else if (buffer_count == 2*SAMPLE_BLOCK_SIZE)
+		else if (buffer_count == BUFFER_SIZE)
 		{
 			// reset buffer count (start from 0 again)
 			buffer_count = 0;
 			// change state and call filter_output calcul
 			state_buffer = BUFFER_PART_1;
 			nb_it_compute ++;
-			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
+			if (toto > 0)
+			{
+				GPIO_Set(GPIOB,12);	// set error LED ON
+				GPIO_Set(GPIOC,10);	// set error LED ON
+			}
 		}
 	}
 	else
@@ -158,6 +170,10 @@ void s_filterFIR_computeOutputs(void)
 	int i = 0;
 	int j= 0;
 	
+	// temporary results of filter computation (signed int 64 bits)
+  int64_t result_0 = 0, result_1 = 0, result_2 = 0, result_3 = 0;  
+	int64_t result_0_cos = 0, result_1_cos = 0, result_2_cos = 0, result_3_cos = 0; 
+	
 	// Table rearrangement
 	for (i = SAMPLE_BLOCK_SIZE; i<SIGNAL_INPUT_SIZE; i++)
 	{
@@ -188,10 +204,33 @@ void s_filterFIR_computeOutputs(void)
 	}
 			
 	// Compute outputs and Store outputs in tables
-	output_0[nb_outputs_count] = filter_output(signal_input, filter_0);
-	output_1[nb_outputs_count] = filter_output(signal_input, filter_1);
-	output_2[nb_outputs_count] = filter_output(signal_input, filter_2);
-	output_3[nb_outputs_count] = filter_output(signal_input, filter_3);
+	for (i=0;i<FILTER_SIZE;i++) 
+	{	
+		result_0 = result_0 + (int64_t) filter_0[i]*signal_input[i];
+		result_1 = result_1 + (int64_t) filter_1[i]*signal_input[i];
+		result_2 = result_2 + (int64_t) filter_2[i]*signal_input[i];
+		result_3 = result_3 + (int64_t) filter_3[i]*signal_input[i];
+	}
+	
+	// Compute outputs and Store outputs in tables
+	for (i=0;i<FILTER_SIZE;i++) 
+	{	
+		result_0_cos = result_0_cos + ((int64_t) filter_0_cos[i])*((int64_t)signal_input[i]);
+		result_1_cos = result_1_cos + ((int64_t) filter_1_cos[i])*((int64_t)signal_input[i]);
+		result_2_cos = result_2_cos + ((int64_t) filter_2_cos[i])*((int64_t)signal_input[i]);
+		result_3_cos = result_3_cos + ((int64_t) filter_3_cos[i])*((int64_t)signal_input[i]);
+	}
+
+	// Conversion from 64 (signed int) to 8.24 format  and storage of result
+  output_0[nb_outputs_count] = (int32_t) (result_0 >> 15);
+  output_1[nb_outputs_count] = (int32_t) (result_1 >> 15);
+  output_2[nb_outputs_count] = (int32_t) (result_2 >> 15);
+  output_3[nb_outputs_count] = (int32_t) (result_3 >> 15);
+	
+	output_0_cos[nb_outputs_count] = (int32_t) (result_0_cos >> 15);
+	output_1_cos[nb_outputs_count] = (int32_t) (result_1_cos >> 15);
+	output_2_cos[nb_outputs_count] = (int32_t) (result_2_cos >> 15);
+	output_3_cos[nb_outputs_count] = (int32_t) (result_3_cos >> 15);
 	
 	// Update output count
 	nb_outputs_count++;
@@ -220,6 +259,7 @@ void s_filterFIR_computeOutputs(void)
 
 void s_filterFIR_it_function(Stop_Signal signal)
 {
+	
 	switch (signal)
 	{
 		case STOP_NOT :
@@ -227,10 +267,14 @@ void s_filterFIR_it_function(Stop_Signal signal)
 		
 		case STOP_NORMAL :
 			// Compute TOA values /TODO
-			toa_0 = 6000; // 17 
-			toa_1 = 5000;
-			toa_2 = 2000;
-			toa_3 = 10000;
+			if (nb_outputs_count > 0)
+			{
+				function_TOA();
+			}
+//			toa_0 = 6000; // 17 
+//			toa_1 = 5000;
+//			toa_2 = 2000;
+//			toa_3 = 10000;
 			
 			// Data is ready to be send 
 			data_ready = 1;
@@ -239,16 +283,26 @@ void s_filterFIR_it_function(Stop_Signal signal)
 			/** Stop timer */
 			Bloque_Timer(TIM1);
 			Reset_Timer(TIM1);
-		
+
 			/** Reset tables and variables to zero */
 			// Buffer initialization for filter s output
 			initTab_E(output_0, OUTPUT_SIZE);
 			initTab_E(output_1, OUTPUT_SIZE);
 			initTab_E(output_2, OUTPUT_SIZE);
 			initTab_E(output_3, OUTPUT_SIZE);
-	
+			
+			initTab_E(output_0_cos, OUTPUT_SIZE);
+			initTab_E(output_1_cos, OUTPUT_SIZE);
+			initTab_E(output_2_cos, OUTPUT_SIZE);
+			initTab_E(output_3_cos, OUTPUT_SIZE);
+
+			initTab_E(module_FIR0, OUTPUT_SIZE);
+			initTab_E(module_FIR1, OUTPUT_SIZE);
+			initTab_E(module_FIR2, OUTPUT_SIZE);
+			initTab_E(module_FIR3, OUTPUT_SIZE);
+			
 			// Buffer initialization for input tables
-			initTab_E(buffer_block, 2*SAMPLE_BLOCK_SIZE);
+			initTab_E(buffer_block, BUFFER_SIZE);
 			initTab_E(signal_input, SIGNAL_INPUT_SIZE);
 	
 			//TODO Reset variables 	
@@ -265,8 +319,7 @@ void s_filterFIR_it_function(Stop_Signal signal)
 			break;
 	}
 	
-	GPIO_Clear(GPIOB,11);	// set error LED ON
-	
+	GPIO_Clear(GPIOB,11);	// set error LED OFF
 }
 
 /**
@@ -313,9 +366,17 @@ char s_filterFIR_initialization()
 	initTab_E(output_1, OUTPUT_SIZE);
 	initTab_E(output_2, OUTPUT_SIZE);
 	initTab_E(output_3, OUTPUT_SIZE);
+	initTab_E(output_0_cos, OUTPUT_SIZE);
+	initTab_E(output_1_cos, OUTPUT_SIZE);
+	initTab_E(output_2_cos, OUTPUT_SIZE);
+	initTab_E(output_3_cos, OUTPUT_SIZE);
+	initTab_E(module_FIR0, OUTPUT_SIZE);
+	initTab_E(module_FIR1, OUTPUT_SIZE);
+	initTab_E(module_FIR2, OUTPUT_SIZE);
+	initTab_E(module_FIR3, OUTPUT_SIZE);
 	
 	// Buffer initialization for input tables
-	initTab_E(buffer_block, 2*SAMPLE_BLOCK_SIZE);
+	initTab_E(buffer_block, BUFFER_SIZE);
 	initTab_E(signal_input, SIGNAL_INPUT_SIZE);
 	
 	// I/O configuration for ADC input
@@ -333,7 +394,61 @@ char s_filterFIR_initialization()
 	GPIO_Clear(GPIOB,12);	// set error LED OFF
 	GPIO_Configure(GPIOB, 13, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
 	GPIO_Clear(GPIOB,13);	// set error LED OFF
+	GPIO_Configure(GPIOC, 10, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
+	GPIO_Clear(GPIOC,10);	// set error LED OFF
 	
 	return code_Erreur;
 }
 
+
+void function_TOA(void)
+{
+	int i;
+	int64_t mean_FIR0 = 0, mean_FIR1 = 0, mean_FIR2 = 0, mean_FIR3 = 0;
+	char toa_0_find = 0;
+	char toa_1_find = 0;
+	char toa_2_find = 0;
+	char toa_3_find = 0;
+	
+	//Calcul du module des filtre FIR
+	for(i=0;i<OUTPUT_SIZE;i++)
+	{		
+    module_FIR0[i] = ((((int64_t)(output_0[i]))*((int64_t)(output_0[i]))+((int64_t)(output_0_cos[i]))*((int64_t)(output_0_cos[i]))) >> 32);
+    module_FIR1[i] = ((((int64_t)(output_1[i]))*((int64_t)(output_1[i]))+((int64_t)(output_1_cos[i]))*((int64_t)(output_1_cos[i]))) >> 32);
+		module_FIR2[i] = ((((int64_t)(output_2[i]))*((int64_t)(output_2[i]))+((int64_t)(output_2_cos[i]))*((int64_t)(output_2_cos[i]))) >> 32);
+		module_FIR3[i] = ((((int64_t)(output_3[i]))*((int64_t)(output_3[i]))+((int64_t)(output_3_cos[i]))*((int64_t)(output_3_cos[i]))) >> 32);
+		
+		mean_FIR0 += module_FIR0[i]; 
+		mean_FIR1 += module_FIR1[i];
+		mean_FIR2 += module_FIR2[i];
+		mean_FIR3 += module_FIR3[i];		
+	}
+	//Calcul des moyennes des modules
+	mean_FIR0 /= OUTPUT_SIZE;	
+	mean_FIR1 /= OUTPUT_SIZE;	
+	mean_FIR2 /= OUTPUT_SIZE;	
+	mean_FIR3 /= OUTPUT_SIZE;
+	
+	for(i=0;i<OUTPUT_SIZE-2;i++){	
+		if(toa_0_find == 0 && module_FIR0[i] > mean_FIR0 && module_FIR0[i+1] > mean_FIR0 && module_FIR0[i+2] > mean_FIR0 )
+		{	
+			toa_0 = i;
+			toa_0_find = 1;
+		}
+		if(toa_1_find == 0 && module_FIR1[i] > mean_FIR1 && module_FIR1[i+1] > mean_FIR1 && module_FIR1[i+2] > mean_FIR1)
+		{
+			toa_1 = i;
+			toa_1_find = 1;
+		}
+		if(toa_2_find == 0 && module_FIR2[i] > mean_FIR2 && module_FIR2[i+1] > mean_FIR2 && module_FIR2[i+2] > mean_FIR2)
+		{
+			toa_2 = i;
+			toa_2_find = 1;
+		}
+		if(toa_3_find == 0 && module_FIR3[i] > mean_FIR3 && module_FIR3[i+1] > mean_FIR3 && module_FIR3[i+2] > mean_FIR3)
+		{
+			toa_3 = i;
+			toa_3_find = 1;
+		}
+	}
+}	

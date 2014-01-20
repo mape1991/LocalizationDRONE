@@ -227,7 +227,7 @@ void app_send_droneData(int toa1, int toa2, int toa3, int toa4)
 	}
 	
 	// Send string to drone
-	code_Error = s_serialComm_sendString(string);
+	code_Error = s_serialComm_sendString(string, FRAME_SIZE);
 	
 	// update Status LED if error
 	if (code_Error != 0)
@@ -303,7 +303,6 @@ void test_extern_include_tables(void)
 
 int main (void)
 {	
-	
 	// Initialization
 	app_initialization();
 		

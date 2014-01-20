@@ -153,18 +153,23 @@ char s_serialComm_sendChar(char c)
  * @return 1 if error during send
  ******************************************************************************/
 	
-char s_serialComm_sendString(char string[])
+char s_serialComm_sendString(char string[], u16 size)
 { 		
 	char code_Erreur = 0;
+	int i = 0;
 	
 	GPIO_Set(GPIOA,11);	// set ON
 	
-	if ( (code_Erreur = Send_String_USART (USART1, string)) != 0 )
+	for (i=0; i < size; i++ )
 	{
-		// error when send data string
-		GPIO_Clear(GPIOA,11);	// set OFF 
-		return code_Erreur;
-	}
+			// Affichage du caractere 
+			if ((code_Erreur = Send_Data_USART(USART1, string[i])) != 0)
+			{
+				// error when send data string
+				GPIO_Clear(GPIOA,11);	// set OFF 
+				return code_Erreur;
+			}
+	} 
 	
 	GPIO_Clear(GPIOA,11);	// set OFF 
 	return code_Erreur;
