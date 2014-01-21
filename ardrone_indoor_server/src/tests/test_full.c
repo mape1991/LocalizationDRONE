@@ -48,15 +48,22 @@ void test_full_thread_udp_read_sync(char *message)
 	// first byte is the message id
 	// we check the rest for retrieving the data
 	char text_label[GUI_MAX_LABEL_SIZE];
-	int i = 0, values[NUM_BEACONS], values2[NUM_BEACONS];
+	int i = 0, values[NUM_BEACONS];
+	#ifdef TEST_FULL_DOUBLE_SIZE
+		int values2[NUM_BEACONS];
+	#endif
+
 	printf("message ");
 	for (i=1;i<size;i++)
-	printf("%d ", message[i]);
+		printf("%d ", message[i]);
 	printf("\n");
+
 	i=0;
 	// retrieve the message values from the message
 	test_full_retrieve_message_values(values, message);
-	test_full_retrieve_message_values(values2, message+COMM_MESSAGE_DTS_SIZE);
+	#ifdef TEST_FULL_DOUBLE_SIZE
+		test_full_retrieve_message_values(values2, message+COMM_MESSAGE_DTS_SIZE);
+	#endif
 	// report the value on the GUI
 	printf("displaying toas on the gui\n");
 	for (; i < NUM_BEACONS; i++){
