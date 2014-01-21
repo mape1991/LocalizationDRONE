@@ -30,6 +30,13 @@ void test_full_retrieve_message_values(int *values, char *message)
  */
 void test_full_thread_udp_read_sync(char *message)
 {
+#ifndef TEST_FULL_DOUBLE_SIZE
+	const int size = COMM_MESSAGE_DTS_SIZE;
+#else
+	const int size = 2*COMM_MESSAGE_DTS_SIZE;
+#endif
+	printf("comm message dts size = %d\n", size);
+
 	double coordinates[3];
 	double dim_room[3]={ROOM_MAX_X,ROOM_MAX_Y,ROOM_MAX_Z};
 	int selected_beacons[NUM_BEACONS]={1,2,3,4};
@@ -42,21 +49,31 @@ void test_full_thread_udp_read_sync(char *message)
 	// we check the rest for retrieving the data
 	char text_label[GUI_MAX_LABEL_SIZE];
 	int i = 0, values[NUM_BEACONS];
+	#ifdef TEST_FULL_DOUBLE_SIZE
+		int values2[NUM_BEACONS];
+	#endif
+
 	printf("message ");
-	for (i=1;i<COMM_MESSAGE_DTS_SIZE;i++)
-	printf("%d ", message[i]);
+	for (i=1;i<size;i++)
+		printf("%d ", message[i]);
 	printf("\n");
+
 	i=0;
 	// retrieve the message values from the message
 	test_full_retrieve_message_values(values, message);
+	#ifdef TEST_FULL_DOUBLE_SIZE
+		test_full_retrieve_message_values(values2, message+COMM_MESSAGE_DTS_SIZE);
+	#endif
 	// report the value on the GUI
 	printf("displaying toas on the gui\n");
 	for (; i < NUM_BEACONS; i++){
 		//values[i] -= 65*(1+256+256*256+256*256*256);
-		printf("beacon%d : %d\n", i, values[i]);
+		printf("beacon %d : %d\n", i, values[i]);
+		printf("beacon bis %d : %d\n", i, values2[i]);
 		snprintf(text_label, GUI_MAX_LABEL_SIZE, "%d", values[i]);
 		gtk_label_set_text(get_gui()->label_beacon_timevals[i], text_label);
 	}
+
 
 	// launch calculations from beacons values
 	for(i = 0; i < NUM_BEACONS; i++){

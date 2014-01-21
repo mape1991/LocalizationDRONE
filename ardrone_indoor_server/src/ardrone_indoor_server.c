@@ -43,7 +43,11 @@
 	  #elif defined TEST_GUI
 		 test_gui_thread_udp_read(COMM_MESSAGE_SIZE);
 	  #elif defined TEST_FULL
-		 test_gui_thread_udp_read(COMM_MESSAGE_DTS_SIZE);
+		  #ifndef TEST_FULL_DOUBLE_SIZE
+		 	  test_gui_thread_udp_read(COMM_MESSAGE_DTS_SIZE);
+		  #else
+		 	  test_gui_thread_udp_read(2*COMM_MESSAGE_DTS_SIZE);
+		  #endif
 	  #endif
    }
    

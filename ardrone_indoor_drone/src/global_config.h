@@ -23,6 +23,8 @@
 //#define TEST_COMM             // test comm on
 //#define TEST_WIFI_DELAY
 #define TEST_FULL
+// test_full with double sized packet
+#define TEST_FULL_DOUBLE_SIZE
 //#define TEST_USB
 /** test_thread code is nested in the test_full code */
 //#define TEST_THREAD

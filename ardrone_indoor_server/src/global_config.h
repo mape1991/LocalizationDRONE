@@ -27,6 +27,8 @@
    //#define TEST_GUI_ONLY
 	//#define TEST_USB
 	#define TEST_FULL
+// test_full with double sized packet
+#define TEST_FULL_DOUBLE_SIZE
 
 // define which features to use in this test
 #ifdef TEST_COMM

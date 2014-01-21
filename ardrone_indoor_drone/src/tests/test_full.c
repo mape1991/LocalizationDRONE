@@ -17,27 +17,43 @@
   * arg: unused argument
 */
 void *esclave(void * arg) {
-	char response[COMM_MESSAGE_DTS_SIZE];
-	int i;
-	printf("init buffer message ");
-						for (i=1;i<COMM_MESSAGE_DTS_SIZE;i++)
-						printf("%d ", response[i]);
-						printf("\n");
 
+	#ifndef TEST_FULL_DOUBLE_SIZE
+		const int size = COMM_MESSAGE_DTS_SIZE;
+	#else
+		const int size = 2*COMM_MESSAGE_DTS_SIZE;
+	#endif
+	char response[size];
+	int i;
+	int read_bytes=0;
+	printf("INIT buffer message ");
+	for (i=1;i<size;i++)
+		printf("%d ", response[i]);
+	printf("\n");
 
 	// Once the thread is started, he signals his readiness to the server
 	// > server I
    printf("ESCLAVE -> thread démarré.\n");
 	udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
-	// main loop
 	do{
 		#ifdef TEST_FULL
-			usb_read(response, sizeof(response));
+			read_bytes = usb_read(response, sizeof(size));
+			printf("read bytes 1: %d \n", read_bytes);
+			// if remaining bytes to receive in a case of a sync message
+			if (read_bytes > 0 && response[0] == COMM_MESSAGE_SYNC_ID){
+				// while we do not capture enough bytes
+				while (read_bytes < size){
+					read_bytes+=usb_read(response+read_bytes, sizeof(size-read_bytes));
+					printf("read bytes 2: %d \n", read_bytes);
+				}
+			}
+			printf("read bytes 3: %d \n", read_bytes);
 		#elif defined(TEST_THREAD)
 			// note: space before %s for ignoring the whitespaces/newlines
 			// see http://stackoverflow.com/questions/8300963/while-loop-ignores-scanf-the-second-time
 			scanf(" %s", response);
 		#endif
+
 		printf("ESCLAVE -> message reçu : %c.\n", response[0]);
 		switch (response[0]){
 			// stm X > thread exit
@@ -51,8 +67,8 @@ void *esclave(void * arg) {
 			case COMM_MESSAGE_BUSY_ID :
 				if (response[0] == COMM_MESSAGE_SYNC_ID){
 					printf("message ");
-					for (i=1;i<COMM_MESSAGE_DTS_SIZE;i++)
-					printf("%d ", response[i]);
+					for (i=1;i<size;i++)
+						printf("%d ", response[i]);
 					printf("\n");
 				}
 					printf("ESCLAVE -> envoi de la commande au serveur.\n");
@@ -64,6 +80,7 @@ void *esclave(void * arg) {
 		}
 		// empty the response string
 		strcpy (response, "");
+		read_bytes = 0;
 	} while (1);
 	return NULL;
 }
