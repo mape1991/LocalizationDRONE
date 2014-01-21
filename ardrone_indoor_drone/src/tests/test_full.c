@@ -3,15 +3,9 @@
 #if (defined(TEST_FULL) || defined(TEST_THREAD))
 
 #include <sys/types.h>
-#include <sys/socket.h>
-#include <sys/un.h>
-#include <netinet/in.h>
-#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
-#include <math.h>
 #include <unistd.h>
-#include <sys/time.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <termios.h>
@@ -23,8 +17,13 @@
   * arg: unused argument
 */
 void *esclave(void * arg) {
+	char response[COMM_MESSAGE_DTS_SIZE];
+	int i;
+	printf("init buffer message ");
+						for (i=1;i<COMM_MESSAGE_DTS_SIZE;i++)
+						printf("%d ", response[i]);
+						printf("\n");
 
-	char response[1+NUM_BEACONS*sizeof(int)];
 
 	// Once the thread is started, he signals his readiness to the server
 	// > server I
@@ -34,7 +33,7 @@ void *esclave(void * arg) {
 	do{
 		#ifdef TEST_FULL
 			usb_read(response, sizeof(response));
-		#elif TEST_THREAD
+		#elif defined(TEST_THREAD)
 			// note: space before %s for ignoring the whitespaces/newlines
 			// see http://stackoverflow.com/questions/8300963/while-loop-ignores-scanf-the-second-time
 			scanf(" %s", response);
@@ -50,6 +49,12 @@ void *esclave(void * arg) {
 			// stm S > server S or stm B > server B
 			case COMM_MESSAGE_SYNC_ID :
 			case COMM_MESSAGE_BUSY_ID :
+				if (response[0] == COMM_MESSAGE_SYNC_ID){
+					printf("message ");
+					for (i=1;i<COMM_MESSAGE_DTS_SIZE;i++)
+					printf("%d ", response[i]);
+					printf("\n");
+				}
 					printf("ESCLAVE -> envoi de la commande au serveur.\n");
 					udp_respond(response, sizeof(response), PORT_DRONE_TO_SERVER);
 				break;
@@ -75,23 +80,33 @@ void test_full_main(){
 
    printf("Thread principal démarré.\n");
 	// Initiate communication with stm
-	stm[0] = COMM_MESSAGE_INIT_ID;
+
    printf("Initialisation de la communication avec le STM.\n");
    // send the init message and wait for acknowledgement
 	#ifdef TEST_FULL
+   stm[0] = COMM_MESSAGE_INIT_ID;
 		usb_write_char(stm[0]);
 		stm[0] = 0;
 		usb_read(stm, 1);
+
+		// FIXME: is read blocking until it receives something? any timeout if no value received?
+		if (stm[0] != COMM_MESSAGE_EXIT_ID){
+	      printf("Mauvaise réponse de STM, arrêt du programme.\n");
+			exit(-1);
+		}
 	// if testing thread, wait for user input
-	#elif TEST_THREAD
+	#elif defined(TEST_THREAD)
+		stm[0] = COMM_MESSAGE_INIT_ID;
 		stm[0] = getchar();
 	   getchar();
+
+		// FIXME: is read blocking until it receives something? any timeout if no value received?
+		if (stm[0] != COMM_MESSAGE_INIT_ID){
+	      printf("Mauvaise réponse de STM, arrêt du programme.\n");
+			exit(-1);
+		}
 	#endif
-	// FIXME: is read blocking until it receives something? any timeout if no value received?
-	if (stm[0] != COMM_MESSAGE_INIT_ID){
-      printf("Mauvaise réponse de STM, arrêt du programme.\n");
-		exit(-1);
-	}
+
    printf("Le STM a répondu.\n");
 
 	// Inititate communication with server

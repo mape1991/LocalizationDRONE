@@ -14,6 +14,7 @@
 #include "gtk_utils.h"
 #include <math.h>
 
+#ifdef GUI_SCENE_ON
 void gtk_plot_surface_apply_boundaries(gtk_boundaries_t *boundaries, gdouble *x, gdouble *y, gdouble *z) {
    if (boundaries->xmin>*x) *x=boundaries->xmin;
    if (boundaries->xmax<*x) *x=boundaries->xmax;
@@ -22,6 +23,7 @@ void gtk_plot_surface_apply_boundaries(gtk_boundaries_t *boundaries, gdouble *x,
    if (boundaries->zmin>*z) *z=boundaries->zmin;
    if (boundaries->zmax<*z) *z=boundaries->zmax;
 }
+#endif
 /**
  * x : center position on x axis
  * y : center position on y axis
