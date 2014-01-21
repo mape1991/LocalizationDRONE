@@ -3,20 +3,34 @@
 #if (defined(TEST_FULL) || defined(TEST_THREAD))
 
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <sys/un.h>
+#include <netinet/in.h>
+#include <netdb.h>
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 #include <unistd.h>
+#include <sys/time.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <termios.h>
 #include <pthread.h>
 
+
+/** This function is executed by the slave thread
+  * it reads from the USB port and froward the response to the server
+  * arg: unused argument
+*/
 void *esclave(void * arg) {
+
 	char response[1+NUM_BEACONS*sizeof(int)];
+
 	// Once the thread is started, he signals his readiness to the server
 	// > server I
    printf("ESCLAVE -> thread démarré.\n");
 	udp_respond_char(COMM_MESSAGE_INIT_ID, PORT_DRONE_TO_SERVER);
+	// main loop
 	do{
 		#ifdef TEST_FULL
 			usb_read(response, sizeof(response));
