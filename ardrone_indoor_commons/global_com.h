@@ -20,7 +20,7 @@
 /** standard size of id messages */
 #define COMM_MESSAGE_SIZE 1
 /** message drone-to-server including the drone data (time of arrivals/distance..) */
-#define COMM_MESSAGE_DTS_SIZE 1+NUM_BEACONS*sizeof(int)
+#define COMM_MESSAGE_DTS_SIZE (1+NUM_BEACONS*sizeof(int))
 /** message ids with one simple character */
 #define COMM_MESSAGE_INIT_ID 'I'
 #define COMM_MESSAGE_SYNC_ID 'S'
