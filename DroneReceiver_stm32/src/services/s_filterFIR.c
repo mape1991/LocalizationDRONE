@@ -244,7 +244,7 @@ void s_filterFIR_computeOutputs(void)
 	// Update output count
 	nb_outputs_count++;
 
-  // Application d'une atténuation de 0.2 à sortie (par exemple)
+  // Application d'une attï¿½nuation de 0.2 ï¿½ sortie (par exemple)
 	//    out_filter_0_16_48 = ((s64) out_filter_0_8_24) * ((s64)(K_8_24 * 0.2));
 	//    out_filter_0_8_24 = (s32) (out_filter_0_16_48>>24);
 
