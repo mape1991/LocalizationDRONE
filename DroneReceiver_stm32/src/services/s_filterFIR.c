@@ -41,6 +41,11 @@ int toa_1 = 0;
 int toa_2 = 0;
 int toa_3 = 0;
 
+int32_t toa_0_value = 0;
+int32_t toa_1_value = 0;
+int32_t toa_2_value = 0;
+int32_t toa_3_value = 0;
+
 /** Filter input table of 256 values */
 int32_t signal_input[SIGNAL_INPUT_SIZE];
 
@@ -107,6 +112,11 @@ void s_filterFIR_IT_ADC (void)
 	// Acquisition and storage of ADC sample and conversion of said sample to s32
   buffer_block[buffer_count] = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
   
+	if ((buffer_block[buffer_count] > ADC_THRESHOLD_POS || buffer_block[buffer_count] < ADC_THRESHOLD_NEG) && (buffer_block[buffer_count] != 0))
+	{	
+		GPIO_Set(GPIOB,9);	// set error LED ON
+	}
+	
 	if (adc_samples_count < NB_SAMPLES_TOTAL)
 	{
 		// Update Buffer counter
@@ -117,7 +127,7 @@ void s_filterFIR_IT_ADC (void)
 			// change state and call filter_output calcul
 			state_buffer = BUFFER_PART_2;
 			nb_it_compute ++;
-			if (toto > 0) GPIO_Set(GPIOB,12);	// set error LED ON
+			if (toto > 0) GPIO_Set(GPIOB,6);	// set error LED ON
 		}
 
 		else if (buffer_count == BUFFER_SIZE)
@@ -129,14 +139,13 @@ void s_filterFIR_IT_ADC (void)
 			nb_it_compute ++;
 			if (toto > 0)
 			{
-				GPIO_Set(GPIOB,12);	// set error LED ON
-				GPIO_Set(GPIOC,10);	// set error LED ON
+				GPIO_Set(GPIOB,6);	// set error LED ON
 			}
 		}
 	}
 	else
 	{
-		GPIO_Set(GPIOB,11);	// set error LED ON
+		GPIO_Set(GPIOB,7);	// set error LED ON
 		// Stop Timer tri conversion and Reset Properties
 		Bloque_Timer(TIM1);
 		Reset_Timer(TIM1);
@@ -241,7 +250,6 @@ void s_filterFIR_computeOutputs(void)
 
 	if (nb_outputs_count > OUTPUT_SIZE - 1 ) //OUTPUT_SIZE)
 	{
-		GPIO_Set(GPIOB,13);	// set error LED ON
 		// call function to compute TOA algorithm and finish the reception
 		s_filterFIR_it_function(STOP_NORMAL);
 	}
@@ -267,15 +275,22 @@ void s_filterFIR_it_function(Stop_Signal signal)
 		
 		case STOP_NORMAL :
 			// Compute TOA values /TODO
-			if (nb_outputs_count > 0)
+			if (nb_outputs_count >= OUTPUT_SIZE)
 			{
 				function_TOA();
 			}
-//			toa_0 = 6000; // 17 
-//			toa_1 = 5000;
-//			toa_2 = 2000;
-//			toa_3 = 10000;
-			
+			else
+			{
+				toa_0 = 0; // 17 
+				toa_1 = 0;
+				toa_2 = 0;
+				toa_3 = 0;
+				
+				toa_0_value = 0;
+				toa_1_value = 0;
+				toa_2_value = 0;
+				toa_3_value = 0;
+			}
 			// Data is ready to be send 
 			data_ready = 1;
 			
@@ -319,7 +334,7 @@ void s_filterFIR_it_function(Stop_Signal signal)
 			break;
 	}
 	
-	GPIO_Clear(GPIOB,11);	// set error LED OFF
+	GPIO_Clear(GPIOB,7);	// set error LED OFF
 }
 
 /**
@@ -386,16 +401,20 @@ char s_filterFIR_initialization()
 	time_conv = Init_TimingADC_ActiveADC( ADC1, 0);
 	Single_Channel_ADC(ADC1, CHANNEL_ADC);
 	Init_IT_ADC_EOC(ADC1, ADC_HANDLER_PRIORITY, s_filterFIR_IT_ADC);
-	
+		
 	// debug LED
-	GPIO_Configure(GPIOB, 11, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
-	GPIO_Clear(GPIOB,11);	// set error LED OFF
-	GPIO_Configure(GPIOB, 12, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
-	GPIO_Clear(GPIOB,12);	// set error LED OFF
-	GPIO_Configure(GPIOB, 13, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
-	GPIO_Clear(GPIOB,13);	// set error LED OFF
-	GPIO_Configure(GPIOC, 10, OUTPUT, OUTPUT_PPULL);	// USART ERROR LED (On/Off)
-	GPIO_Clear(GPIOC,10);	// set error LED OFF
+		
+	GPIO_Configure(GPIOB, 5, OUTPUT, OUTPUT_PPULL);	// ERROR LED ADC read value THRESHOLD 2 (On/Off)
+	GPIO_Clear(GPIOB,5);	// set error LED OFF
+	
+	GPIO_Configure(GPIOB, 6, OUTPUT, OUTPUT_PPULL); // ERROR LED ADC it not compute correctly (every block from the buffer)	
+	GPIO_Clear(GPIOB,6);	// set error LED OFF
+	GPIO_Configure(GPIOB, 7, OUTPUT, OUTPUT_PPULL);	// ERROR LED ADC when not enough samples
+	GPIO_Clear(GPIOB,7);	// set error LED OFF
+	
+	GPIO_Configure(GPIOB, 9, OUTPUT, OUTPUT_PPULL);	// ERROR LED ADC read value THRESHOLD(On/Off)
+	GPIO_Clear(GPIOB,9);	// set error LED OFF
+	
 	
 	return code_Erreur;
 }
@@ -432,23 +451,27 @@ void function_TOA(void)
 	for(i=0;i<OUTPUT_SIZE-2;i++){	
 		if(toa_0_find == 0 && module_FIR0[i] > mean_FIR0 && module_FIR0[i+1] > mean_FIR0 && module_FIR0[i+2] > mean_FIR0 )
 		{	
-			toa_0 = i;
+			toa_0 = i*SAMPLE_BLOCK_SIZE;
 			toa_0_find = 1;
+			toa_0_value = output_0[i];
 		}
 		if(toa_1_find == 0 && module_FIR1[i] > mean_FIR1 && module_FIR1[i+1] > mean_FIR1 && module_FIR1[i+2] > mean_FIR1)
 		{
-			toa_1 = i;
+			toa_1 = i*SAMPLE_BLOCK_SIZE;
 			toa_1_find = 1;
+			toa_1_value = output_1[i];
 		}
 		if(toa_2_find == 0 && module_FIR2[i] > mean_FIR2 && module_FIR2[i+1] > mean_FIR2 && module_FIR2[i+2] > mean_FIR2)
 		{
-			toa_2 = i;
+			toa_2 = i*SAMPLE_BLOCK_SIZE;
 			toa_2_find = 1;
+			toa_2_value = output_2[i];
 		}
 		if(toa_3_find == 0 && module_FIR3[i] > mean_FIR3 && module_FIR3[i+1] > mean_FIR3 && module_FIR3[i+2] > mean_FIR3)
 		{
-			toa_3 = i;
+			toa_3 = i*SAMPLE_BLOCK_SIZE;
 			toa_3_find = 1;
+			toa_3_value = output_3[i];
 		}
 	}
 }	

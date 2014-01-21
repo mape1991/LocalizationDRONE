@@ -28,6 +28,7 @@
 #include "global.h"
 
 #include "GPIO.h"
+#include "ADC_DMA.h"
 
 //#include "FIR_Filter.h"
 //#include "fir_filters.h"
@@ -167,6 +168,7 @@ void app_responseDrone(void)
 	
 	// Send data to drone
 	app_send_droneData(toa_0, toa_1, toa_2, toa_3);
+	app_send_droneData(toa_0_value, toa_1_value, toa_2_value, toa_3_value);
 	data_ready = 0;
 	
 	// Update App state
@@ -301,6 +303,42 @@ void test_extern_include_tables(void)
 }
 */
 
+/*
+void test_ADC(void)
+{
+	int32_t test_ADC_read_value = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
+  
+	int32_t test_1 = 0;
+	int32_t test_2 = -1;
+	int32_t test_3 = -127;
+	int32_t test_4 = 127;
+	int test_5 = -1;
+	int32_t test_6 = 255;
+	
+	test_ADC_read_value = - test_ADC_read_value;
+	
+	if (test_ADC_read_value > ADC_THRESHOLD_POS || test_ADC_read_value < ADC_THRESHOLD_NEG)
+	{	
+		GPIO_Set(GPIOB,9);	// set error LED ON
+	}
+	
+	if (test_1 != test_2)
+	{	
+		GPIO_Set(GPIOB,9);	// set error LED OFF
+	}
+	
+	if (test_3 != test_4)
+	{	
+		GPIO_Clear(GPIOB,9);	// set error LED OFF
+	}
+	
+	if (test_5 != test_6)
+	{	
+		GPIO_Clear(GPIOB,9);	// set error LED OFF
+	}
+}
+*/
+
 int main (void)
 {	
 	// Initialization
@@ -320,9 +358,10 @@ int main (void)
 		// check if drone data is read to be send
 		if (data_ready == 1) 
 		{
-			
 			app_responseDrone();
 		}
+		//test_ADC();
 	}
+	
 	return 0;
 }

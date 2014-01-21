@@ -36,6 +36,10 @@
 /** Systick period in [us]*/
 #define SYSTICK_PERIOD 100000.0
 
+/** ADC read values THRESHOLDS */
+#define ADC_THRESHOLD_POS 16376
+#define ADC_THRESHOLD_NEG -16384
+
 /** Frame size for USART Protocol bet*/
 #define SIZE_FRAME 17
 
@@ -150,6 +154,12 @@ extern int toa_0;
 extern int toa_1;
 extern int toa_2;
 extern int toa_3;
+
+/** TOA values in Filter: initialized in s_filterFIR.c file */
+extern int32_t toa_0_value;
+extern int32_t toa_1_value;
+extern int32_t toa_2_value;
+extern int32_t toa_3_value;
 
 /** Filter input table : initialized in s_filterFIR.c file */
 extern int32_t signal_input[SIGNAL_INPUT_SIZE];
