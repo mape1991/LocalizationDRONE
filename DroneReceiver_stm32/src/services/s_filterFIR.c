@@ -235,7 +235,7 @@ void s_filterFIR_computeOutputs(void)
 	// Update output count
 	nb_outputs_count++;
 
-  // Application d'une atténuation de 0.2 à sortie (par exemple)
+  // Application d'une attï¿½nuation de 0.2 ï¿½ sortie (par exemple)
 	//    out_filter_0_16_48 = ((s64) out_filter_0_8_24) * ((s64)(K_8_24 * 0.2));
 	//    out_filter_0_8_24 = (s32) (out_filter_0_16_48>>24);
 
@@ -432,22 +432,22 @@ void function_TOA(void)
 	for(i=0;i<OUTPUT_SIZE-2;i++){	
 		if(toa_0_find == 0 && module_FIR0[i] > mean_FIR0 && module_FIR0[i+1] > mean_FIR0 && module_FIR0[i+2] > mean_FIR0 )
 		{	
-			toa_0 = i;
+			toa_0 = i*SAMPLE_BLOCK_SIZE;
 			toa_0_find = 1;
 		}
 		if(toa_1_find == 0 && module_FIR1[i] > mean_FIR1 && module_FIR1[i+1] > mean_FIR1 && module_FIR1[i+2] > mean_FIR1)
 		{
-			toa_1 = i;
+			toa_1 = i*SAMPLE_BLOCK_SIZE;
 			toa_1_find = 1;
 		}
 		if(toa_2_find == 0 && module_FIR2[i] > mean_FIR2 && module_FIR2[i+1] > mean_FIR2 && module_FIR2[i+2] > mean_FIR2)
 		{
-			toa_2 = i;
+			toa_2 = i*SAMPLE_BLOCK_SIZE;
 			toa_2_find = 1;
 		}
 		if(toa_3_find == 0 && module_FIR3[i] > mean_FIR3 && module_FIR3[i+1] > mean_FIR3 && module_FIR3[i+2] > mean_FIR3)
 		{
-			toa_3 = i;
+			toa_3 = i*SAMPLE_BLOCK_SIZE;
 			toa_3_find = 1;
 		}
 	}
