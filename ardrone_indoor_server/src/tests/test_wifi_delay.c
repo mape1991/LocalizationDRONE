@@ -9,31 +9,6 @@ char message_sync_count = 0;
 double time1 = 0.0;
 double time2 = 0.0;
 
-void test_wifi_delay_udp_read()
-{
-   struct timeval tim;
-
-/*	while(is_udp_listening){
-   	printf("j'écoute\n");
-      udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_DRONE_TO_SERVER);
-      printf("toto\n");
-      if (message[0] == COMM_MESSAGE_INIT_ID)
-      {
-         gettimeofday(&tim,NULL);
-         time1=tim.tv_sec*1000.0+(tim.tv_usec/1000.0);
-         printf("time1: %f\n",time1);
-         printf("init received\n");
-         message[0]  = COMM_MESSAGE_NONE;
-         printf("%.6lf seconds elapsed\n", time1-time2);
-         is_udp_listening = 0;
-         udp_close_socket();
-         return;
-      }
-      else printf("merde");
-    }*/
-}
-
-
 void test_wifi_delay_udp_send()
 {
    sleep(1);
@@ -54,14 +29,11 @@ void test_wifi_delay_udp_send()
 		printf("init received\n");
 		message[0]  = COMM_MESSAGE_NONE;
 		printf("%.6lf ms elapsed\n", time1-time2);
-		is_udp_listening = 0;
 		udp_close_socket();
 		return;
 	}
          else printf("merde");
    sleep(3);
-   //is_udp_listening = 0;
-
 }
 
 
@@ -71,7 +43,6 @@ void test_wifi_delay_main()
    printf("demo program launched\n\n");
 
    udp_open_socket();
-   is_udp_listening = 1;
 }
 
 #endif

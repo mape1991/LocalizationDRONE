@@ -111,9 +111,9 @@ void test_gui_location_new_point(GtkWidget *button, gpointer data)
 {
 	printf("location new point\n");
 	// generate a random position
-	gdouble x = ((gdouble)(rand() % (4*ROOM_MAX_X))/4.0); // 0.25 unit of precision
-	gdouble y = ((gdouble)(rand() % (4*ROOM_MAX_Y))/4.0); // 0.25 unit of precision
-	gdouble z = ((gdouble)(rand() % (4*ROOM_MAX_Z))/4.0); // 0.25 unit of precision
+	gdouble x = ((gdouble)(rand() % (4*(int)ROOM_MAX_X))/4.0); // 0.25 unit of precision
+	gdouble y = ((gdouble)(rand() % (4*(int)ROOM_MAX_Y))/4.0); // 0.25 unit of precision
+	gdouble z = ((gdouble)(rand() % (4*(int)ROOM_MAX_Z))/4.0); // 0.25 unit of precision
 
 	printf("add pt x %.2f y %.2f z %.2f\n", x,y,z);
 
@@ -215,9 +215,9 @@ void test_gui_location_2d_new_point(GtkWidget *button, gpointer data)
 {
 	printf("location new point\n");
 	// generate a random position
-	gdouble x = ((gdouble)(rand() % (4*ROOM_MAX_X))/4.0); // 0.25 unit of precision
-	gdouble y = ((gdouble)(rand() % (4*ROOM_MAX_Y))/4.0); // 0.25 unit of precision
-	gdouble z = ((gdouble)(rand() % (4*ROOM_MAX_Z))/4.0); // 0.25 unit of precision
+	gdouble x = ((gdouble)(rand() % (4*(int)ROOM_MAX_X))/4.0); // 0.25 unit of precision
+	gdouble y = ((gdouble)(rand() % (4*(int)ROOM_MAX_Y))/4.0); // 0.25 unit of precision
+	gdouble z = ((gdouble)(rand() % (4*(int)ROOM_MAX_Z))/4.0); // 0.25 unit of precision
 
 	printf("add pt x %.2f y %.2f z %.2f\n", x,y,z);
 

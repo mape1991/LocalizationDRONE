@@ -31,7 +31,7 @@ void test_full_retrieve_message_values(int *values, char *message)
 void test_full_thread_udp_read_sync(char *message)
 {
 	double coordinates[3];
-	double dim_room[3]={15,10,5};
+	double dim_room[3]={ROOM_MAX_X,ROOM_MAX_Y,ROOM_MAX_Z};
 	int selected_beacons[NUM_BEACONS]={1,2,3,4};
 	double distances[NUM_BEACONS];
 

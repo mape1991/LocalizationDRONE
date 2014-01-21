@@ -13,7 +13,7 @@ char message_sync_count = 0;
 // four characters long instead of single character long messages...
 void test_comm_thread_udp_read()
 {
-   while(is_udp_listening){
+   while(1){
    	udp_listen_once(message, COMM_MESSAGE_SIZE, PORT_DRONE_TO_SERVER);
       // init
       if (message[0] == COMM_MESSAGE_INIT_ID)
@@ -71,20 +71,16 @@ void test_comm_thread_send()
       message_sent_id = COMM_MESSAGE_SYNC_ID;
       printf("stm32 write msg %c\n", message_sent_id);
       usb_write_char(message_sent_id);
-      // stop usb reading thread
-      is_usb_reading = 0;
    #endif
    // close sockets
    udp_close_socket();
    usb_close();
-   // set to OFF for avoiding test_comm_thread_udp_read looping
-   is_udp_listening = 0;
 }
 
 void test_comm_thread_usb_read()
 {
    char buffer[USB_BUFFER_MAX_SIZE];
-   while (is_usb_reading) {
+   while (1) {
       int n = usb_read(buffer, 1);
       if (n > 0){
          printf("stm32 read msg %s\n", buffer);
@@ -99,10 +95,8 @@ void test_comm_main()
    printf("demo program launched\n\n");
    // activate the udp comm
    udp_open_socket();
-   is_udp_listening = 1;
    // activate the usb comm
    usb_init(USB_PORT_NAME, B9600, 0, 0);
-   is_usb_reading = 1;
 }
 
 #endif

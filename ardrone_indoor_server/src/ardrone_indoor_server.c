@@ -40,8 +40,6 @@
    {
 	  #ifdef TEST_COMM
 		 test_comm_thread_udp_read();
-	  #elif defined TEST_WIFI_DELAY
-		 test_wifi_delay_udp_read();
 	  #elif defined TEST_GUI
 		 test_gui_thread_udp_read(COMM_MESSAGE_SIZE);
 	  #elif defined TEST_FULL

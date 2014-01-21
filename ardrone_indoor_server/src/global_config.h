@@ -25,7 +25,7 @@
 	//#define TEST_WIFI_DELAY
 	//#define TEST_GUI
    //#define TEST_GUI_ONLY
-	//define TEST_USB
+	//#define TEST_USB
 	#define TEST_FULL
 
 // define which features to use in this test
@@ -34,18 +34,14 @@
 	#define USB_ON
 #elif defined TEST_WIFI_DELAY
 	#define UDP_ON
-#elif defined(TEST_GUI) || defined(TEST_FULL)
+#elif defined(TEST_GUI) || defined(TEST_FULL) || defined (TEST_GUI_ONLY)
 
-	#define UDP_ON
-	#define USB_ON
+	#ifndef TEST_GUI_ONLY
+		#define UDP_ON
+		#define USB_ON
+	#endif
 
 	#define GUI_ON
-	#define GUI_SCENE_ON
-	#define GUI_SCENE_3D
-
-#elif defined TEST_GUI_ONLY
-	#define GUI_ON
-	/** display a scene for graphic drone position tracking */
 	#define GUI_SCENE_ON
 
 	//#define TEST_GUI_SCENE_EXAMPLE
@@ -55,7 +51,8 @@
 	/**
 	 * we decided to make a 3d view of the environment.
 	 * it appeared not to be emphasizing enough the drone position and
-	 * we had trouble implementing the view (a simple sphere for a drone position at a specific time)
+	 * we had trouble implementing the view (the gtkextra component expects an input static dataset
+	 * and does not update the view with input positions!!!)
 	 * this improvement could be reviewed for next developments.
 	 * In the meantime, for simplicity and deadlines, we use a 2d canvas for displaying a XxY space
 	 * and a side verticalbar for the Z dimension
@@ -63,7 +60,6 @@
 	#ifndef TEST_GUI_SCENE_LOCATION_2D
 		#define GUI_SCENE_3D
 	#endif
-
 #elif defined TEST_USB
 	#define USB_ON
 #endif

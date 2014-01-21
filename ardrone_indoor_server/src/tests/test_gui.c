@@ -12,16 +12,13 @@ void (*thread_udp_read_sync)(char *message) = &test_gui_thread_udp_read_sync; //
 
 void test_gui_thread_udp_read_sync(char *message)
 {
-	char text_label[GUI_MAX_LABEL_SIZE];
-	printf("udp sync %d received\n", message_sync_count);
-	// display the usual message including the sync message id (incremented when the user clicks on Get Position)
-	strcpy(text_label, "");
-	sprintf(text_label, "%s %d", GUI_DRONE_HINT_SYNC, message_sync_count);
-	gtk_label_set_text(get_gui()->text_drone_state, text_label);
+	// NO ACTION
 }
 
 void test_gui_thread_udp_read(int message_size)
 {
+	char text_label[GUI_MAX_LABEL_SIZE];
+
    while(1){
 	  udp_listen_once(message, message_size, PORT_DRONE_TO_SERVER);
 	  // tracing
@@ -38,6 +35,12 @@ void test_gui_thread_udp_read(int message_size)
 			  	  // (by default, the executed function is the test_gui_thread_udp_read_sync
 			     // for the test_full, the test_full_thread_udp_read_sync is executed
 				  thread_udp_read_sync(message);
+
+				  printf("udp sync %d received\n", message_sync_count);
+				  // display the usual message including the sync message id (incremented when the user clicks on Get Position)
+				  strcpy(text_label, "");
+				  sprintf(text_label, "%s %d", GUI_DRONE_HINT_SYNC, message_sync_count);
+				  gtk_label_set_text(get_gui()->text_drone_state, text_label);
 			  break;
 		  case COMM_MESSAGE_EXIT_ID :
 				  printf("udp exit received\n");
@@ -88,6 +91,7 @@ void test_gui_thread_send()
 				case COMM_MESSAGE_EXIT_ID :
 					printf("udp exit sent\n");
 					gtk_label_set_text(get_gui()->text_server_state, GUI_SERVER_HINT_EXIT);
+					message_sync_count = 0;
 					break;
 				default:
 					break;

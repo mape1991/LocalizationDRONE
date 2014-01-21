@@ -17,9 +17,9 @@
 #include <gtkextra/gtkextra.h>
 #include "gtk_utils.h"
 
-#define ROOM_MAX_X 10
-#define ROOM_MAX_Y 7
-#define ROOM_MAX_Z 4
+#define ROOM_MAX_X 15.0
+#define ROOM_MAX_Y 10.0
+#define ROOM_MAX_Z 5.0
 
 typedef struct scene {
 

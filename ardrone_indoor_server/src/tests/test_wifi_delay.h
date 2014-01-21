@@ -13,7 +13,6 @@
 #include <stdlib.h>
 #include <sys/time.h>
 
-void test_wifi_delay_udp_read();
 void test_wifi_delay_udp_send();
 void test_wifi_delay_main();
 
