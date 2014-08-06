@@ -57,6 +57,7 @@ void app_serialCommHandler(char c);
 void app_responseDrone(void)		;
 void app_send_droneData(int toa1, int toa2, int toa3, int toa4);
 void app_initialization(void);
+void app_send_droneData_filter_output(int64_t value);
 
 
 /**
@@ -165,10 +166,56 @@ void app_serialCommHandler(char c)
 void app_responseDrone(void)		
 {
 	prev_state = state;
+	int i=0;
+	char code_Error = 0;
 	
 	// Send data to drone
 	app_send_droneData(toa_0, toa_1, toa_2, toa_3);
 	app_send_droneData(toa_0_value, toa_1_value, toa_2_value, toa_3_value);
+	
+	s_serialComm_sendChar('S');
+	/**
+	for (i=0; i<OUTPUT_SIZE; i++)
+	{
+		app_send_droneData_filter_output(module_FIR0[i]);
+		//app_send_droneData_filter_output(100);
+		//app_send_droneData_filter_output(adc_acq0[i]);
+	}
+	for (i=0; i<OUTPUT_SIZE; i++)
+	{
+		app_send_droneData_filter_output(module_FIR1[i]);
+		//app_send_droneData_filter_output(0);
+		//app_send_droneData_filter_output(adc_acq1[i]);
+	}
+	for (i=0; i<OUTPUT_SIZE; i++)
+	{
+		app_send_droneData_filter_output(module_FIR2[i]);
+		//app_send_droneData_filter_output(267);
+		//app_send_droneData_filter_output(adc_acq2[i]);
+	}
+	for (i=0; i<OUTPUT_SIZE; i++)
+	{
+		app_send_droneData_filter_output(module_FIR3[i]);
+		//app_send_droneData_filter_output(333);
+		//app_send_droneData_filter_output(adc_acq3[i]);
+	}
+	*/
+	
+	char string[2];
+	string[0] = MSG_NULL;
+	string[1] = MSG_NULL;
+	
+	// send ADC pure value
+	for (i=0; i<4000; i++)
+	{
+
+		string[0] = (char) (adc_acq[i]);
+		string[1] = (char) (adc_acq[i] >> 8);
+			
+		// Send string to drone
+		code_Error = s_serialComm_sendString(string, 2);
+	}
+	
 	data_ready = 0;
 	
 	// Update App state
@@ -235,6 +282,38 @@ void app_send_droneData(int toa1, int toa2, int toa3, int toa4)
 	if (code_Error != 0)
 	{
 		s_serialComm_setErrorLED(LED_ON);
+	}
+}
+
+
+/** test output filter values */
+void app_send_droneData_filter_output(int64_t value)
+{
+	char string[8];
+	int i = 0;
+	int j=0;
+	
+	char code_Error = 0;
+	
+	// Init string
+	for(i=0;i<8; i++)
+	{
+		string[i] = MSG_NULL;
+	}
+	
+	// Convert input data in string
+	for (j=0;j<8;j++)
+	{
+			string[j] = (char) (value >> j*8);
+	}
+	
+	// Send string to drone
+	code_Error = s_serialComm_sendString(string, 8);
+	
+	// update Status LED if error
+	if (code_Error != 0)
+	{
+		GPIO_Set(GPIOB,5);
 	}
 }
 
@@ -361,7 +440,11 @@ int main (void)
 			app_responseDrone();
 		}
 		//test_ADC();
+		// test data tables
+		//app_send_droneData_filter_output(100);
 	}
+	
+
 	
 	return 0;
 }

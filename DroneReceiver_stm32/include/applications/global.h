@@ -36,9 +36,14 @@
 /** Systick period in [us]*/
 #define SYSTICK_PERIOD 100000.0
 
+/** Calibration ADC (offset = 1.55) we need offset = 1.65 */
+#define ADC_OFFSET 125
+
 /** ADC read values THRESHOLDS */
-#define ADC_THRESHOLD_POS 16376
-#define ADC_THRESHOLD_NEG -16384
+//#define ADC_THRESHOLD_POS 8188
+//#define ADC_THRESHOLD_NEG -8192
+#define ADC_THRESHOLD_POS 6000
+#define ADC_THRESHOLD_NEG -6000
 
 /** Frame size for USART Protocol bet*/
 #define SIZE_FRAME 17
@@ -128,7 +133,6 @@ typedef enum
 	STOP_X,
 	STOP_NORMAL,
 	STOP_NOT
-	
 } Stop_Signal;
 
 /******************************************************************************
@@ -192,11 +196,21 @@ extern int32_t module_FIR1[OUTPUT_SIZE];
 extern int32_t module_FIR2[OUTPUT_SIZE];
 extern int32_t module_FIR3[OUTPUT_SIZE];
 
+extern int32_t adc_acq0[OUTPUT_SIZE];
+extern int32_t adc_acq1[OUTPUT_SIZE];
+extern int32_t adc_acq2[OUTPUT_SIZE];
+extern int32_t adc_acq3[OUTPUT_SIZE];
+
+extern u16 adc_acq[2000];
+
 /** Number of compute interruptions */
 extern int nb_it_compute;
 
 /** Send toa data to drone ready */
 extern char data_ready;
+
+/** Led ERROR if ADC over THRESHOLD */
+extern char adc_threshold_error;
 
 extern char toto;
 

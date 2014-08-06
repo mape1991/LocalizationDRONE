@@ -81,11 +81,25 @@ int32_t module_FIR1[OUTPUT_SIZE];
 int32_t module_FIR2[OUTPUT_SIZE];
 int32_t module_FIR3[OUTPUT_SIZE];
 
+int32_t adc_acq0[OUTPUT_SIZE];
+int32_t adc_acq1[OUTPUT_SIZE];
+int32_t adc_acq2[OUTPUT_SIZE];
+int32_t adc_acq3[OUTPUT_SIZE];
+
 /** Number of it for output computation */
 int nb_it_compute = 0;
 
 /** TOA data is ready to be send to the drone */
 char data_ready = 0;
+
+/** adc threshold error */
+char adc_threshold_error = 0;
+
+/** */
+u16 test_adc_indice = 0;
+
+/** adc_acq table to send to drone */
+u16 adc_acq[2000];
 
 /******************************************************************************
 *
@@ -110,12 +124,38 @@ char data_ready = 0;
 void s_filterFIR_IT_ADC (void)
 {	
 	// Acquisition and storage of ADC sample and conversion of said sample to s32
-  buffer_block[buffer_count] = (int32_t) ((Read_ADC(ADC1)-2048)<<4);
-  
+	//u16 adc_value = (Read_ADC(ADC1);
+	//if (adc_value)
+  u16 value_adc = 0;
+	value_adc = Read_ADC(ADC1);
+	
+	buffer_block[buffer_count] = (int32_t) ((value_adc - 2048) <<4);
+	
+	if (test_adc_indice < 4000)
+	{
+	/*
+	if (test_adc_indice < OUTPUT_SIZE)
+		adc_acq0[test_adc_indice] = (int64_t) buffer_block[buffer_count];
+
+	else if (test_adc_indice >= OUTPUT_SIZE && test_adc_indice < 2*OUTPUT_SIZE)
+		adc_acq1[test_adc_indice-100] = (int64_t) buffer_block[buffer_count];
+
+	else if (test_adc_indice >= 2*OUTPUT_SIZE && test_adc_indice < 3*OUTPUT_SIZE)
+		adc_acq2[test_adc_indice-200] = (int64_t) buffer_block[buffer_count];
+
+	else if (test_adc_indice >= 3*OUTPUT_SIZE && test_adc_indice < 4*OUTPUT_SIZE)
+		adc_acq3[test_adc_indice-300] = (int64_t) buffer_block[buffer_count];
+	*/
+		adc_acq[test_adc_indice] = value_adc;
+		test_adc_indice ++;
+	}
+	
+	/*
 	if ((buffer_block[buffer_count] > ADC_THRESHOLD_POS || buffer_block[buffer_count] < ADC_THRESHOLD_NEG) && (buffer_block[buffer_count] != 0))
 	{	
-		GPIO_Set(GPIOB,9);	// set error LED ON
-	}
+		adc_threshold_error = 1;
+		//GPIO_Set(GPIOB,9);	// set error LED ON
+	}*/
 	
 	if (adc_samples_count < NB_SAMPLES_TOTAL)
 	{
@@ -215,10 +255,10 @@ void s_filterFIR_computeOutputs(void)
 	// Compute outputs and Store outputs in tables
 	for (i=0;i<FILTER_SIZE;i++) 
 	{	
-		result_0 = result_0 + (int64_t) filter_0[i]*signal_input[i];
-		result_1 = result_1 + (int64_t) filter_1[i]*signal_input[i];
-		result_2 = result_2 + (int64_t) filter_2[i]*signal_input[i];
-		result_3 = result_3 + (int64_t) filter_3[i]*signal_input[i];
+		result_0 = result_0 + (int64_t) filter_0[i]*(int64_t) signal_input[i];
+		result_1 = result_1 + (int64_t) filter_1[i]*(int64_t) signal_input[i];
+		result_2 = result_2 + (int64_t) filter_2[i]*(int64_t) signal_input[i];
+		result_3 = result_3 + (int64_t) filter_3[i]*(int64_t) signal_input[i];
 	}
 	
 	// Compute outputs and Store outputs in tables
@@ -244,7 +284,7 @@ void s_filterFIR_computeOutputs(void)
 	// Update output count
 	nb_outputs_count++;
 
-  // Application d'une attï¿½nuation de 0.2 ï¿½ sortie (par exemple)
+  // Application d'une atténuation de 0.2 à sortie (par exemple)
 	//    out_filter_0_16_48 = ((s64) out_filter_0_8_24) * ((s64)(K_8_24 * 0.2));
 	//    out_filter_0_8_24 = (s32) (out_filter_0_16_48>>24);
 
@@ -267,6 +307,8 @@ void s_filterFIR_computeOutputs(void)
 
 void s_filterFIR_it_function(Stop_Signal signal)
 {
+	
+	int j = 0;
 	
 	switch (signal)
 	{
@@ -293,6 +335,7 @@ void s_filterFIR_it_function(Stop_Signal signal)
 			}
 			// Data is ready to be send 
 			data_ready = 1;
+			break;
 			
 		case STOP_X:
 			/** Stop timer */
@@ -315,6 +358,17 @@ void s_filterFIR_it_function(Stop_Signal signal)
 			initTab_E(module_FIR1, OUTPUT_SIZE);
 			initTab_E(module_FIR2, OUTPUT_SIZE);
 			initTab_E(module_FIR3, OUTPUT_SIZE);
+		
+			// test acq adc
+			initTab_E(adc_acq0, OUTPUT_SIZE);
+			initTab_E(adc_acq1, OUTPUT_SIZE);
+			initTab_E(adc_acq2, OUTPUT_SIZE);
+			initTab_E(adc_acq3, OUTPUT_SIZE);
+
+			for (j=0; j<2000; j++)
+			{
+				adc_acq[j] = 0;
+			}
 			
 			// Buffer initialization for input tables
 			initTab_E(buffer_block, BUFFER_SIZE);
@@ -333,6 +387,9 @@ void s_filterFIR_it_function(Stop_Signal signal)
 		default:
 			break;
 	}
+	
+	if (adc_threshold_error != 0)
+		GPIO_Set(GPIOB,9);	// set error LED ON
 	
 	GPIO_Clear(GPIOB,7);	// set error LED OFF
 }
@@ -390,6 +447,17 @@ char s_filterFIR_initialization()
 	initTab_E(module_FIR2, OUTPUT_SIZE);
 	initTab_E(module_FIR3, OUTPUT_SIZE);
 	
+	// test adc acq
+	initTab_E(adc_acq0, OUTPUT_SIZE);
+	initTab_E(adc_acq1, OUTPUT_SIZE);
+	initTab_E(adc_acq2, OUTPUT_SIZE);
+	initTab_E(adc_acq3, OUTPUT_SIZE);
+	//initTab_E(adc_acq, 2000);
+	int j = 0;
+	for (j=0; j<2000; j++)
+	{
+		adc_acq[j] = 0;
+	}
 	// Buffer initialization for input tables
 	initTab_E(buffer_block, BUFFER_SIZE);
 	initTab_E(signal_input, SIGNAL_INPUT_SIZE);
@@ -398,8 +466,10 @@ char s_filterFIR_initialization()
 	GPIO_Configure(GPIOC, 0, INPUT, ANALOG);	// ADC_In10 (channel 10) 
 	
 	// Initialize ADC with Fe = 128 KHz
-	time_conv = Init_TimingADC_ActiveADC( ADC1, 0);
-	Single_Channel_ADC(ADC1, CHANNEL_ADC);
+	time_conv = Init_TimingADC_ActiveADC( ADC1, 1);
+	Single_Channel_ADC(ADC1, 10);
+	// calibration to filter the first measures (False measures)
+	calibration_adc();
 	Init_IT_ADC_EOC(ADC1, ADC_HANDLER_PRIORITY, s_filterFIR_IT_ADC);
 		
 	// debug LED
@@ -409,6 +479,7 @@ char s_filterFIR_initialization()
 	
 	GPIO_Configure(GPIOB, 6, OUTPUT, OUTPUT_PPULL); // ERROR LED ADC it not compute correctly (every block from the buffer)	
 	GPIO_Clear(GPIOB,6);	// set error LED OFF
+	
 	GPIO_Configure(GPIOB, 7, OUTPUT, OUTPUT_PPULL);	// ERROR LED ADC when not enough samples
 	GPIO_Clear(GPIOB,7);	// set error LED OFF
 	
@@ -419,11 +490,12 @@ char s_filterFIR_initialization()
 	return code_Erreur;
 }
 
-
+/** Function TOA not robust (Works only if no noise in the input signal)*/
+/*
 void function_TOA(void)
 {
 	int i;
-	int64_t mean_FIR0 = 0, mean_FIR1 = 0, mean_FIR2 = 0, mean_FIR3 = 0;
+	int32_t mean_FIR0 = 0, mean_FIR1 = 0, mean_FIR2 = 0, mean_FIR3 = 0;
 	char toa_0_find = 0;
 	char toa_1_find = 0;
 	char toa_2_find = 0;
@@ -475,3 +547,135 @@ void function_TOA(void)
 		}
 	}
 }	
+
+*/
+
+/** TOA Algorithm 2 (GMD - Greatest mean difference)*/
+
+void function_TOA(void)
+{	
+	int i,j;
+	
+	int32_t max_diff_0 = 0;
+	int32_t max_diff_1 = 0;
+	int32_t max_diff_2 = 0;
+	int32_t max_diff_3 = 0;
+		
+	int32_t m1_filter_0 = 0;
+	int32_t	m2_filter_0 = 0;
+		
+	int32_t m1_filter_1 = 0;
+	int32_t	m2_filter_1 = 0;
+
+	int32_t m1_filter_2 = 0;
+	int32_t	m2_filter_2 = 0;
+		
+	int32_t m1_filter_3 = 0;
+	int32_t	m2_filter_3 = 0;
+	
+	//Calcul du module des filtre FIR
+	for(i=0;i<OUTPUT_SIZE;i++)
+	{		
+    module_FIR0[i] = ((((int64_t)(output_0[i]))*((int64_t)(output_0[i]))+((int64_t)(output_0_cos[i]))*((int64_t)(output_0_cos[i]))) >> 32);
+    module_FIR1[i] = ((((int64_t)(output_1[i]))*((int64_t)(output_1[i]))+((int64_t)(output_1_cos[i]))*((int64_t)(output_1_cos[i]))) >> 32);
+		module_FIR2[i] = ((((int64_t)(output_2[i]))*((int64_t)(output_2[i]))+((int64_t)(output_2_cos[i]))*((int64_t)(output_2_cos[i]))) >> 32);
+		module_FIR3[i] = ((((int64_t)(output_3[i]))*((int64_t)(output_3[i]))+((int64_t)(output_3_cos[i]))*((int64_t)(output_3_cos[i]))) >> 32);
+	}
+	
+	
+	for (i=0;i<OUTPUT_SIZE-1;i++){
+    // reset
+		m1_filter_0 = 0;
+		m2_filter_0 = 0;
+		
+		m1_filter_1 = 0;
+		m2_filter_1 = 0;
+		
+		m1_filter_2 = 0;
+		m2_filter_2 = 0;
+		
+		m1_filter_3 = 0;
+		m2_filter_3 = 0;
+
+    // calcul de la moyenne de 0 à i
+    for (j=0;j<=i;j++)
+		{
+			m1_filter_0 += module_FIR0[j];
+			m1_filter_1 += module_FIR1[j];
+			m1_filter_2 += module_FIR2[j];
+			m1_filter_3 += module_FIR3[j];
+		}
+		
+    m1_filter_0 = m1_filter_0/(i+1);
+		m1_filter_1 = m1_filter_1/(i+1);
+    m1_filter_2 = m1_filter_2/(i+1);
+		m1_filter_3 = m1_filter_3/(i+1);
+		
+    // calcul de la moyenne de i+1 à NB_OUTPUT-1
+    for (j=i+1;j<OUTPUT_SIZE;j++)
+		{
+			m2_filter_0 += module_FIR0[j];
+			m2_filter_1 += module_FIR1[j];
+			m2_filter_2 += module_FIR2[j];
+			m2_filter_3 += module_FIR3[j];
+		}
+		
+		m2_filter_0 = m2_filter_0/(OUTPUT_SIZE-(i+1));
+    m2_filter_1 = m2_filter_1/(OUTPUT_SIZE-(i+1));
+		m2_filter_2 = m2_filter_2/(OUTPUT_SIZE-(i+1));
+		m2_filter_3 = m2_filter_3/(OUTPUT_SIZE-(i+1));
+
+    // l'indice du TOA est l'indice où l'écart entre les moyennes est le plus fort
+		if ((m2_filter_0 - m1_filter_0)/(m1_filter_0) > max_diff_0)
+		{
+			max_diff_0 = (m2_filter_0 - m1_filter_0)/(m1_filter_0);
+			toa_0=i+1;
+		}
+		if ((m2_filter_1 - m1_filter_1)/(m1_filter_1) > max_diff_1)
+		{
+			max_diff_1 = (m2_filter_1 - m1_filter_1)/(m1_filter_1);
+			toa_1=i+1;
+		}
+		if ((m2_filter_2 - m1_filter_2)/(m1_filter_2) > max_diff_2)
+		{
+			max_diff_2 = (m2_filter_2 - m1_filter_2)/(m1_filter_2);
+			toa_2=i+1;
+		}
+		if ((m2_filter_3 - m1_filter_3)/(m1_filter_3) > max_diff_3)
+		{
+			max_diff_3 = (m2_filter_3 - m1_filter_3)/(m1_filter_3);
+			toa_3=i+1;
+		}
+	}
+
+	toa_0_value = module_FIR0[toa_0];
+	toa_1_value = module_FIR1[toa_1];
+	toa_2_value = module_FIR2[toa_2];
+	toa_3_value = module_FIR3[toa_3];
+	
+	toa_0 = toa_0 * SAMPLE_BLOCK_SIZE;
+	toa_1 = toa_1 * SAMPLE_BLOCK_SIZE;
+	toa_2 = toa_2 * SAMPLE_BLOCK_SIZE;
+	toa_3 = toa_3 * SAMPLE_BLOCK_SIZE;
+
+}	
+
+/** The goal is to calibrate (filter) the first 30 samples of the ADC1
+*  	ADC Ackisition checked with matlab
+*/
+void calibration_adc(void)
+{
+	u16 value_adc = 0;
+	u16 i=0;
+	
+	for (i=0; i<30; i++)
+	{
+		// start conversion
+		Start_ADC_Conversion(ADC1);
+		// wait EOC
+		Wait_On_EOC_ADC(ADC1);
+		// read Value
+		value_adc = Read_ADC(ADC1);
+	}	
+
+}

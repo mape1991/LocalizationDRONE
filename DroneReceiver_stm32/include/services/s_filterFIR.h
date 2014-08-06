@@ -54,5 +54,6 @@ void s_filterFIR_startReception(void);
 char s_filterFIR_initialization(void);
 void s_filterFIR_computeOutputs(void);
 void function_TOA(void);
+void calibration_adc(void);
 
 #endif					/* S_SERIALCOMM_H */
